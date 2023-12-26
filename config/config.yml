@@ -1,0 +1,21 @@
+mysql:
+  db_conn: "root:P@ssw0rd!@tcp(db:3306)/appdb?parseTime=True&loc=Asia%2FTokyo"
+jwt:
+  secret: "SpBE*2BBtiN_AQfaiT(jMmWxMqWV4%v2"
+  issuer: "http://localhost:8080"
+  audience: "http://localhost:8080"
+mirrativ:
+  server: "server"
+  client_id: "client_id"
+  client_secret: "client_secret"
+redis:
+  conn: "redis:6379"
+settings:
+  environment: "Development"
+  encrypto_only: false
+  resource_server: "http://localhost:8080"
+cookie:
+  key: "session_id"
+  host: "localhost"
+load_test_settings:
+  enable: "false"
