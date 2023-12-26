@@ -1,0 +1,32 @@
+version: '3.8'
+services:
+  web:
+    container_name: go_server
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: /app/wait-for-it.sh db:3306 --timeout=30 --strict -- go run /app/cmd/app/main.go
+    env_file: .env
+    ports:
+      - 8080:8080
+    volumes:
+      - ./:/app
+    depends_on:
+      - db
+      - redis
+
+  db:
+    container_name: go_db
+    image: mysql:8.0
+    platform: linux/arm64
+    volumes:
+      - ./tmp/db:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: P@ssw0rd!
+      MYSQL_DATABASE: appdb
+    ports:
+      - 3310:3310
+    
+  redis:
+    container_name: go_redis
+    image: redis:latest

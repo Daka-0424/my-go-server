@@ -1,0 +1,7 @@
+version: '3.8'
+services:
+  web:
+    command: sleep infinity
+    build:
+      context: .
+      dockerfile: .devcontainer/override.Dockerfile

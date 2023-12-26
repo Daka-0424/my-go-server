@@ -1,0 +1,20 @@
+{
+	"name": "go-server",
+	"dockerComposeFile": [ "../compose.yaml", "compose.override.yaml" ],
+	"service": "web",
+	"workspaceFolder": "/app",
+	"customizations": {
+		"vscode": {
+			"settings": {
+        		"go.toolsManagement.checkForUpdates": "local",
+        		"go.useLanguageServer": true,
+        		"go.gopath": "/go"
+      		},
+			"extensions": [
+				"golang.go",
+				"esbenp.prettier-vscode",
+				"GitHub.copilot"
+			]
+		}
+	}
+}
