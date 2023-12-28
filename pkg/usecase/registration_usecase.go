@@ -18,7 +18,6 @@ type Registration interface {
 type registrationUsercase struct {
 	cfg            *config.Config
 	localizer      *i18n.Localizer
-	cache          repository.Cache
 	transaction    repository.Transaction
 	userRepository repository.User
 	userService    service.User
@@ -27,14 +26,12 @@ type registrationUsercase struct {
 func NewRegistrationUsecase(
 	cfg *config.Config,
 	lc *i18n.Localizer,
-	cache repository.Cache,
 	transaction repository.Transaction,
 	userRepository repository.User,
 	userService service.User) Registration {
 	return &registrationUsercase{
 		cfg:            cfg,
 		localizer:      lc,
-		cache:          cache,
 		transaction:    transaction,
 		userRepository: userRepository,
 		userService:    userService,

@@ -14,9 +14,11 @@ func Route(
 	cache repository.Cache,
 	localizer *i18n.Localizer,
 	registration *controller.RegistrationController,
+	session *controller.SessionController,
 ) {
 	route.GET("/", func(ctx *gin.Context) { ctx.JSON(200, gin.H{"status": "ok"}) })
 
 	// 認証なし
 	route.POST("/api/registration", registration.CreateRegistration)
+	route.POST("/api/session", session.CreateSession)
 }
