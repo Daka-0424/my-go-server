@@ -9,9 +9,15 @@ import (
 
 	"github.com/BurntSushi/toml"
 	"github.com/Daka-0424/my-go-server/config"
+	"github.com/Daka-0424/my-go-server/pkg/controller"
 	"github.com/Daka-0424/my-go-server/pkg/controller/route"
+	"github.com/Daka-0424/my-go-server/pkg/domain/entity"
+	"github.com/Daka-0424/my-go-server/pkg/domain/service"
+	"github.com/Daka-0424/my-go-server/pkg/infra"
 	"github.com/Daka-0424/my-go-server/pkg/infra/logger"
+	"github.com/Daka-0424/my-go-server/pkg/infra/repository"
 	"github.com/Daka-0424/my-go-server/pkg/infra/util"
+	"github.com/Daka-0424/my-go-server/pkg/usecase"
 	"github.com/Masterminds/sprig/v3"
 	"github.com/gin-contrib/secure"
 	"github.com/gin-gonic/gin"
@@ -20,6 +26,7 @@ import (
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
 	"golang.org/x/text/language"
+	"gorm.io/gorm"
 )
 
 func main() {
@@ -29,13 +36,23 @@ func main() {
 	}
 
 	handler := initHandler(cfg)
+
+	mysql := infra.NewMySQLConnector(cfg)
+	redis := infra.NewRedisConnector(cfg)
+
 	localizer := newLocalizer()
+
+	migrate(mysql.DB)
 
 	app := fx.New(
 		fx.WithLogger(func(log *zap.Logger) fxevent.Logger {
 			return &fxevent.ZapLogger{Logger: log}
 		}),
-		fx.Supply(cfg, localizer, handler),
+		fx.Supply(cfg, localizer, mysql.DB, redis.Client, handler, redis.RedSync),
+		repository.Modules(),
+		service.Modules(),
+		usecase.Modules(),
+		controller.Modules(),
 		logger.Modules(cfg),
 		util.Modules(),
 		fx.Invoke(
@@ -106,4 +123,12 @@ func lifecycle(lc fx.Lifecycle, cfg *config.Config, handler *gin.Engine) {
 			return srv.Shutdown(ctx)
 		},
 	})
+}
+
+func migrate(db *gorm.DB) {
+	err := db.AutoMigrate(entity.Entity()...)
+
+	if err != nil {
+		panic(err)
+	}
 }
