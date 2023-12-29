@@ -12,7 +12,7 @@ import (
 )
 
 type Registration interface {
-	CreateRegistration(ctx context.Context, uuid, name string) (*model.Registration, error)
+	CreateRegistration(ctx context.Context, uuid, device, appVersion string, platform uint) (*model.Registration, error)
 }
 
 type registrationUsercase struct {
@@ -38,7 +38,7 @@ func NewRegistrationUsecase(
 	}
 }
 
-func (u *registrationUsercase) CreateRegistration(ctx context.Context, uuid, name string) (*model.Registration, error) {
+func (u *registrationUsercase) CreateRegistration(ctx context.Context, uuid, device, appVersion string, platform uint) (*model.Registration, error) {
 	value, err := u.transaction.DoInTx(ctx, func(ctx context.Context) (interface{}, error) {
 		user, err := u.userRepository.FindByUuid(ctx, uuid)
 		if err != nil && !errors.Is(err, repository.ErrNotFound) {
@@ -51,7 +51,7 @@ func (u *registrationUsercase) CreateRegistration(ctx context.Context, uuid, nam
 			return nil, model.NewErrUnprocessable(model.E0102, u.localizer.MustLocalize(c))
 		}
 
-		user, err = u.userService.CreateUser(ctx, uuid, name)
+		user, err = u.userService.CreateUser(ctx, uuid, device, appVersion, platform)
 		if err != nil {
 			c := &i18n.LocalizeConfig{MessageID: model.E0103}
 			return nil, model.NewErrUnprocessable(model.E0103, u.localizer.MustLocalize(c))

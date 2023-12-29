@@ -8,8 +8,10 @@ import (
 	"github.com/Daka-0424/my-go-server/pkg/domain/repository"
 )
 
+const USER_DEFAULT_NAME = "NewUser"
+
 type User interface {
-	CreateUser(ctx context.Context, uuid, name string) (*entity.User, error)
+	CreateUser(ctx context.Context, uuid, device, appVersion string, platform uint) (*entity.User, error)
 }
 
 type userService struct {
@@ -22,7 +24,7 @@ func NewUserService(ur repository.User) User {
 	}
 }
 
-func (u *userService) CreateUser(ctx context.Context, uuid, name string) (*entity.User, error) {
+func (u *userService) CreateUser(ctx context.Context, uuid, device, appVersion string, platform uint) (*entity.User, error) {
 	user, err := u.userRepository.FindByUuid(ctx, uuid)
 	if err != nil && !errors.Is(err, repository.ErrNotFound) {
 		return nil, err
@@ -32,5 +34,5 @@ func (u *userService) CreateUser(ctx context.Context, uuid, name string) (*entit
 		return nil, errors.New("user already exist")
 	}
 
-	return u.userRepository.CreateUser(ctx, uuid, name)
+	return u.userRepository.CreateUser(ctx, uuid, USER_DEFAULT_NAME, device, appVersion, platform)
 }

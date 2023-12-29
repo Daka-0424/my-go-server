@@ -7,7 +7,7 @@ import (
 )
 
 type User interface {
-	CreateUser(ctx context.Context, Uuid, name string) (*entity.User, error)
+	CreateUser(ctx context.Context, Uuid, name, device, appVersion string, platform uint) (*entity.User, error)
 
 	FindByUniqueUser(ctx context.Context, userId uint, uuid string, preloads ...string) (*entity.User, error)
 	FindByUuid(ctx context.Context, uuid string, preloads ...string) (*entity.User, error)
