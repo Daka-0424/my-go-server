@@ -15,7 +15,7 @@ type (
 	}
 
 	MySQL struct {
-		DBConn string `env-required:"true" yaml:"db_conn"env :"DB_CONN"`
+		DBConn string `env-required:"true" yaml:"db_conn" env:"DB_CONN"`
 	}
 
 	Jwt struct {
@@ -35,6 +35,16 @@ type (
 	Cookie struct {
 		Key  string `yaml:"key" env:"ADMIN_COOKIE_KEY"`
 		Host string `yaml:"host" env:"ADMIN_COOKIE_HOST"`
+	}
+
+	ReviewVersion struct {
+		iOS     string `yaml:"ios" env:"REVIEW_VERSION_IOS"`
+		Android string `yaml:"android" env:"REVIEW_VERSION_ANDROID"`
+	}
+
+	RequirementVersion struct {
+		iOS     string `yaml:"ios" env:"REQUIREMENT_VERSION_IOS"`
+		Android string `yaml:"android" env:"REQUIREMENT_VERSION_ANDROID"`
 	}
 
 	LoadTestSettings struct {

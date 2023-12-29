@@ -8,9 +8,47 @@ import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
+const (
+	HeaderPlatform   = "HTTP_X_APP_PLATFORM"
+	HeaderDevice     = "HTTP_X_APP_DEVICE"
+	HeaderAppVersion = "HTTP_X_APP_VERSION"
+)
+
+const (
+	PlatformUnknown = iota
+	PlatformAndroid
+	PlatformIOS
+	PlatformWebgl
+	PlatformWindows
+)
+
 type controllerBase struct {
 	cfg       *config.Config
 	localizer *i18n.Localizer
+}
+
+func (c *controllerBase) getPlatform(ctx *gin.Context) (string, uint) {
+	platform := ctx.GetHeader(HeaderPlatform)
+	switch platform {
+	case "android":
+		return platform, PlatformAndroid
+	case "ios":
+		return platform, PlatformIOS
+	case "webgl":
+		return platform, PlatformWebgl
+	case "windows":
+		return platform, PlatformWindows
+	default:
+		return platform, PlatformUnknown
+	}
+}
+
+func (c *controllerBase) getAppDevice(ctx *gin.Context) string {
+	return ctx.GetHeader(HeaderDevice)
+}
+
+func (c *controllerBase) getAppVersion(ctx *gin.Context) string {
+	return ctx.GetHeader(HeaderAppVersion)
 }
 
 func (c *controllerBase) toAppError(err error) *model.AppError {

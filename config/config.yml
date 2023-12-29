@@ -17,5 +17,11 @@ settings:
 cookie:
   key: "session_id"
   host: "localhost"
+review_version:
+  ios: "1.1.0"
+  android: "1.1.0"
+requirement_version:
+  ios: "1.0.0"
+  android: "1.0.0"
 load_test_settings:
   enable: "false"

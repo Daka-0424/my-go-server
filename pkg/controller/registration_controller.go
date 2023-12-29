@@ -35,7 +35,11 @@ func (ctl *RegistrationController) CreateRegistration(ctx *gin.Context) {
 		return
 	}
 
-	registration, err := ctl.registrationUsecase.CreateRegistration(ctx, rew.Uuid, rew.Name)
+	device := ctl.getAppDevice(ctx)
+	appVersion := ctl.getAppVersion(ctx)
+	_, platformNumber := ctl.getPlatform(ctx)
+
+	registration, err := ctl.registrationUsecase.CreateRegistration(ctx, rew.Uuid, device, appVersion, platformNumber)
 	if err != nil {
 		apperr := ctl.toAppError(err)
 		formatter.Respond(ctx, apperr.StatusCode, gin.H{"error": apperr})
@@ -47,5 +51,4 @@ func (ctl *RegistrationController) CreateRegistration(ctx *gin.Context) {
 
 type CreateRegistrationRequest struct {
 	Uuid string `json:"uuid"`
-	Name string `json:"name"`
 }

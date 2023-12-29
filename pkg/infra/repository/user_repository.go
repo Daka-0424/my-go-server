@@ -18,13 +18,19 @@ func NewUserRepository(db *gorm.DB) repository.User {
 	return &userRepository{db: db}
 }
 
-func (r *userRepository) CreateUser(ctx context.Context, Uuid, name string) (*entity.User, error) {
+func (r *userRepository) CreateUser(ctx context.Context, Uuid, name, device, appVersion string, platform uint) (*entity.User, error) {
 	tx, ok := GetTx(ctx)
 	if !ok {
 		return nil, repository.ErrTx
 	}
 
-	user := entity.User{Uuid: Uuid, Name: name}
+	user := entity.User{
+		Uuid:           Uuid,
+		Name:           name,
+		AppVersion:     appVersion,
+		Device:         device,
+		PlatformNumber: platform,
+	}
 
 	err := tx.Create(&user).Error
 	if err != nil {

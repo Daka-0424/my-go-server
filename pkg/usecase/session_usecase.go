@@ -20,7 +20,7 @@ import (
 )
 
 type Session interface {
-	CreateSession(ctx context.Context, userId uint, uuid string) (*model.Session, error)
+	CreateSession(ctx context.Context, userId uint, uuid, device, appVersion string, platformNumber uint) (*model.Session, error)
 }
 
 type sessionUsecase struct {
@@ -46,12 +46,21 @@ func NewSessionUsecase(
 	}
 }
 
-func (u *sessionUsecase) CreateSession(ctx context.Context, userId uint, uuid string) (*model.Session, error) {
+func (u *sessionUsecase) CreateSession(ctx context.Context, userId uint, uuid, device, appVersion string, platformNumber uint) (*model.Session, error) {
 	value, err := u.transaction.DoInTx(ctx, func(ctx context.Context) (interface{}, error) {
 		user, err := u.userRepository.FindByUniqueUser(ctx, userId, uuid)
 		if err != nil && !errors.Is(err, repository.ErrNotFound) {
 			c := &i18n.LocalizeConfig{MessageID: model.E0101}
 			return nil, model.NewErrUnprocessable(model.E0101, u.localizer.MustLocalize(c))
+		}
+
+		if user.Device != device || user.AppVersion != appVersion || user.PlatformNumber != platformNumber {
+			user.Device = device
+			user.AppVersion = appVersion
+			user.PlatformNumber = platformNumber
+			if err = u.userRepository.UpdateUser(ctx, user); err != nil {
+				return nil, err
+			}
 		}
 
 		accountToken, keyStr, ivStr, err := u.login(ctx, user)

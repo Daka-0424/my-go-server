@@ -36,7 +36,11 @@ func (ctl *SessionController) CreateSession(ctx *gin.Context) {
 		return
 	}
 
-	session, err := ctl.sessionUsecase.CreateSession(ctx, req.UserId, req.Uuid)
+	device := ctl.getAppDevice(ctx)
+	appVersion := ctl.getAppVersion(ctx)
+	_, platformNumber := ctl.getPlatform(ctx)
+
+	session, err := ctl.sessionUsecase.CreateSession(ctx, req.UserId, req.Uuid, device, appVersion, platformNumber)
 	if err != nil {
 		apperr := ctl.toAppError(err)
 		formatter.Respond(ctx, apperr.StatusCode, gin.H{"error": apperr})

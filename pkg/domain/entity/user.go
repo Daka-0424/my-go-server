@@ -12,9 +12,12 @@ const (
 
 type User struct {
 	gorm.Model
-	Uuid     string `gorm:"index;size:255"`
-	Name     string `gorm:"index;size:255"`
-	UserKind uint
+	Uuid           string `gorm:"index;size:255"`
+	Name           string `gorm:"index;size:255"`
+	UserKind       uint
+	AppVersion     string `gorm:"index;size:255"`
+	Device         string `gorm:"index;size:255"`
+	PlatformNumber uint
 }
 
 func (u *User) IsEmpty() bool {
@@ -23,4 +26,10 @@ func (u *User) IsEmpty() bool {
 
 func (u *User) IsSuperUser() bool {
 	return u.UserKind == SuperUser
+}
+
+func (u *User) DisplayCode() string {
+	first := rune((u.CreatedAt.Year() - 2000 + 45) % 256)
+	second := rune((u.CreatedAt.Month() + 67) % 256)
+	return string(first) + u.Uuid + string(second)
 }
