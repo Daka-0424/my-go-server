@@ -9,8 +9,9 @@ import (
 
 	"github.com/BurntSushi/toml"
 	"github.com/Daka-0424/my-go-server/config"
-	"github.com/Daka-0424/my-go-server/pkg/controller"
+	controller "github.com/Daka-0424/my-go-server/pkg/controller/api"
 	"github.com/Daka-0424/my-go-server/pkg/controller/route"
+	"github.com/Daka-0424/my-go-server/pkg/controller/web/cheat"
 	"github.com/Daka-0424/my-go-server/pkg/domain/entity"
 	"github.com/Daka-0424/my-go-server/pkg/domain/service"
 	"github.com/Daka-0424/my-go-server/pkg/infra"
@@ -53,11 +54,13 @@ func main() {
 		service.Modules(),
 		usecase.Modules(),
 		controller.Modules(),
+		cheat.Modules(),
 		logger.Modules(cfg),
 		util.Modules(),
 		fx.Invoke(
 			lifecycle,
 			route.Route,
+			route.CheatRoute,
 			func(r *gin.Engine) {},
 		),
 	)

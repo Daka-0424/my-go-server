@@ -1,6 +1,10 @@
 package entity
 
-import "gorm.io/gorm"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 const (
 	NewUser   = iota // 新規ユーザ
@@ -15,6 +19,7 @@ type User struct {
 	Uuid           string `gorm:"index;size:255"`
 	Name           string `gorm:"index;size:255"`
 	UserKind       uint
+	TimeDifference time.Duration
 	AppVersion     string `gorm:"index;size:255"`
 	Device         string `gorm:"index;size:255"`
 	PlatformNumber uint

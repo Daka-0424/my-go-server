@@ -30,13 +30,13 @@ type controllerBase struct {
 func (c *controllerBase) getPlatform(ctx *gin.Context) (string, uint) {
 	platform := ctx.GetHeader(HeaderPlatform)
 	switch platform {
-	case "android":
+	case "Android":
 		return platform, PlatformAndroid
-	case "ios":
+	case "iOS":
 		return platform, PlatformIOS
-	case "webgl":
+	case "WebGL":
 		return platform, PlatformWebgl
-	case "windows":
+	case "Windows":
 		return platform, PlatformWindows
 	default:
 		return platform, PlatformUnknown
