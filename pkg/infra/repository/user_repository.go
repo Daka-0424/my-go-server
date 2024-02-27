@@ -18,6 +18,21 @@ func NewUserRepository(db *gorm.DB) repository.User {
 	return &userRepository{db: db}
 }
 
+func (r *userRepository) ExistsUser(ctx context.Context, uuid string) (bool, error) {
+	tx, ok := GetTx(ctx)
+
+	if !ok {
+		return false, repository.ErrTx
+	}
+
+	var count int64
+	if err := tx.Model(&entity.User{}).Where("uuid = ?", uuid).Count(&count).Error; err != nil {
+		return false, err
+	}
+
+	return count > 0, nil
+}
+
 func (r *userRepository) CreateUser(ctx context.Context, Uuid, name, device, clientVersion string, platform uint) (*entity.User, error) {
 	tx, ok := GetTx(ctx)
 	if !ok {
@@ -53,6 +68,16 @@ func (r *userRepository) CreateUserParams(ctx context.Context, userID uint) erro
 	}
 
 	return nil
+}
+
+func (r *userRepository) CreateUserSummaryRelation(ctx context.Context, vc *entity.UserSummaryRelation) error {
+	tx, ok := GetTx(ctx)
+
+	if !ok {
+		tx = r.db
+	}
+
+	return tx.Create(&vc).Error
 }
 
 func (r *userRepository) FindByUniqueUser(ctx context.Context, userId uint, uuid string, preloads ...string) (*entity.User, error) {
@@ -157,6 +182,79 @@ func (r *userRepository) FindByUserIds(ctx context.Context, userIds []uint, prel
 	}
 
 	return users, nil
+}
+
+func (r *userRepository) FindUserWithVc(ctx context.Context, userID uint) (*entity.User, *entity.UserSummaryRelation, error) {
+	tx, ok := GetTx(ctx)
+
+	if !ok {
+		tx = r.db
+	}
+
+	var user entity.User
+	var vc entity.UserSummaryRelation
+
+	if err := tx.First(&user, "id = ?", userID).Error; err != nil {
+		return &entity.User{}, &entity.UserSummaryRelation{}, err
+	}
+
+	if err := tx.Where("user_id = ?", userID).
+		Preload("PaidPointSummary").
+		Preload("FreePointSummary").
+		First(&vc).Error; err != nil {
+		return &user, &entity.UserSummaryRelation{}, err
+	}
+
+	return &user, &vc, nil
+}
+
+func (r *userRepository) FindUserPointSummary(ctx context.Context, userID uint, platformNumber uint, paidKind int) (*entity.UserPointSummary, error) {
+	tx, ok := GetTx(ctx)
+
+	if !ok {
+		tx = r.db
+	}
+
+	var vc entity.UserPointSummary
+
+	if err := tx.Where("user_id = ? AND platform_number = ? AND paid_kind = ?", userID, platformNumber, paidKind).
+		First(&vc).Error; err != nil {
+		return nil, err
+	}
+
+	return &vc, nil
+}
+
+func (r *userRepository) FindOtherPlatformVc(ctx context.Context, userID uint, platformNumber uint) (*entity.UserSummaryRelation, error) {
+	tx, ok := GetTx(ctx)
+
+	if !ok {
+		tx = r.db
+	}
+
+	var vc entity.UserSummaryRelation
+
+	if err := tx.Where("user_id = ? AND platform_number != ?", userID, platformNumber).
+		First(&vc).Error; err != nil {
+		return nil, err
+	}
+
+	return &vc, nil
+}
+
+func (r *userRepository) FirstOrCreateFreePointSummary(ctx context.Context, userID uint, paidKind int) (*entity.UserPointSummary, error) {
+	tx, ok := GetTx(ctx)
+
+	if !ok {
+		tx = r.db
+	}
+
+	var vc entity.UserPointSummary
+	if err := tx.FirstOrCreate(&vc, entity.UserPointSummary{UserID: userID, PaidKind: 0}).Error; err != nil {
+		return nil, err
+	}
+
+	return &vc, nil
 }
 
 func (r *userRepository) UpdateUser(ctx context.Context, user *entity.User) error {

@@ -27,7 +27,8 @@ type User struct {
 	ClientVersion  string `gorm:"index;size:255"`
 	Device         string `gorm:"index;size:255"`
 	PlatformNumber uint
-	LoginState     UserLoginState `json:"user_login_state" gorm:"foreignkey:UserID"`
+	Vc             UserSummaryRelation `json:"user_summary_relation" gorm:"foreignkey:UserID"`
+	LoginState     UserLoginState      `json:"user_login_state" gorm:"foreignkey:UserID"`
 }
 
 func NewUser(uuid string, name string, clientVersion string, device string, platformNumber uint) *User {
@@ -46,6 +47,10 @@ func (u *User) IsEmpty() bool {
 
 func (u *User) IsSuperUser() bool {
 	return u.UserKind == SuperUser
+}
+
+func (u *User) UpdateUserKind(kind uint) {
+	u.UserKind = kind
 }
 
 func (u *User) UpdateDevice(ClientVersion, Device string, platformNumber uint) bool {

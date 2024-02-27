@@ -15,7 +15,7 @@ const (
 )
 
 type User interface {
-	CreateUser(ctx context.Context, uuid, device, clientVersion string, platformNumber uint) (*entity.User, error)
+	Register(ctx context.Context, uuid, device, clientVersion string, platformNumber uint) (*entity.User, error)
 }
 
 type userService struct {
@@ -28,7 +28,7 @@ func NewUserService(ur repository.User) User {
 	}
 }
 
-func (service *userService) CreateUser(ctx context.Context, uuid, device, clientVersion string, platformNumber uint) (*entity.User, error) {
+func (service *userService) Register(ctx context.Context, uuid, device, clientVersion string, platformNumber uint) (*entity.User, error) {
 	// Userを作成
 	user, err := service.userRepository.CreateUser(ctx, uuid, entity.DefaultUserName, device, clientVersion, platformNumber)
 	if err != nil {

@@ -1,5 +1,7 @@
 package entity
 
+const DEFAULT_DB_ID = 0
+
 func Entity() []any {
 	return []any{
 		// User
