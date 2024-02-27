@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/base64"
-	"errors"
 	"strconv"
 	"time"
 
@@ -16,6 +15,7 @@ import (
 	"github.com/Daka-0424/my-go-server/pkg/usecase/model"
 	"github.com/Songmu/flextime"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
@@ -49,15 +49,16 @@ func NewSessionUsecase(
 func (u *sessionUsecase) CreateSession(ctx context.Context, userId uint, uuid, device, appVersion string, platformNumber uint) (*model.Session, error) {
 	value, err := u.transaction.DoInTx(ctx, func(ctx context.Context) (interface{}, error) {
 		user, err := u.userRepository.FindByUniqueUser(ctx, userId, uuid)
-		if err != nil && !errors.Is(err, repository.ErrNotFound) {
-			c := &i18n.LocalizeConfig{MessageID: model.E0101}
-			return nil, model.NewErrUnprocessable(model.E0101, u.localizer.MustLocalize(c))
+		if err != nil {
+			return nil, err
 		}
 
-		if user.Device != device || user.AppVersion != appVersion || user.PlatformNumber != platformNumber {
-			user.Device = device
-			user.AppVersion = appVersion
-			user.PlatformNumber = platformNumber
+		if user.UserKind == entity.Banned {
+			c := &i18n.LocalizeConfig{MessageID: model.E0105}
+			return nil, model.NewErrForbidden(model.E0105, u.localizer.MustLocalize(c))
+		}
+
+		if user.UpdateDevice(device, appVersion, platformNumber) {
 			if err = u.userRepository.UpdateUser(ctx, user); err != nil {
 				return nil, err
 			}
@@ -78,6 +79,7 @@ func (u *sessionUsecase) CreateSession(ctx context.Context, userId uint, uuid, d
 }
 
 func (u *sessionUsecase) login(ctx context.Context, user *entity.User) (string, string, string, error) {
+	sessionID := uuid.New().String()
 	accountToken, err := u.generateToken(user)
 	if err != nil {
 		c := &i18n.LocalizeConfig{MessageID: model.E9999}
@@ -91,11 +93,22 @@ func (u *sessionUsecase) login(ctx context.Context, user *entity.User) (string, 
 	}
 
 	catData := append(key, iv...)
-	cacheKey := formatter.CRYPTO_CACHE_KEY + user.Uuid
+	cacheKey := formatter.CRYPTO_CACHE_KEY + sessionID
 	err = u.cache.Set(ctx, cacheKey, catData, time.Hour*10)
 	if err != nil {
 		c := &i18n.LocalizeConfig{MessageID: model.E9999}
 		return "", "", "", model.NewErrUnprocessable(model.E9999, u.localizer.MustLocalize((c)))
+	}
+
+	if !u.cfg.IsMultiDeviceAccess() {
+		// ログイン別のSessionIDをキャッシュ
+		sessionCat := []byte(sessionID)
+		sessionCacheKey := formatter.CRYPTO_CACHE_KEY + user.UUID
+		err = u.cache.Set(ctx, sessionCacheKey, sessionCat, time.Hour*10)
+		if err != nil {
+			c := &i18n.LocalizeConfig{MessageID: model.E9999}
+			return "", "", "", model.NewErrUnprocessable(model.E9999, u.localizer.MustLocalize(c))
+		}
 	}
 
 	keyStr := base64.StdEncoding.EncodeToString(key)
@@ -115,7 +128,7 @@ func (u *sessionUsecase) generateToken(user *entity.User) (string, error) {
 			Issuer:    u.cfg.Jwt.Issuer,
 			Audience:  []string{u.cfg.Jwt.Audience},
 		},
-		Uuid:        user.Uuid,
+		Uuid:        user.UUID,
 		Name:        user.Name,
 		InstalledAt: user.CreatedAt,
 		CreatedAt:   flextime.Now(),

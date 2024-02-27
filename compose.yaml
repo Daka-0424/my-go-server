@@ -13,19 +13,18 @@ services:
       - ./:/app
     depends_on:
       - db
-      - redis
 
   db:
     container_name: go_db
     image: mysql:8.0
-    platform: linux/arm64
+    platform: linux/amd64
     volumes:
       - ./tmp/db:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: P@ssw0rd!
       MYSQL_DATABASE: appdb
     ports:
-      - 3310:3310
+      - 3306:3306
     
   redis:
     container_name: go_redis

@@ -9,9 +9,10 @@ type (
 		MySQL            `yaml:"mysql"`
 		Jwt              `yaml:"jwt"`
 		Redis            `yaml:"redis"`
-		Setting          `yaml:"setting"`
+		Settings         `yaml:"settings"`
 		Cookie           `yaml:"cookie"`
 		LoadTestSettings `yaml:"load_test_settings"`
+		MultiDevice      `yaml:"multi_device"`
 	}
 
 	MySQL struct {
@@ -28,7 +29,7 @@ type (
 		CONN string `env-required:"true" yaml:"conn" env:"REDIS_CONN"`
 	}
 
-	Setting struct {
+	Settings struct {
 		Environment string `yaml:"environment" env:"SETTING_ENVIRONMENT"`
 	}
 
@@ -50,14 +51,22 @@ type (
 	LoadTestSettings struct {
 		Enable string `yaml:"enable" env:"LOAD_TEST_ENABLE"`
 	}
+
+	MultiDevice struct {
+		Access string `yaml:"access" env:"MULTI_DEVICE_ACCESS"`
+	}
 )
 
-func (s Setting) IsDevelopment() bool {
+func (s Settings) IsDevelopment() bool {
 	return s.Environment == "Development"
 }
 
 func (s LoadTestSettings) IsMock() bool {
 	return s.Enable == "true"
+}
+
+func (s MultiDevice) IsMultiDeviceAccess() bool {
+	return s.Access == "Actiivation"
 }
 
 func NewConfig() (*Config, error) {

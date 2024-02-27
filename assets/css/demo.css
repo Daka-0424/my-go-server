@@ -1,0 +1,341 @@
+/*
+* demo.css
+* File include item demo only specific css only
+******************************************************************************/
+
+.menu .app-brand.demo {
+  height: 64px;
+  margin-top: 12px;
+}
+
+.app-brand-logo.demo svg {
+  width: 22px;
+  height: 38px;
+}
+
+.app-brand-text.demo {
+  font-size: 1.75rem;
+  letter-spacing: -0.5px;
+  text-transform: lowercase;
+}
+
+/* ! For .layout-navbar-fixed added fix padding top tpo .layout-page */
+/* Detached navbar */
+.layout-navbar-fixed .layout-wrapper:not(.layout-horizontal):not(.layout-without-menu) .layout-page {
+  padding-top: 76px !important;
+}
+/* Default navbar */
+.layout-navbar-fixed .layout-wrapper:not(.layout-without-menu) .layout-page {
+  padding-top: 64px !important;
+}
+
+/* Navbar page z-index issue solution */
+.content-wrapper .navbar {
+  z-index: auto;
+}
+
+/*
+* Content
+******************************************************************************/
+
+.demo-blocks > * {
+  display: block !important;
+}
+
+.demo-inline-spacing > * {
+  margin: 1rem 0.375rem 0 0 !important;
+}
+
+/* ? .demo-vertical-spacing class is used to have vertical margins between elements. To remove margin-top from the first-child, use .demo-only-element class with .demo-vertical-spacing class. For example, we have used this class in forms-input-groups.html file. */
+.demo-vertical-spacing > * {
+  margin-top: 1rem !important;
+  margin-bottom: 0 !important;
+}
+.demo-vertical-spacing.demo-only-element > :first-child {
+  margin-top: 0 !important;
+}
+
+.demo-vertical-spacing-lg > * {
+  margin-top: 1.875rem !important;
+  margin-bottom: 0 !important;
+}
+.demo-vertical-spacing-lg.demo-only-element > :first-child {
+  margin-top: 0 !important;
+}
+
+.demo-vertical-spacing-xl > * {
+  margin-top: 5rem !important;
+  margin-bottom: 0 !important;
+}
+.demo-vertical-spacing-xl.demo-only-element > :first-child {
+  margin-top: 0 !important;
+}
+
+.rtl-only {
+  display: none !important;
+  text-align: left !important;
+  direction: ltr !important;
+}
+
+[dir='rtl'] .rtl-only {
+  display: block !important;
+}
+
+/*
+* Layout demo
+******************************************************************************/
+
+.layout-demo-wrapper {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  margin-top: 1rem;
+}
+.layout-demo-placeholder img {
+  width: 900px;
+}
+.layout-demo-info {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.hizikata {
+  width: 100px;
+  height: fit-content;
+  margin: 0 auto;
+}
+.hizikata__img {
+  width: 100%;
+  transition: 1.0s;
+  transform: rotateY(0deg );
+}
+
+.hizikata__img:hover {
+  transform: rotateY( 360deg );
+}
+
+.heart-button {
+/* ボタン要素の大きさや色 */
+position: relative;
+width: 200px;
+margin: auto;
+font-size: 10px;
+display: inline-block;
+background-color: #ef4b53;
+padding: 0.8em 2.4em;
+border-radius: 5px;
+border: 2px solid transparent;
+
+/* ボタンの文字の設定 */
+font-family: 'Quicksand', sans-serif;
+font-weight: bold;
+color: #fff;
+letter-spacing: 0.1em;
+
+/* その他必要なスタイル */
+transition: all 0.3s ease;
+cursor: pointer;
+text-decoration: none;
+}
+
+/* ハートの共通スタイル */
+.heart-button::before,
+.heart-button::after {
+content: "";
+background-size: contain;
+background-repeat: no-repeat;
+width: 20px;
+height: 20px;
+position: absolute;
+opacity: 0;
+}
+
+/* 左上のハートのスタイル */
+.heart-button::before {
+background-image: url('/assets/img/heart.svg');
+top: 0;
+left: -12px;
+}
+
+/* 右下のハートのスタイル */
+.heart-button::after {
+background-image: url('/assets/img/heart-reverse.svg');
+bottom: -6px;
+right: -14px;
+}
+
+/* ========= ホバー時のスタイル ======== */
+
+/* ボタンホバー時のスタイル */
+.heart-button {
+background-color: #fff;
+border-color: #ef4b53;
+color: #ef4b53;
+}
+
+/* ボタンホバー時の左上のハートのスタイル */
+.heart-button::before {
+animation: heart 1.5s infinite ease-out;
+}
+
+/* ボタンホバー時の右下のハートのスタイル */
+.heart-button::after {
+animation: heart 1.5s 0.2s infinite ease-out;
+}
+
+/* ========= アニメーションの設定 ======== */
+@keyframes heart {
+0% {
+  transform: translateY(0) scale(1);
+  opacity: 0;
+}
+25% {
+  opacity: 1;
+}
+75% {
+  opacity: 1;
+}
+100% {
+  transform: translateY(-20px) scale(1.4);
+  opacity: 0;
+}
+}
+
+.box{
+  height:100px;
+  width: 100px;
+  display:flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+.box .bubbly-button{
+  cursor: pointer;
+  display: inline-block;
+  font-size: 3em;
+  padding: 0.5em 0.5em;
+  -webkit-appearance: none;
+  appearance: none;
+  color: #ff0081;
+  background:transparent;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: transform ease-in 0.1s, box-shadow ease-in 0.25s;
+}
+.box .bubbly-button > i{
+    position:relative;
+    z-index:-1;
+}
+
+.box .bubbly-button > i:focus {
+    outline: 0;
+}
+
+.box .bubbly-button:before {
+  position: absolute;
+  content: '';
+  display: block;
+  width: 150%;
+  height: 70%;
+  left: -20%;
+  z-index: -1000;
+  transition: all ease-in-out 0.5s;
+  background-repeat: no-repeat;
+}
+
+.box .bubbly-button:after{
+  position: absolute;
+  content: '';
+  display: block;
+  width: 150%;
+  height: 70%;
+  left: -20%;
+  z-index: -1000;
+  transition: all ease-in-out 0.5s;
+  background-repeat: no-repeat;
+}
+
+  
+.box .bubbly-button:before{
+    display: none;
+    top: -35%;
+    background-image:  
+      radial-gradient(circle,#d53fff 10%, transparent 20%),
+    radial-gradient(circle,  transparent 10%, #d53fff 20%, transparent 30%),
+    radial-gradient(circle, #d53fff 10%, transparent 20%), 
+    radial-gradient(circle, #d53fff 10%, transparent 20%),
+    radial-gradient(circle,  transparent 5%, #d53fff 15%, transparent 20%),
+    radial-gradient(circle, #ffd635 10%, transparent 20%),
+    radial-gradient(circle, #ffd635 10%, transparent 20%),
+    radial-gradient(circle, #ffd635 10%, transparent 20%),
+    radial-gradient(circle, #ffd635 10%, transparent 20%);
+  background-size: 10% 10%, 20% 20%, 15% 15%, 20% 20%, 18% 18%, 10% 10%, 15% 15%, 10% 10%, 18% 18%;
+  background-position: 0% 80%, -5% 20%, 10% 40%, 20% 0%, 30% 30%, 22% 50%, 50% 50%, 65% 20%, 85% 30%;
+}
+  
+.box .bubbly-button:after{
+    display: none;
+    bottom: -35%;
+    background-image:  
+    radial-gradient(circle, #56adff 10%, transparent 20%), 
+    radial-gradient(circle, #56adff 10%, transparent 20%),
+    radial-gradient(circle,  transparent 5%, #56adff 15%, transparent 20%),
+    radial-gradient(circle, #56adff 10%, transparent 20%),
+    radial-gradient(circle, #79ff4c 10%, transparent 20%),
+    radial-gradient(circle, #79ff4c 10%, transparent 20%),
+    radial-gradient(circle, #79ff4c 10%, transparent 20%);
+  background-size: 15% 15%, 20% 20%, 18% 18%, 20% 20%, 15% 15%, 10% 10%, 20% 20%;
+  background-position: 5% 90%, 10% 90%, 10% 90%, 15% 90%, 25% 90%, 25% 90%, 40% 90%, 55% 90%, 70% 90%;
+}
+ 
+.box .bubbly-button:active{
+    transform: scale(0.9);
+    color:#ce89ff;
+}
+  
+.box .bubbly-button.animate:before{
+      display: block;
+      animation: topBubbles ease-in-out 0.75s forwards;
+}
+.box .bubbly-button.animate:after{
+      display: block;
+      animation: bottomBubbles ease-in-out 0.75s forwards;
+}
+
+
+@keyframes topBubbles {
+  0%{
+    background-position: 5% 90%, 10% 90%, 10% 90%, 15% 90%, 25% 90%, 25% 90%, 40% 90%, 55% 90%, 70% 90%;
+  }
+    50% {
+      background-position: 0% 80%, 0% 20%, 10% 40%, 20% 0%, 30% 30%, 22% 50%, 50% 50%, 65% 20%, 90% 30%;}
+ 100% {
+    background-position: 0% 70%, 0% 10%, 10% 30%, 20% -10%, 30% 20%, 22% 40%, 50% 40%, 65% 10%, 90% 20%;
+  background-size: 0% 0%, 0% 0%,  0% 0%,  0% 0%,  0% 0%,  0% 0%;
+  }
+}
+
+@keyframes bottomBubbles {
+  0%{
+    background-position: 10% -10%, 30% 10%, 55% -10%, 70% -10%, 85% -10%, 70% -10%, 70% 0%;
+  }
+  50% {
+    background-position: 0% 80%, 20% 80%, 45% 60%, 60% 100%, 75% 70%, 95% 60%, 105% 0%;}
+ 100% {
+    background-position: 0% 90%, 20% 90%, 45% 70%, 60% 110%, 75% 80%, 95% 70%, 110% 10%;
+  background-size: 0% 0%, 0% 0%,  0% 0%,  0% 0%,  0% 0%,  0% 0%;
+  }
+}
+.hizikata-flex {
+  display: flex;
+  margin: 0 auto;
+  justify-content: space-evenly;
+}
