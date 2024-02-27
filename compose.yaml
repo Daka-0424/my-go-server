@@ -13,12 +13,11 @@ services:
       - ./:/app
     depends_on:
       - db
-      - redis
 
   db:
     container_name: go_db
     image: mysql:8.0
-    platform: linux/arm64
+    platform: linux/amd64
     volumes:
       - ./tmp/db:/var/lib/mysql
     environment:

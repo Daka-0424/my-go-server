@@ -2,7 +2,7 @@ package model
 
 import "github.com/Daka-0424/my-go-server/pkg/domain/entity"
 
-type VcPlatformProduct struct {
+type PlatformProduct struct {
 	ID          uint   `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
@@ -12,12 +12,12 @@ type VcPlatformProduct struct {
 	ProductId   string `json:"product_id"`
 }
 
-type VcPlatformProductList struct {
-	Products []VcPlatformProduct `json:"products"`
+type PlatformProductList struct {
+	Products []PlatformProduct `json:"products"`
 }
 
-func NewVcPlatformProduct(product *entity.VcPlatformProduct) *VcPlatformProduct {
-	return &VcPlatformProduct{
+func NewPlatformProduct(product *entity.PlatformProduct) *PlatformProduct {
+	return &PlatformProduct{
 		ID:          product.ID,
 		Name:        product.Name,
 		Description: product.Description,
@@ -28,13 +28,13 @@ func NewVcPlatformProduct(product *entity.VcPlatformProduct) *VcPlatformProduct 
 	}
 }
 
-func NewVcPlatformProductList(products []entity.VcPlatformProduct) *VcPlatformProductList {
-	var productList []VcPlatformProduct
+func NewPlatformProductList(products []entity.PlatformProduct) *PlatformProductList {
+	var productList []PlatformProduct
 	for _, product := range products {
-		productList = append(productList, *NewVcPlatformProduct(&product))
+		productList = append(productList, *NewPlatformProduct(&product))
 	}
 
-	return &VcPlatformProductList{
+	return &PlatformProductList{
 		Products: productList,
 	}
 }

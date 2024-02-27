@@ -11,22 +11,22 @@ import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
-type RegistrationController struct {
+type UserController struct {
 	controllerBase
-	registrationUsecase usecase.Registration
+	registrationUsecase usecase.User
 }
 
-func NewRegistrationController(
-	ru usecase.Registration,
+func NewUserController(
+	ru usecase.User,
 	cfg *config.Config,
-	lc *i18n.Localizer) *RegistrationController {
-	return &RegistrationController{
+	lc *i18n.Localizer) *UserController {
+	return &UserController{
 		controllerBase:      controllerBase{cfg: cfg, localizer: lc},
 		registrationUsecase: ru,
 	}
 }
 
-func (ctl *RegistrationController) CreateRegistration(ctx *gin.Context) {
+func (ctl *UserController) Registration(ctx *gin.Context) {
 	var rew CreateRegistrationRequest
 	if err := formatter.ShouldBind(ctx, &rew); err != nil {
 		c := &i18n.LocalizeConfig{MessageID: model.E0101}
@@ -39,7 +39,7 @@ func (ctl *RegistrationController) CreateRegistration(ctx *gin.Context) {
 	appVersion := ctl.getAppVersion(ctx)
 	_, platformNumber := ctl.getPlatform(ctx)
 
-	registration, err := ctl.registrationUsecase.CreateRegistration(ctx, rew.Uuid, device, appVersion, platformNumber)
+	registration, err := ctl.registrationUsecase.Registration(ctx, rew.Uuid, device, appVersion, platformNumber)
 	if err != nil {
 		apperr := ctl.toAppError(err)
 		formatter.Respond(ctx, apperr.StatusCode, gin.H{"error": apperr})

@@ -13,7 +13,7 @@ func Modules() fx.Option {
 			NewUserRepository,
 
 			// Seed
-			NewSeedRepository[entity.VcPlatformProduct],
+			NewSeedRepository[entity.PlatformProduct],
 		),
 	)
 }

@@ -1,6 +1,6 @@
 package entity
 
-type VcPlatformProduct struct {
+type PlatformProduct struct {
 	SeedBase       `yaml:",inline"`
 	Term           `yaml:",inline"`
 	Name           string `yaml:"name"`

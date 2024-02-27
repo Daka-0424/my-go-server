@@ -6,16 +6,16 @@ func Entity() []any {
 		&User{},
 
 		// Seed
-		&VcPlatformProduct{},
+		&PlatformProduct{},
 	}
 }
 
 func Seed() []any {
 	return []any{
-		&VcPlatformProduct{},
+		&PlatformProduct{},
 	}
 }
 
 type SeedType interface {
-	VcPlatformProduct
+	PlatformProduct
 }

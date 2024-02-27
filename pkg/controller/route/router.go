@@ -14,18 +14,18 @@ func Route(
 	cfg *config.Config,
 	cache repository.Cache,
 	localizer *i18n.Localizer,
-	registration *controller.RegistrationController,
+	registration *controller.UserController,
 	session *controller.SessionController,
-	vcPlatformProduct *controller.VcPlatformProductController,
+	vcPlatformProduct *controller.PlatformProductController,
 ) {
 	route.GET("/", func(ctx *gin.Context) { ctx.JSON(200, gin.H{"status": "ok"}) })
 
 	// 認証なし
-	route.POST("/api/registration", registration.CreateRegistration)
+	route.POST("/api/registration", registration.Registration)
 	route.POST("/api/session", session.CreateSession)
 
 	authMiddleware := middleware.JwtMiddleware(cfg, localizer, cache)
 
 	sessionGroup := route.Group("api/my").Use(authMiddleware)
-	sessionGroup.GET("/vc/platform-products", vcPlatformProduct.ListVcPlatformProducts)
+	sessionGroup.GET("/vc/platform-products", vcPlatformProduct.ListPlatformProduct)
 }

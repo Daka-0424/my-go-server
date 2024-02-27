@@ -11,11 +11,11 @@ import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
-type Registration interface {
-	CreateRegistration(ctx context.Context, uuid, device, appVersion string, platform uint) (*model.Registration, error)
+type User interface {
+	Registration(ctx context.Context, uuid, device, appVersion string, platform uint) (*model.User, error)
 }
 
-type registrationUsercase struct {
+type userUsercase struct {
 	cfg            *config.Config
 	localizer      *i18n.Localizer
 	transaction    repository.Transaction
@@ -23,13 +23,13 @@ type registrationUsercase struct {
 	userService    service.User
 }
 
-func NewRegistrationUsecase(
+func NewUserUsecase(
 	cfg *config.Config,
 	lc *i18n.Localizer,
 	transaction repository.Transaction,
 	userRepository repository.User,
-	userService service.User) Registration {
-	return &registrationUsercase{
+	userService service.User) User {
+	return &userUsercase{
 		cfg:            cfg,
 		localizer:      lc,
 		transaction:    transaction,
@@ -38,7 +38,7 @@ func NewRegistrationUsecase(
 	}
 }
 
-func (u *registrationUsercase) CreateRegistration(ctx context.Context, uuid, device, appVersion string, platform uint) (*model.Registration, error) {
+func (u *userUsercase) Registration(ctx context.Context, uuid, device, appVersion string, platform uint) (*model.User, error) {
 	value, err := u.transaction.DoInTx(ctx, func(ctx context.Context) (interface{}, error) {
 		user, err := u.userRepository.FindByUuid(ctx, uuid)
 		if err != nil && !errors.Is(err, repository.ErrNotFound) {
@@ -57,12 +57,12 @@ func (u *registrationUsercase) CreateRegistration(ctx context.Context, uuid, dev
 			return nil, model.NewErrUnprocessable(model.E0103, u.localizer.MustLocalize(c))
 		}
 
-		return model.NewRegistration(user), nil
+		return model.NewUser(user), nil
 	})
 
 	if err != nil {
 		return nil, err
 	}
 
-	return value.(*model.Registration), nil
+	return value.(*model.User), nil
 }

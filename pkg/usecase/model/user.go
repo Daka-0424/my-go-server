@@ -12,7 +12,7 @@ type User struct {
 func NewUser(u *entity.User) *User {
 	return &User{
 		ID:       u.ID,
-		Uuid:     u.Uuid,
+		Uuid:     u.UUID,
 		Name:     u.Name,
 		UserKind: u.UserKind,
 	}

@@ -12,6 +12,7 @@ type (
 		Settings         `yaml:"settings"`
 		Cookie           `yaml:"cookie"`
 		LoadTestSettings `yaml:"load_test_settings"`
+		MultiDevice      `yaml:"multi_device"`
 	}
 
 	MySQL struct {
@@ -50,6 +51,10 @@ type (
 	LoadTestSettings struct {
 		Enable string `yaml:"enable" env:"LOAD_TEST_ENABLE"`
 	}
+
+	MultiDevice struct {
+		Access string `yaml:"access" env:"MULTI_DEVICE_ACCESS"`
+	}
 )
 
 func (s Settings) IsDevelopment() bool {
@@ -58,6 +63,10 @@ func (s Settings) IsDevelopment() bool {
 
 func (s LoadTestSettings) IsMock() bool {
 	return s.Enable == "true"
+}
+
+func (s MultiDevice) IsMultiDeviceAccess() bool {
+	return s.Access == "Actiivation"
 }
 
 func NewConfig() (*Config, error) {

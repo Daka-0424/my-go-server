@@ -10,19 +10,19 @@ import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
-type VcPlatformProductController struct {
+type PlatformProductController struct {
 	controllerBase
-	platformProductUsecase usecase.VcPlatformProduct
+	platformProductUsecase usecase.PlatformProduct
 }
 
-func NewVcPlatformProductController(pu usecase.VcPlatformProduct, cfg *config.Config, lc *i18n.Localizer) *VcPlatformProductController {
-	return &VcPlatformProductController{
+func NewPlatformProductController(pu usecase.PlatformProduct, cfg *config.Config, lc *i18n.Localizer) *PlatformProductController {
+	return &PlatformProductController{
 		controllerBase:         controllerBase{cfg: cfg, localizer: lc},
 		platformProductUsecase: pu,
 	}
 }
 
-func (ctl *VcPlatformProductController) ListVcPlatformProducts(ctx *gin.Context) {
+func (ctl *PlatformProductController) ListPlatformProduct(ctx *gin.Context) {
 	_, apperr := ctl.getClaims(ctx)
 	if apperr != nil {
 		formatter.Respond(ctx, apperr.StatusCode, gin.H{"error": apperr})

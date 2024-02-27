@@ -18,16 +18,16 @@ func NewUserRepository(db *gorm.DB) repository.User {
 	return &userRepository{db: db}
 }
 
-func (r *userRepository) CreateUser(ctx context.Context, Uuid, name, device, appVersion string, platform uint) (*entity.User, error) {
+func (r *userRepository) CreateUser(ctx context.Context, Uuid, name, device, clientVersion string, platform uint) (*entity.User, error) {
 	tx, ok := GetTx(ctx)
 	if !ok {
 		return nil, repository.ErrTx
 	}
 
 	user := entity.User{
-		Uuid:           Uuid,
+		UUID:           Uuid,
 		Name:           name,
-		AppVersion:     appVersion,
+		ClientVersion:  clientVersion,
 		Device:         device,
 		PlatformNumber: platform,
 	}
@@ -38,6 +38,21 @@ func (r *userRepository) CreateUser(ctx context.Context, Uuid, name, device, app
 	}
 
 	return &user, nil
+}
+
+func (r *userRepository) CreateUserParams(ctx context.Context, userID uint) error {
+	tx, ok := GetTx(ctx)
+	if !ok {
+		return repository.ErrTx
+	}
+
+	loginState := entity.NewUserLoginState(userID)
+	err := tx.Create(&loginState).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (r *userRepository) FindByUniqueUser(ctx context.Context, userId uint, uuid string, preloads ...string) (*entity.User, error) {
