@@ -4,10 +4,6 @@ jwt:
   secret: "SpBE*2BBtiN_AQfaiT(jMmWxMqWV4%v2"
   issuer: "http://localhost:8080"
   audience: "http://localhost:8080"
-mirrativ:
-  server: "server"
-  client_id: "client_id"
-  client_secret: "client_secret"
 redis:
   conn: "redis:6379"
 settings:
