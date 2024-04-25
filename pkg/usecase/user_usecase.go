@@ -41,34 +41,34 @@ func NewUserUsecase(
 	}
 }
 
-func (u *userUsercase) Registration(ctx context.Context, uuid, device, clientVersion string, platformNumber uint) (*model.User, error) {
-	value, err := u.transaction.DoInTx(ctx, func(ctx context.Context) (interface{}, error) {
+func (usecase *userUsercase) Registration(ctx context.Context, uuid, device, clientVersion string, platformNumber uint) (*model.User, error) {
+	value, err := usecase.transaction.DoInTx(ctx, func(ctx context.Context) (interface{}, error) {
 		if uuid == "" {
 			c := &i18n.LocalizeConfig{MessageID: model.E9901}
-			return nil, model.NewErrUnprocessable(model.E9901, u.localizer.MustLocalize(c))
+			return nil, model.NewErrUnprocessable(model.E9901, usecase.localizer.MustLocalize(c))
 		}
 
 		// もし、uuidで検索して、userが存在していたら、エラーを返す
-		exists, err := u.userRepository.ExistsUser(ctx, uuid)
+		exists, err := usecase.userRepository.ExistsUser(ctx, uuid)
 		if err != nil {
 			c := &i18n.LocalizeConfig{MessageID: model.E0002}
-			return nil, model.NewErrUnprocessable(model.E0002, u.localizer.MustLocalize(c))
+			return nil, model.NewErrUnprocessable(model.E0002, usecase.localizer.MustLocalize(c))
 		}
 		if exists {
 			c := &i18n.LocalizeConfig{MessageID: model.E0106}
-			return nil, model.NewErrUnprocessable(model.E0106, u.localizer.MustLocalize(c))
+			return nil, model.NewErrUnprocessable(model.E0106, usecase.localizer.MustLocalize(c))
 		}
 
 		// なかったら、新規登録する
-		user, err := u.userService.Register(ctx, uuid, device, clientVersion, platformNumber)
+		user, err := usecase.userService.Register(ctx, uuid, device, clientVersion, platformNumber)
 		if err != nil {
 			c := &i18n.LocalizeConfig{MessageID: model.E0103}
-			return nil, model.NewErrUnprocessable(model.E0103, u.localizer.MustLocalize(c))
+			return nil, model.NewErrUnprocessable(model.E0103, usecase.localizer.MustLocalize(c))
 		}
 		// VCのセットアップ
-		if err := u.vcService.SetupVc(ctx, user); err != nil {
+		if err := usecase.vcService.SetupVc(ctx, user); err != nil {
 			c := &i18n.LocalizeConfig{MessageID: model.E0103}
-			return nil, model.NewErrUnprocessable(model.E0103, u.localizer.MustLocalize(c))
+			return nil, model.NewErrUnprocessable(model.E0103, usecase.localizer.MustLocalize(c))
 		}
 
 		return model.NewUser(user), nil

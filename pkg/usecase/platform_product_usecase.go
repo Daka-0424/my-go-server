@@ -32,8 +32,8 @@ func NewPlatformProductUsecase(
 	}
 }
 
-func (u *PlatformProductUsecase) ListPlatformProducts(ctx context.Context) (*model.PlatformProductList, error) {
-	products, err := u.seedPlatformProductRepository.GetAll(ctx)
+func (usecase *PlatformProductUsecase) ListPlatformProducts(ctx context.Context) (*model.PlatformProductList, error) {
+	products, err := usecase.seedPlatformProductRepository.GetAll(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -43,8 +43,8 @@ func (u *PlatformProductUsecase) ListPlatformProducts(ctx context.Context) (*mod
 	return list, nil
 }
 
-func (u *PlatformProductUsecase) FindPlatformNumber(ctx context.Context, platformNumber uint) (*model.PlatformProductList, error) {
-	products, err := u.seedPlatformProductRepository.Where(ctx, entity.PlatformProduct{PlatformNumber: platformNumber})
+func (usecase *PlatformProductUsecase) FindPlatformNumber(ctx context.Context, platformNumber uint) (*model.PlatformProductList, error) {
+	products, err := usecase.seedPlatformProductRepository.Where(ctx, entity.PlatformProduct{PlatformNumber: platformNumber})
 	if err != nil {
 		return nil, err
 	}

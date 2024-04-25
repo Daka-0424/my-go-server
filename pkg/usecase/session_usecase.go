@@ -46,25 +46,25 @@ func NewSessionUsecase(
 	}
 }
 
-func (u *sessionUsecase) CreateSession(ctx context.Context, userId uint, uuid, device, appVersion string, platformNumber uint) (*model.Session, error) {
-	value, err := u.transaction.DoInTx(ctx, func(ctx context.Context) (interface{}, error) {
-		user, err := u.userRepository.FindByUniqueUser(ctx, userId, uuid)
+func (usecase *sessionUsecase) CreateSession(ctx context.Context, userId uint, uuid, device, appVersion string, platformNumber uint) (*model.Session, error) {
+	value, err := usecase.transaction.DoInTx(ctx, func(ctx context.Context) (interface{}, error) {
+		user, err := usecase.userRepository.FindByUniqueUser(ctx, userId, uuid)
 		if err != nil {
 			return nil, err
 		}
 
 		if user.UserKind == entity.Banned {
 			c := &i18n.LocalizeConfig{MessageID: model.E0105}
-			return nil, model.NewErrForbidden(model.E0105, u.localizer.MustLocalize(c))
+			return nil, model.NewErrForbidden(model.E0105, usecase.localizer.MustLocalize(c))
 		}
 
 		if user.UpdateDevice(device, appVersion, platformNumber) {
-			if err = u.userRepository.UpdateUser(ctx, user); err != nil {
+			if err = usecase.userRepository.UpdateUser(ctx, user); err != nil {
 				return nil, err
 			}
 		}
 
-		accountToken, keyStr, ivStr, err := u.login(ctx, user)
+		accountToken, keyStr, ivStr, err := usecase.login(ctx, user)
 		if err != nil {
 			return nil, err
 		}
@@ -78,36 +78,36 @@ func (u *sessionUsecase) CreateSession(ctx context.Context, userId uint, uuid, d
 	return value.(*model.Session), nil
 }
 
-func (u *sessionUsecase) login(ctx context.Context, user *entity.User) (string, string, string, error) {
+func (usecase *sessionUsecase) login(ctx context.Context, user *entity.User) (string, string, string, error) {
 	sessionID := uuid.New().String()
-	accountToken, err := u.generateToken(user)
+	accountToken, err := usecase.generateToken(user)
 	if err != nil {
 		c := &i18n.LocalizeConfig{MessageID: model.E9999}
-		return "", "", "", model.NewErrUnprocessable(model.E9999, u.localizer.MustLocalize((c)))
+		return "", "", "", model.NewErrUnprocessable(model.E9999, usecase.localizer.MustLocalize((c)))
 	}
 
-	key, iv, err := u.generateKeyAndIV()
+	key, iv, err := usecase.generateKeyAndIV()
 	if err != nil {
 		c := &i18n.LocalizeConfig{MessageID: model.E9999}
-		return "", "", "", model.NewErrUnprocessable(model.E9999, u.localizer.MustLocalize((c)))
+		return "", "", "", model.NewErrUnprocessable(model.E9999, usecase.localizer.MustLocalize((c)))
 	}
 
 	catData := append(key, iv...)
 	cacheKey := formatter.CRYPTO_CACHE_KEY + sessionID
-	err = u.cache.Set(ctx, cacheKey, catData, time.Hour*10)
+	err = usecase.cache.Set(ctx, cacheKey, catData, time.Hour*10)
 	if err != nil {
 		c := &i18n.LocalizeConfig{MessageID: model.E9999}
-		return "", "", "", model.NewErrUnprocessable(model.E9999, u.localizer.MustLocalize((c)))
+		return "", "", "", model.NewErrUnprocessable(model.E9999, usecase.localizer.MustLocalize((c)))
 	}
 
-	if !u.cfg.IsMultiDeviceAccess() {
+	if !usecase.cfg.IsMultiDeviceAccess() {
 		// ログイン別のSessionIDをキャッシュ
 		sessionCat := []byte(sessionID)
 		sessionCacheKey := formatter.CRYPTO_CACHE_KEY + user.UUID
-		err = u.cache.Set(ctx, sessionCacheKey, sessionCat, time.Hour*10)
+		err = usecase.cache.Set(ctx, sessionCacheKey, sessionCat, time.Hour*10)
 		if err != nil {
 			c := &i18n.LocalizeConfig{MessageID: model.E9999}
-			return "", "", "", model.NewErrUnprocessable(model.E9999, u.localizer.MustLocalize(c))
+			return "", "", "", model.NewErrUnprocessable(model.E9999, usecase.localizer.MustLocalize(c))
 		}
 	}
 
@@ -117,16 +117,16 @@ func (u *sessionUsecase) login(ctx context.Context, user *entity.User) (string, 
 	return accountToken, keyStr, ivStr, nil
 }
 
-func (u *sessionUsecase) generateToken(user *entity.User) (string, error) {
+func (usecase *sessionUsecase) generateToken(user *entity.User) (string, error) {
 	claims := &middleware.Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			ID:        strconv.FormatUint(uint64(user.ID), 10),
 			ExpiresAt: jwt.NewNumericDate(flextime.Now().Add(10 * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(flextime.Now()),
 			NotBefore: jwt.NewNumericDate(flextime.Now()),
-			Subject:   u.cfg.Jwt.Issuer,
-			Issuer:    u.cfg.Jwt.Issuer,
-			Audience:  []string{u.cfg.Jwt.Audience},
+			Subject:   usecase.cfg.Jwt.Issuer,
+			Issuer:    usecase.cfg.Jwt.Issuer,
+			Audience:  []string{usecase.cfg.Jwt.Audience},
 		},
 		Uuid:        user.UUID,
 		Name:        user.Name,
@@ -136,12 +136,12 @@ func (u *sessionUsecase) generateToken(user *entity.User) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	key := []byte(u.cfg.Jwt.Secret)
+	key := []byte(usecase.cfg.Jwt.Secret)
 
 	return token.SignedString(key)
 }
 
-func (u *sessionUsecase) generateKeyAndIV() ([]byte, []byte, error) {
+func (usecase *sessionUsecase) generateKeyAndIV() ([]byte, []byte, error) {
 	key := make([]byte, formatter.KEY_SIZE)
 	_, err := rand.Read(key)
 	if err != nil {

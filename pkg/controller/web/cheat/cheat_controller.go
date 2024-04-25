@@ -17,6 +17,6 @@ func NewCheatRootController(cfg *config.Config) *CheatRootController {
 	}
 }
 
-func (c *CheatRootController) Get(ctx *gin.Context) {
+func (ctl *CheatRootController) Get(ctx *gin.Context) {
 	ctx.HTML(http.StatusOK, "cheat/index", gin.H{})
 }
