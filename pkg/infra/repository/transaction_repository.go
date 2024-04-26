@@ -22,11 +22,11 @@ func NewTransaction(db *gorm.DB) repository.Transaction {
 	return &dbTransaction{db: db}
 }
 
-func (t *dbTransaction) DoInTx(ctx context.Context, f func(ctx context.Context) (interface{}, error)) (interface{}, error) {
+func (transaction *dbTransaction) DoInTx(ctx context.Context, f func(ctx context.Context) (interface{}, error)) (interface{}, error) {
 	var value interface{}
 
 	txFn := func() error {
-		v, err := t.commit(ctx, f)
+		v, err := transaction.commit(ctx, f)
 		if err != nil {
 			return err
 		}
@@ -37,7 +37,7 @@ func (t *dbTransaction) DoInTx(ctx context.Context, f func(ctx context.Context) 
 	err := retry.Do(
 		txFn,
 		retry.RetryIf(func(err error) bool {
-			return t.isDeadLock(err)
+			return transaction.isDeadLock(err)
 		}),
 		retry.DelayType(func(n uint, err error, config *retry.Config) time.Duration {
 			return time.Duration(n) * time.Second
@@ -54,8 +54,8 @@ func GetTx(ctx context.Context) (*gorm.DB, bool) {
 	return tx, ok
 }
 
-func (t *dbTransaction) commit(ctx context.Context, f func(ctx context.Context) (interface{}, error)) (value interface{}, err error) {
-	tx := t.db.Begin()
+func (transaction *dbTransaction) commit(ctx context.Context, f func(ctx context.Context) (interface{}, error)) (value interface{}, err error) {
+	tx := transaction.db.Begin()
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -84,7 +84,7 @@ func (t *dbTransaction) commit(ctx context.Context, f func(ctx context.Context) 
 	return v, nil
 }
 
-func (t *dbTransaction) isDeadLock(err error) bool {
+func (transaction *dbTransaction) isDeadLock(err error) bool {
 	if err == nil {
 		return false
 	}

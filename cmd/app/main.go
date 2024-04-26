@@ -30,6 +30,12 @@ import (
 	"gorm.io/gorm"
 )
 
+// @title My Go Server API
+// @version 1
+// @description This is a sample server for My Go Server API.
+// @securityDefinitions.apiKey Bearer
+// @in header
+// @name Authorization
 func main() {
 	cfg, err := config.NewConfig()
 	if err != nil {

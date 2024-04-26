@@ -16,8 +16,8 @@ func NewSeedRepository[T entity.SeedType](db *gorm.DB) repository.Seed[T] {
 	return &seedRepository[T]{db: db}
 }
 
-func (r *seedRepository[T]) GetAll(ctx context.Context, preloads ...string) ([]T, error) {
-	db := r.db
+func (repo *seedRepository[T]) GetAll(ctx context.Context, preloads ...string) ([]T, error) {
+	db := repo.db
 	for _, preload := range preloads {
 		db = db.Preload(preload)
 	}
@@ -30,9 +30,9 @@ func (r *seedRepository[T]) GetAll(ctx context.Context, preloads ...string) ([]T
 	return entitys, nil
 }
 
-func (r *seedRepository[T]) Where(ctx context.Context, param T) ([]T, error) {
+func (repo *seedRepository[T]) Where(ctx context.Context, param T) ([]T, error) {
 	var entitys []T
-	if err := r.db.WithContext(ctx).Where(&param).Find(&entitys).Error; err != nil {
+	if err := repo.db.WithContext(ctx).Where(&param).Find(&entitys).Error; err != nil {
 		return nil, err
 	}
 
