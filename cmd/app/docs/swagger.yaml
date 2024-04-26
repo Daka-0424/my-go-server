@@ -1,0 +1,12 @@
+info:
+  contact: {}
+  description: This is a sample server for My Go Server API.
+  title: My Go Server API
+  version: "1"
+paths: {}
+securityDefinitions:
+  Bearer:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

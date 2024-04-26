@@ -18,7 +18,7 @@ func NewUserRepository(db *gorm.DB) repository.User {
 	return &userRepository{db: db}
 }
 
-func (r *userRepository) ExistsUser(ctx context.Context, uuid string) (bool, error) {
+func (repo *userRepository) ExistsUser(ctx context.Context, uuid string) (bool, error) {
 	tx, ok := GetTx(ctx)
 
 	if !ok {
@@ -33,7 +33,7 @@ func (r *userRepository) ExistsUser(ctx context.Context, uuid string) (bool, err
 	return count > 0, nil
 }
 
-func (r *userRepository) CreateUser(ctx context.Context, Uuid, name, device, clientVersion string, platform uint) (*entity.User, error) {
+func (repo *userRepository) CreateUser(ctx context.Context, Uuid, name, device, clientVersion string, platform uint) (*entity.User, error) {
 	tx, ok := GetTx(ctx)
 	if !ok {
 		return nil, repository.ErrTx
@@ -55,7 +55,7 @@ func (r *userRepository) CreateUser(ctx context.Context, Uuid, name, device, cli
 	return &user, nil
 }
 
-func (r *userRepository) CreateUserParams(ctx context.Context, userID uint) error {
+func (repo *userRepository) CreateUserParams(ctx context.Context, userID uint) error {
 	tx, ok := GetTx(ctx)
 	if !ok {
 		return repository.ErrTx
@@ -70,20 +70,20 @@ func (r *userRepository) CreateUserParams(ctx context.Context, userID uint) erro
 	return nil
 }
 
-func (r *userRepository) CreateUserSummaryRelation(ctx context.Context, vc *entity.UserSummaryRelation) error {
+func (repo *userRepository) CreateUserSummaryRelation(ctx context.Context, vc *entity.UserSummaryRelation) error {
 	tx, ok := GetTx(ctx)
 
 	if !ok {
-		tx = r.db
+		tx = repo.db
 	}
 
 	return tx.Create(&vc).Error
 }
 
-func (r *userRepository) FindByUniqueUser(ctx context.Context, userId uint, uuid string, preloads ...string) (*entity.User, error) {
+func (repo *userRepository) FindByUniqueUser(ctx context.Context, userId uint, uuid string, preloads ...string) (*entity.User, error) {
 	tx, ok := GetTx(ctx)
 	if !ok {
-		tx = r.db
+		tx = repo.db
 	}
 
 	for _, preload := range preloads {
@@ -102,10 +102,10 @@ func (r *userRepository) FindByUniqueUser(ctx context.Context, userId uint, uuid
 	return &user, nil
 }
 
-func (r *userRepository) FindByUuid(ctx context.Context, uuid string, preloads ...string) (*entity.User, error) {
+func (repo *userRepository) FindByUuid(ctx context.Context, uuid string, preloads ...string) (*entity.User, error) {
 	tx, ok := GetTx(ctx)
 	if !ok {
-		tx = r.db
+		tx = repo.db
 	}
 
 	for _, preload := range preloads {
@@ -124,10 +124,10 @@ func (r *userRepository) FindByUuid(ctx context.Context, uuid string, preloads .
 	return &user, nil
 }
 
-func (r *userRepository) FindByUuids(ctx context.Context, uuids []string, preloads ...string) ([]*entity.User, error) {
+func (repo *userRepository) FindByUuids(ctx context.Context, uuids []string, preloads ...string) ([]*entity.User, error) {
 	tx, ok := GetTx(ctx)
 	if !ok {
-		tx = r.db
+		tx = repo.db
 	}
 
 	for _, preload := range preloads {
@@ -143,10 +143,10 @@ func (r *userRepository) FindByUuids(ctx context.Context, uuids []string, preloa
 	return users, nil
 }
 
-func (r *userRepository) FindByUserId(ctx context.Context, userId uint, preloads ...string) (*entity.User, error) {
+func (repo *userRepository) FindByUserId(ctx context.Context, userId uint, preloads ...string) (*entity.User, error) {
 	tx, ok := GetTx(ctx)
 	if !ok {
-		tx = r.db
+		tx = repo.db
 	}
 
 	for _, preload := range preloads {
@@ -165,10 +165,10 @@ func (r *userRepository) FindByUserId(ctx context.Context, userId uint, preloads
 	return &user, nil
 }
 
-func (r *userRepository) FindByUserIds(ctx context.Context, userIds []uint, preloads ...string) ([]*entity.User, error) {
+func (repo *userRepository) FindByUserIds(ctx context.Context, userIds []uint, preloads ...string) ([]*entity.User, error) {
 	tx, ok := GetTx(ctx)
 	if !ok {
-		tx = r.db
+		tx = repo.db
 	}
 
 	for _, preload := range preloads {
@@ -184,11 +184,11 @@ func (r *userRepository) FindByUserIds(ctx context.Context, userIds []uint, prel
 	return users, nil
 }
 
-func (r *userRepository) FindUserWithVc(ctx context.Context, userID uint) (*entity.User, *entity.UserSummaryRelation, error) {
+func (repo *userRepository) FindUserWithVc(ctx context.Context, userID uint) (*entity.User, *entity.UserSummaryRelation, error) {
 	tx, ok := GetTx(ctx)
 
 	if !ok {
-		tx = r.db
+		tx = repo.db
 	}
 
 	var user entity.User
@@ -208,11 +208,11 @@ func (r *userRepository) FindUserWithVc(ctx context.Context, userID uint) (*enti
 	return &user, &vc, nil
 }
 
-func (r *userRepository) FindUserPointSummary(ctx context.Context, userID uint, platformNumber uint, paidKind int) (*entity.UserPointSummary, error) {
+func (repo *userRepository) FindUserPointSummary(ctx context.Context, userID uint, platformNumber uint, paidKind int) (*entity.UserPointSummary, error) {
 	tx, ok := GetTx(ctx)
 
 	if !ok {
-		tx = r.db
+		tx = repo.db
 	}
 
 	var vc entity.UserPointSummary
@@ -225,11 +225,11 @@ func (r *userRepository) FindUserPointSummary(ctx context.Context, userID uint, 
 	return &vc, nil
 }
 
-func (r *userRepository) FindOtherPlatformVc(ctx context.Context, userID uint, platformNumber uint) (*entity.UserSummaryRelation, error) {
+func (repo *userRepository) FindOtherPlatformVc(ctx context.Context, userID uint, platformNumber uint) (*entity.UserSummaryRelation, error) {
 	tx, ok := GetTx(ctx)
 
 	if !ok {
-		tx = r.db
+		tx = repo.db
 	}
 
 	var vc entity.UserSummaryRelation
@@ -242,11 +242,11 @@ func (r *userRepository) FindOtherPlatformVc(ctx context.Context, userID uint, p
 	return &vc, nil
 }
 
-func (r *userRepository) FirstOrCreateFreePointSummary(ctx context.Context, userID uint, paidKind int) (*entity.UserPointSummary, error) {
+func (repo *userRepository) FirstOrCreateFreePointSummary(ctx context.Context, userID uint, paidKind int) (*entity.UserPointSummary, error) {
 	tx, ok := GetTx(ctx)
 
 	if !ok {
-		tx = r.db
+		tx = repo.db
 	}
 
 	var vc entity.UserPointSummary
@@ -257,7 +257,7 @@ func (r *userRepository) FirstOrCreateFreePointSummary(ctx context.Context, user
 	return &vc, nil
 }
 
-func (r *userRepository) UpdateUser(ctx context.Context, user *entity.User) error {
+func (repo *userRepository) UpdateUser(ctx context.Context, user *entity.User) error {
 	tx, ok := GetTx(ctx)
 	if !ok {
 		return repository.ErrTx
