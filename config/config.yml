@@ -1,5 +1,6 @@
 mysql:
   db_conn: "root:P@ssw0rd!@tcp(db:3306)/appdb?parseTime=True&loc=Asia%2FTokyo"
+  read_db_conn: "root:P@ssw0rd!@tcp(readdb:3306)/readdb?parseTime=True&loc=Asia%2FTokyo"
 jwt:
   secret: "SpBE*2BBtiN_AQfaiT(jMmWxMqWV4%v2"
   issuer: "http://localhost:8080"

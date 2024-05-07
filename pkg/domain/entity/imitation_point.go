@@ -8,7 +8,6 @@ type ImitationPoint struct {
 	UserSummaryRelationID uint                `json:"user_summary_relation_id" gorm:"not null"`
 	UserSummaryRelation   UserSummaryRelation `json:"user_summary_relation"`
 	PlatformProductID     uint                `json:"platform_product_id"`
-	PlatformProduct       PlatformProduct     `json:"platform_product"`
 	FreeEarnedPointID     uint                `json:"free_earned_point_id"`
 	PaidEarnedPointID     uint                `json:"paid_earned_point_id"`
 	AdminUserID           uint                `json:"admin_user_id"`

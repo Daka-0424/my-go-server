@@ -13,6 +13,7 @@ services:
       - ./:/app
     depends_on:
       - db
+      - readdb
 
   db:
     container_name: go_db
@@ -25,7 +26,19 @@ services:
       MYSQL_DATABASE: appdb
     ports:
       - 3306:3306
-    
+
+  readdb:
+    container_name: go_read_db
+    image: mysql:8.0
+    platform: linux/amd64
+    volumes:
+      - ./tmp/readdb:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: P@ssw0rd!
+      MYSQL_DATABASE: readdb
+    ports:
+      - 3307:3306
+
   redis:
     container_name: go_redis
     image: redis:latest

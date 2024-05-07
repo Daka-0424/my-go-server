@@ -5,6 +5,7 @@ import (
 
 	"github.com/Daka-0424/my-go-server/pkg/domain/entity"
 	"github.com/Daka-0424/my-go-server/pkg/domain/repository"
+	"github.com/Daka-0424/my-go-server/pkg/infra"
 	"gorm.io/gorm"
 )
 
@@ -12,9 +13,9 @@ type adminRepository struct {
 	db *gorm.DB
 }
 
-func NewAdminRepository(db *gorm.DB) repository.Admin {
+func NewAdminRepository(connector *infra.MySQLConnector) repository.Admin {
 	return &adminRepository{
-		db: db,
+		db: connector.DB,
 	}
 }
 

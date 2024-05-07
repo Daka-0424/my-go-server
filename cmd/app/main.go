@@ -27,7 +27,6 @@ import (
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
 	"golang.org/x/text/language"
-	"gorm.io/gorm"
 )
 
 // @title My Go Server API
@@ -49,13 +48,13 @@ func main() {
 
 	localizer := newLocalizer()
 
-	migrate(mysql.DB)
+	migrate(mysql)
 
 	app := fx.New(
 		fx.WithLogger(func(log *zap.Logger) fxevent.Logger {
 			return &fxevent.ZapLogger{Logger: log}
 		}),
-		fx.Supply(cfg, localizer, mysql.DB, redis.Client, handler, redis.RedSync),
+		fx.Supply(cfg, localizer, mysql, redis.Client, handler, redis.RedSync),
 		repository.Modules(),
 		service.Modules(),
 		usecase.Modules(),
@@ -134,10 +133,12 @@ func lifecycle(lc fx.Lifecycle, cfg *config.Config, handler *gin.Engine) {
 	})
 }
 
-func migrate(db *gorm.DB) {
-	err := db.AutoMigrate(entity.Entity()...)
+func migrate(connector *infra.MySQLConnector) {
+	if err := connector.DB.AutoMigrate(entity.Entity()...); err != nil {
+		panic(err)
+	}
 
-	if err != nil {
+	if err := connector.ReadDB.AutoMigrate(entity.ReadEntity()...); err != nil {
 		panic(err)
 	}
 }

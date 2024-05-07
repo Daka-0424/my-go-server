@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/Daka-0424/my-go-server/pkg/domain/repository"
+	"github.com/Daka-0424/my-go-server/pkg/infra"
 	"github.com/avast/retry-go"
 	"github.com/go-sql-driver/mysql"
 	"gorm.io/gorm"
@@ -15,11 +16,13 @@ import (
 var txKey = struct{}{}
 
 type dbTransaction struct {
-	db *gorm.DB
+	connector *infra.MySQLConnector
 }
 
-func NewTransaction(db *gorm.DB) repository.Transaction {
-	return &dbTransaction{db: db}
+func NewTransaction(connector *infra.MySQLConnector) repository.Transaction {
+	return &dbTransaction{
+		connector: connector,
+	}
 }
 
 func (transaction *dbTransaction) DoInTx(ctx context.Context, f func(ctx context.Context) (interface{}, error)) (interface{}, error) {
@@ -55,7 +58,7 @@ func GetTx(ctx context.Context) (*gorm.DB, bool) {
 }
 
 func (transaction *dbTransaction) commit(ctx context.Context, f func(ctx context.Context) (interface{}, error)) (value interface{}, err error) {
-	tx := transaction.db.Begin()
+	tx := transaction.connector.DB.Begin()
 
 	defer func() {
 		if r := recover(); r != nil {

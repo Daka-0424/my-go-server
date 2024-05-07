@@ -6,6 +6,7 @@ import (
 
 	"github.com/Daka-0424/my-go-server/pkg/domain/entity"
 	"github.com/Daka-0424/my-go-server/pkg/domain/repository"
+	"github.com/Daka-0424/my-go-server/pkg/infra"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -14,8 +15,10 @@ type userRepository struct {
 	db *gorm.DB
 }
 
-func NewUserRepository(db *gorm.DB) repository.User {
-	return &userRepository{db: db}
+func NewUserRepository(connector *infra.MySQLConnector) repository.User {
+	return &userRepository{
+		db: connector.DB,
+	}
 }
 
 func (repo *userRepository) ExistsUser(ctx context.Context, uuid string) (bool, error) {

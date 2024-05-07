@@ -6,7 +6,11 @@ func Entity() []any {
 	return []any{
 		// User
 		&User{},
+	}
+}
 
+func ReadEntity() []any {
+	return []any{
 		// Seed
 		&PlatformProduct{},
 	}

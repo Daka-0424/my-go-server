@@ -8,11 +8,13 @@ import (
 )
 
 type MySQLConnector struct {
-	DB *gorm.DB
+	DB     *gorm.DB
+	ReadDB *gorm.DB
 }
 
 func NewMySQLConnector(cfg *config.Config) *MySQLConnector {
 	conn := cfg.MySQL.DBConn
+	readDBConn := cfg.MySQL.ReadDBConn
 
 	log := logger.Default
 	if cfg.IsDevelopment() {
@@ -25,7 +27,15 @@ func NewMySQLConnector(cfg *config.Config) *MySQLConnector {
 		panic(err)
 	}
 
+	readDB, err := gorm.Open(mysql.Open(readDBConn), &gorm.Config{
+		Logger: log,
+	})
+	if err != nil {
+		panic(err)
+	}
+
 	return &MySQLConnector{
-		DB: db,
+		DB:     db,
+		ReadDB: readDB,
 	}
 }

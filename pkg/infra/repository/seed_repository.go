@@ -5,6 +5,7 @@ import (
 
 	"github.com/Daka-0424/my-go-server/pkg/domain/entity"
 	"github.com/Daka-0424/my-go-server/pkg/domain/repository"
+	"github.com/Daka-0424/my-go-server/pkg/infra"
 	"gorm.io/gorm"
 )
 
@@ -12,8 +13,10 @@ type seedRepository[T entity.SeedType] struct {
 	db *gorm.DB
 }
 
-func NewSeedRepository[T entity.SeedType](db *gorm.DB) repository.Seed[T] {
-	return &seedRepository[T]{db: db}
+func NewSeedRepository[T entity.SeedType](connector *infra.MySQLConnector) repository.Seed[T] {
+	return &seedRepository[T]{
+		db: connector.ReadDB,
+	}
 }
 
 func (repo *seedRepository[T]) GetAll(ctx context.Context, preloads ...string) ([]T, error) {

@@ -16,7 +16,8 @@ type (
 	}
 
 	MySQL struct {
-		DBConn string `env-required:"true" yaml:"db_conn" env:"DB_CONN"`
+		DBConn     string `env-required:"true" yaml:"db_conn" env:"DB_CONN"`
+		ReadDBConn string `env-required:"true" yaml:"read_db_conn" env:"READ_DB_CONN"`
 	}
 
 	Jwt struct {
