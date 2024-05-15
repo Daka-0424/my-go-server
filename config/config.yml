@@ -19,5 +19,15 @@ review_version:
 requirement_version:
   ios: "1.0.0"
   android: "1.0.0"
-load_test_settings:
-  enable: "false"
+appstore:
+  appstore_key_content: "TODO /app/config/appstore_key_content.pem"
+  appstore_private_key: "TODO /app/config/appstore_private_key.pem"
+  appstore_bundle_id: "you_bundle_id"
+  appstore_issuer_id: "you_issuer_id"
+sandbox_appstore:
+  sandbox_appstore_key_content: "TODO /app/config/sandbox_appstore_key_content.pem"
+  sandbox_appstore_private_key: "TODO /app/config/sandbox_appstore_private_key.pem"
+  sandbox_appstore_bundle_id: "you_sandbox_bundle_id"
+  sandbox_appstore_issuer_id: "you_sandbox_issuer_id"
+google_play:
+  base64_encoded_public_key: "you_public_key"

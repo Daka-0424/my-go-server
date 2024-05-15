@@ -4,15 +4,40 @@ import (
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
+const (
+	PlatformUnknown = iota
+	PlatformAndroid
+	PlatformIOS
+	PlatformWebgl
+	PlatformWindows
+)
+
+func PlatformName(platformNumber uint) string {
+	switch platformNumber {
+	case PlatformAndroid:
+		return "Android"
+	case PlatformIOS:
+		return "iOS"
+	case PlatformWebgl:
+		return "WebGL"
+	case PlatformWindows:
+		return "Windows"
+	default:
+		return "Unknown"
+	}
+}
+
 type (
 	Config struct {
-		MySQL            `yaml:"mysql"`
-		Jwt              `yaml:"jwt"`
-		Redis            `yaml:"redis"`
-		Settings         `yaml:"settings"`
-		Cookie           `yaml:"cookie"`
-		LoadTestSettings `yaml:"load_test_settings"`
-		MultiDevice      `yaml:"multi_device"`
+		MySQL           `yaml:"mysql"`
+		Jwt             `yaml:"jwt"`
+		Redis           `yaml:"redis"`
+		Settings        `yaml:"settings"`
+		Cookie          `yaml:"cookie"`
+		Appstore        `yaml:"appstore"`
+		SandboxAppstore `yaml:"sandbox_appstore"`
+		GooglePlay      `yaml:"google_play"`
+		MultiDevice     `yaml:"multi_device"`
 	}
 
 	MySQL struct {
@@ -39,17 +64,32 @@ type (
 	}
 
 	ReviewVersion struct {
-		iOS     string `yaml:"ios" env:"REVIEW_VERSION_IOS"`
+		IOS     string `yaml:"ios" env:"REVIEW_VERSION_IOS"`
 		Android string `yaml:"android" env:"REVIEW_VERSION_ANDROID"`
 	}
 
 	RequirementVersion struct {
-		iOS     string `yaml:"ios" env:"REQUIREMENT_VERSION_IOS"`
+		IOS     string `yaml:"ios" env:"REQUIREMENT_VERSION_IOS"`
 		Android string `yaml:"android" env:"REQUIREMENT_VERSION_ANDROID"`
 	}
 
-	LoadTestSettings struct {
-		Enable string `yaml:"enable" env:"LOAD_TEST_ENABLE"`
+	Appstore struct {
+		KeyContent string `yaml:"appstore_key_content" env:"APPSTORE_KEY_CONTENT"`
+		KeyID      string `yaml:"appstore_private_key" env:"APPSTORE_KEY_ID"`
+		BundleID   string `yaml:"appstore_bundle_id" env:"APPSTORE_BUNDLE_ID"`
+		IssuerID   string `yaml:"appstore_issuer_id" env:"APPSTORE_ISSUER_ID"`
+	}
+
+	SandboxAppstore struct {
+		SandboxKeyContent string `yaml:"sandbox_appstore_key_content" env:"SANDBOX_APPSTORE_KEY_CONTENT"`
+		SandboxKeyID      string `yaml:"sandbox_appstore_private_key" env:"SANDBOX_APPSTORE_KEY_ID"`
+		SandboxBundleID   string `yaml:"sandbox_appstore_bundle_id" env:"SANDBOX_APPSTORE_BUNDLE_ID"`
+		SandboxIssuerID   string `yaml:"sandbox_appstore_issuer_id" env:"SANDBOX_APPSTORE_ISSUER_ID"`
+	}
+
+	GooglePlay struct {
+		Base64EncodedPublicKey       string `yaml:"base64_encoded_public_key" env:"GOOGLE_PLAY_BASE64_ENCODED_PUBLIC_KEY"`
+		GoogleApplicationCredentials string `yaml:"google_application_credentials" env:"GOOGLE_STORE_APPLICATION_CREDENTIALS"`
 	}
 
 	MultiDevice struct {
@@ -59,10 +99,6 @@ type (
 
 func (s Settings) IsDevelopment() bool {
 	return s.Environment == "Development"
-}
-
-func (s LoadTestSettings) IsMock() bool {
-	return s.Enable == "true"
 }
 
 func (s MultiDevice) IsMultiDeviceAccess() bool {
