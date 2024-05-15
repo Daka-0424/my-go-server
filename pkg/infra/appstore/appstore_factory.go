@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/Daka-0424/my-go-server/config"
-	"github.com/Daka-0424/my-go-server/pkg/domain/store/appstore"
+	"github.com/Daka-0424/my-go-server/pkg/domain/appstore"
 	"github.com/awa/go-iap/appstore/api"
 )
 

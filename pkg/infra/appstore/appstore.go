@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	store "github.com/Daka-0424/my-go-server/pkg/domain/store/appstore"
+	"github.com/Daka-0424/my-go-server/pkg/domain/appstore"
 	"github.com/awa/go-iap/appstore/api"
 )
 
@@ -13,7 +13,7 @@ type AppStore struct {
 	sandboxClient *api.StoreClient
 }
 
-func NewAppStoreAPI(productionClientConfig, sandboxClientConfig *api.StoreConfig) store.AppStore {
+func NewAppStoreAPI(productionClientConfig, sandboxClientConfig *api.StoreConfig) appstore.AppStore {
 	return &AppStore{
 		client:        api.NewStoreClient(productionClientConfig),
 		sandboxClient: api.NewStoreClient(sandboxClientConfig),

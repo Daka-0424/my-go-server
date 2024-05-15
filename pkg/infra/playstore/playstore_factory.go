@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/Daka-0424/my-go-server/config"
-	"github.com/Daka-0424/my-go-server/pkg/domain/store/playstore"
+	"github.com/Daka-0424/my-go-server/pkg/domain/playstore"
 )
 
 type playstoreFactory struct {
