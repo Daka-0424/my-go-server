@@ -17,7 +17,7 @@ const (
 
 type adminControllerBase struct {
 	cfg       *config.Config
-	cache     repository.Cache
+	cache     repository.ICache
 	localizer *i18n.Localizer
 }
 

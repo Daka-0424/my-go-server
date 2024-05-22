@@ -6,8 +6,10 @@ import (
 	"github.com/Daka-0424/my-go-server/pkg/domain/entity"
 )
 
-type User interface {
+type IUser interface {
 	ExistsUser(ctx context.Context, uuid string) (bool, error)
+
+	CreateOrUpdate(ctx context.Context, user *entity.User) error
 
 	CreateUser(ctx context.Context, Uuid, name, device, clientVersion string, platform uint) (*entity.User, error)
 	CreateUserParams(ctx context.Context, userID uint) error

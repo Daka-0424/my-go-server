@@ -13,7 +13,7 @@ type AppStore struct {
 	sandboxClient *api.StoreClient
 }
 
-func NewAppStoreAPI(productionClientConfig, sandboxClientConfig *api.StoreConfig) appstore.AppStore {
+func NewAppStoreAPI(productionClientConfig, sandboxClientConfig *api.StoreConfig) appstore.IAppStore {
 	return &AppStore{
 		client:        api.NewStoreClient(productionClientConfig),
 		sandboxClient: api.NewStoreClient(sandboxClientConfig),

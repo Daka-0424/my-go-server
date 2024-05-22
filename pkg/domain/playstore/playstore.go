@@ -6,13 +6,13 @@ import (
 	"google.golang.org/api/androidpublisher/v3"
 )
 
-type GooglePlayStoreClient interface {
+type IGooglePlayStoreClient interface {
 	VerifyProduct(ctx context.Context, packageName, productID, token string) (*androidpublisher.ProductPurchase, error)
 	AcknowledgeProduct(ctx context.Context, packageName, productID, token, developerPayload string) error
 	//ConsumeProduct(ctx context.Context, packageName, productID, token string) error
 }
 
-type GooglePlayStore interface {
+type IGooglePlayStore interface {
 	VerifySignature(ctx context.Context, receipt []byte, signature string) (bool, error)
 }
 

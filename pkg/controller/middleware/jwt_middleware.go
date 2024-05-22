@@ -37,7 +37,7 @@ func (c Claims) IsSuperUser() bool {
 	return c.UserKind == entity.SuperUser
 }
 
-func JwtMiddleware(cfg *config.Config, localizer *i18n.Localizer, cache repository.Cache) gin.HandlerFunc {
+func JwtMiddleware(cfg *config.Config, localizer *i18n.Localizer, cache repository.ICache) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		tknstr, err := bearerToken(ctx)
 		if err != nil {

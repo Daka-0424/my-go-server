@@ -12,7 +12,7 @@ type adminRepository struct {
 	db *gorm.DB
 }
 
-func NewAdminRepository(db *gorm.DB) repository.Admin {
+func NewAdminRepository(db *gorm.DB) repository.IAdmin {
 	return &adminRepository{
 		db: db,
 	}

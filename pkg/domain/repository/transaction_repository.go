@@ -2,7 +2,7 @@ package repository
 
 import "context"
 
-type Transaction interface {
+type ITransaction interface {
 	DoInTx(context.Context, func(context.Context) (interface{}, error)) (interface{}, error)
 }
 

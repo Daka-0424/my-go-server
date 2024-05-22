@@ -8,11 +8,11 @@ import (
 	"gorm.io/gorm"
 )
 
-type seedRepository[T entity.SeedType] struct {
+type seedRepository[T entity.ISeedType] struct {
 	db *gorm.DB
 }
 
-func NewSeedRepository[T entity.SeedType](db *gorm.DB) repository.Seed[T] {
+func NewSeedRepository[T entity.ISeedType](db *gorm.DB) repository.ISeed[T] {
 	return &seedRepository[T]{db: db}
 }
 

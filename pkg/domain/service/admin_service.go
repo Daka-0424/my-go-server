@@ -7,15 +7,15 @@ import (
 	"github.com/Daka-0424/my-go-server/pkg/domain/repository"
 )
 
-type Admin interface {
+type IAdmin interface {
 }
 
 type adminService struct {
-	adminRepository repository.Admin
-	cache           repository.Cache
+	adminRepository repository.IAdmin
+	cache           repository.ICache
 }
 
-func NewAdminService(adminRepository repository.Admin, cache repository.Cache) Admin {
+func NewAdminService(adminRepository repository.IAdmin, cache repository.ICache) IAdmin {
 	return &adminService{
 		adminRepository: adminRepository,
 		cache:           cache,

@@ -12,13 +12,13 @@ type appstoreFactory struct {
 	cfg *config.Config
 }
 
-func NewAppStoreFactory(cfg *config.Config) appstore.AppstoreFactory {
+func NewAppStoreFactory(cfg *config.Config) appstore.IAppstoreFactory {
 	return &appstoreFactory{
 		cfg: cfg,
 	}
 }
 
-func (a *appstoreFactory) Create(ctx context.Context) (appstore.AppStore, error) {
+func (a *appstoreFactory) Create(ctx context.Context) (appstore.IAppStore, error) {
 	prdConfig, err := newPrdAppStoreConfig(a.cfg, false)
 	if err != nil {
 		return nil, err

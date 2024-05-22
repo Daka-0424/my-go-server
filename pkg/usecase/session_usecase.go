@@ -19,24 +19,24 @@ import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
-type Session interface {
+type ISession interface {
 	CreateSession(ctx context.Context, userId uint, uuid, device, appVersion string, platformNumber uint) (*model.Session, error)
 }
 
 type sessionUsecase struct {
 	cfg            *config.Config
 	localizer      *i18n.Localizer
-	cache          repository.Cache
-	transaction    repository.Transaction
-	userRepository repository.User
+	cache          repository.ICache
+	transaction    repository.ITransaction
+	userRepository repository.IUser
 }
 
 func NewSessionUsecase(
 	cfg *config.Config,
 	lc *i18n.Localizer,
-	cache repository.Cache,
-	transaction repository.Transaction,
-	userRepository repository.User) Session {
+	cache repository.ICache,
+	transaction repository.ITransaction,
+	userRepository repository.IUser) ISession {
 	return &sessionUsecase{
 		cfg:            cfg,
 		localizer:      lc,

@@ -6,7 +6,7 @@ import (
 	"github.com/awa/go-iap/appstore/api"
 )
 
-type AppStore interface {
+type IAppStore interface {
 	GetTrancaction(ctx context.Context, transactionID string) (*api.JWSTransaction, error)
 }
 

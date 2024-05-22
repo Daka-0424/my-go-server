@@ -11,11 +11,28 @@ import (
 )
 
 type userRepository struct {
-	db *gorm.DB
+	db     *gorm.DB
+	fields []string
 }
 
-func NewUserRepository(db *gorm.DB) repository.User {
-	return &userRepository{db: db}
+func NewUserRepository(db *gorm.DB) repository.IUser {
+	return &userRepository{
+		db:     db,
+		fields: entity.GetEntityFields(&entity.User{}),
+	}
+}
+
+func (repo *userRepository) CreateOrUpdate(ctx context.Context, user *entity.User) error {
+	tx, ok := GetTx(ctx)
+
+	if !ok {
+		return repository.ErrTx
+	}
+
+	return tx.Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "id"}},
+		DoUpdates: clause.AssignmentColumns(repo.fields),
+	}).Create(user).Error
 }
 
 func (repo *userRepository) ExistsUser(ctx context.Context, uuid string) (bool, error) {

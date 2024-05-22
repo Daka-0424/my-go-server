@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-type Cache interface {
+type ICache interface {
 	Get(context.Context, string) ([]byte, bool, error)
 	Set(context.Context, string, []byte, time.Duration) error
 	Delete(context.Context, string) error

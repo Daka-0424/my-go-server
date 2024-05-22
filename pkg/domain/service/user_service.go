@@ -14,26 +14,32 @@ const (
 	CodeKey           = 81
 )
 
-type User interface {
+type IUser interface {
 	Register(ctx context.Context, uuid, device, clientVersion string, platformNumber uint) (*entity.User, error)
 }
 
 type userService struct {
-	userRepository repository.User
+	userRepository repository.IUser
 }
 
-func NewUserService(ur repository.User) User {
+func NewUserService(ur repository.IUser) IUser {
 	return &userService{
 		userRepository: ur,
 	}
 }
 
 func (service *userService) Register(ctx context.Context, uuid, device, clientVersion string, platformNumber uint) (*entity.User, error) {
-	// Userを作成
-	user, err := service.userRepository.CreateUser(ctx, uuid, entity.DefaultUserName, device, clientVersion, platformNumber)
-	if err != nil {
+	user := entity.NewUser(uuid, USER_DEFAULT_NAME, clientVersion, device, platformNumber)
+
+	if err := service.userRepository.CreateOrUpdate(ctx, user); err != nil {
 		return nil, err
 	}
+
+	// // Userを作成
+	// user, err := service.userRepository.CreateUser(ctx, uuid, entity.DefaultUserName, device, clientVersion, platformNumber)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	// DisplayCodeを作成
 	user.DisplayCode = service.createDisplayCode(ctx, user)

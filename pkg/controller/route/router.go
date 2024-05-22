@@ -12,7 +12,7 @@ import (
 func Route(
 	route *gin.Engine,
 	cfg *config.Config,
-	cache repository.Cache,
+	cache repository.ICache,
 	localizer *i18n.Localizer,
 	registration *controller.UserController,
 	session *controller.SessionController,

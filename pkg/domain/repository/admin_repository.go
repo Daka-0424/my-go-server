@@ -6,7 +6,7 @@ import (
 	"github.com/Daka-0424/my-go-server/pkg/domain/entity"
 )
 
-type Admin interface {
+type IAdmin interface {
 	// Exsists checks if the admin with the given email exists in the database.
 	Exsists(ctx context.Context, email string) bool
 

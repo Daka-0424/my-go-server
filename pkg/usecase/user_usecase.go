@@ -10,27 +10,27 @@ import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
-type User interface {
+type IUser interface {
 	Registration(ctx context.Context, uuid, device, clientVersion string, platformNumber uint) (*model.User, error)
 }
 
 type userUsercase struct {
 	cfg            *config.Config
 	localizer      *i18n.Localizer
-	transaction    repository.Transaction
-	userRepository repository.User
-	userService    service.User
-	vcService      service.Vc
+	transaction    repository.ITransaction
+	userRepository repository.IUser
+	userService    service.IUser
+	vcService      service.IVc
 }
 
 func NewUserUsecase(
 	cfg *config.Config,
 	lc *i18n.Localizer,
-	transaction repository.Transaction,
-	userRepository repository.User,
-	userService service.User,
-	vcService service.Vc,
-) User {
+	transaction repository.ITransaction,
+	userRepository repository.IUser,
+	userService service.IUser,
+	vcService service.IVc,
+) IUser {
 	return &userUsercase{
 		cfg:            cfg,
 		localizer:      lc,

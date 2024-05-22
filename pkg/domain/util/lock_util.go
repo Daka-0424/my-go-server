@@ -5,11 +5,11 @@ import (
 	"time"
 )
 
-type MutexFactory interface {
-	Create(key string, ttl time.Duration) Mutex
+type IMutexFactory interface {
+	Create(key string, ttl time.Duration) IMutex
 }
 
-type Mutex interface {
+type IMutex interface {
 	Lock(ctx context.Context) error
 	Unlock(ctx context.Context) (bool, error)
 }

@@ -10,7 +10,7 @@ import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
-type PlatformProduct interface {
+type IPlatformProduct interface {
 	ListPlatformProducts(ctx context.Context) (*model.PlatformProductList, error)
 	FindPlatformNumber(ctx context.Context, platformNumber uint) (*model.PlatformProductList, error)
 }
@@ -18,13 +18,13 @@ type PlatformProduct interface {
 type PlatformProductUsecase struct {
 	cfg                           *config.Config
 	localizer                     *i18n.Localizer
-	seedPlatformProductRepository repository.Seed[entity.PlatformProduct]
+	seedPlatformProductRepository repository.ISeed[entity.PlatformProduct]
 }
 
 func NewPlatformProductUsecase(
 	cfg *config.Config,
 	lc *i18n.Localizer,
-	seedPlatformProduct repository.Seed[entity.PlatformProduct]) PlatformProduct {
+	seedPlatformProduct repository.ISeed[entity.PlatformProduct]) IPlatformProduct {
 	return &PlatformProductUsecase{
 		cfg:                           cfg,
 		localizer:                     lc,
