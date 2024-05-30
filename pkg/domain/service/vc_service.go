@@ -14,14 +14,20 @@ type IVc interface {
 }
 
 type vcService struct {
-	userRepository repository.IUser
-	localizer      *i18n.Localizer
+	userRepository                repository.IUser
+	userSummaryRelationRepository repository.IUserSummaryRelation
+	localizer                     *i18n.Localizer
 }
 
-func NewVcService(ur repository.IUser, localizer *i18n.Localizer) IVc {
+func NewVcService(
+	ur repository.IUser,
+	usrr repository.IUserSummaryRelation,
+	localizer *i18n.Localizer,
+) IVc {
 	return &vcService{
-		userRepository: ur,
-		localizer:      localizer,
+		userRepository:                ur,
+		userSummaryRelationRepository: usrr,
+		localizer:                     localizer,
 	}
 }
 

@@ -20,7 +20,7 @@ func NewAppStoreAPI(productionClientConfig, sandboxClientConfig *api.StoreConfig
 	}
 }
 
-func (a AppStore) GetTrancaction(ctx context.Context, transactionID string) (*api.JWSTransaction, error) {
+func (a AppStore) GetTransaction(ctx context.Context, transactionID string) (*api.JWSTransaction, error) {
 	return a.getTransaction(ctx, transactionID)
 }
 

@@ -19,36 +19,29 @@ type IUser interface {
 }
 
 type userService struct {
-	userRepository repository.IUser
+	userRepository           repository.IUser
+	userLoginStateRepository repository.IUserLoginState
 }
 
-func NewUserService(ur repository.IUser) IUser {
+func NewUserService(
+	ur repository.IUser,
+	ulsr repository.IUserLoginState,
+) IUser {
 	return &userService{
-		userRepository: ur,
+		userRepository:           ur,
+		userLoginStateRepository: ulsr,
 	}
 }
 
 func (service *userService) Register(ctx context.Context, uuid, device, clientVersion string, platformNumber uint) (*entity.User, error) {
-	user := entity.NewUser(uuid, USER_DEFAULT_NAME, clientVersion, device, platformNumber)
-
-	if err := service.userRepository.CreateOrUpdate(ctx, user); err != nil {
+	user, err := service.userRepository.CreateUser(ctx, uuid, USER_DEFAULT_NAME, clientVersion, device, platformNumber)
+	if err != nil {
 		return nil, err
 	}
-
-	// // Userを作成
-	// user, err := service.userRepository.CreateUser(ctx, uuid, entity.DefaultUserName, device, clientVersion, platformNumber)
-	// if err != nil {
-	// 	return nil, err
-	// }
 
 	// DisplayCodeを作成
-	user.DisplayCode = service.createDisplayCode(ctx, user)
+	user.DisplayCode = service.createDisplayCode(user)
 	if err := service.userRepository.UpdateUser(ctx, user); err != nil {
-		return nil, err
-	}
-
-	// Userに紐づくレコードを作成
-	if err := service.userRepository.CreateUserParams(ctx, user.ID); err != nil {
 		return nil, err
 	}
 
@@ -56,7 +49,7 @@ func (service *userService) Register(ctx context.Context, uuid, device, clientVe
 	return user, nil
 }
 
-func (service *userService) createDisplayCode(ctx context.Context, user *entity.User) string {
+func (service *userService) createDisplayCode(user *entity.User) string {
 	first := rune((user.CreatedAt.Year() - 2020 + 45) % 256)
 	second := rune((int(user.CreatedAt.Month()) + 67) % 256)
 	code := hash(user.ID)

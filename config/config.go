@@ -34,6 +34,7 @@ type (
 		Redis           `yaml:"redis"`
 		Settings        `yaml:"settings"`
 		Cookie          `yaml:"cookie"`
+		Kpi             `yaml:"kpi"`
 		Appstore        `yaml:"appstore"`
 		SandboxAppstore `yaml:"sandbox_appstore"`
 		GooglePlay      `yaml:"google_play"`
@@ -61,6 +62,10 @@ type (
 	Cookie struct {
 		Key  string `yaml:"key" env:"ADMIN_COOKIE_KEY"`
 		Host string `yaml:"host" env:"ADMIN_COOKIE_HOST"`
+	}
+
+	Kpi struct {
+		ProjectID string `yaml:"project_id" env:"KPI_PROJECT_ID"`
 	}
 
 	ReviewVersion struct {

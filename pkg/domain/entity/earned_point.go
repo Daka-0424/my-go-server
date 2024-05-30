@@ -13,20 +13,20 @@ const (
 
 type EarnedPoint struct {
 	gorm.Model
-	UserID                   uint             `json:"user_id"`
-	UserPointSummaryID       uint             `json:"user_point_summary_id"`
-	UserPointSummary         UserPointSummary `json:"user_point_summary"`
-	PlatformProductID        uint             `json:"platform_product_id"`
-	ImitationPointID         uint             `json:"imitation_point_id"`
-	PlatformNumberOnSpending uint             `json:"platform_number_on_spending"`
-	PointExceeded            bool             `json:"point_exceeded"`
-	GemKind                  uint             `json:"gem_kind"`
-	SpendPoint               uint             `json:"spend_point"`
-	EarnedPoint              uint             `json:"earned_point"`
-	BalancePoint             uint             `json:"balance_point"`
-	EarnSource               string           `json:"earn_source"`
-	SpentAt                  *time.Time       `json:"spent_at"`
-	EarnedAt                 time.Time        `json:"earned_at"`
+	UserID                   uint       `json:"user_id" gorm:"not null"`
+	UserPointSummaryID       uint       `json:"user_point_summary_id" gorm:"not null"`
+	PlatformProductID        uint       `json:"platform_product_id"`
+	ImitationPointID         uint       `json:"imitation_point_id"`
+	PlatformNumberOnSpending uint       `json:"platform_number_on_spending"`
+	PointExceeded            bool       `json:"point_exceeded"`
+	GemKind                  uint       `json:"gem_kind"`
+	SpendPoint               uint       `json:"spend_point"`
+	EarnedPoint              uint       `json:"earned_point"`
+	BalancePoint             uint       `json:"balance_point"`
+	EarnSource               string     `json:"earn_source"`
+	SpentAt                  *time.Time `json:"spent_at"`
+	EarnedAt                 time.Time  `json:"earned_at"`
+	UserPointSummary         UserPointSummary
 }
 
 func NewCreateFreeEarnedPoint(vc *UserSummaryRelation, amount uint, vcPlatformProduct *PlatformProduct, earnSource string, imitationPoint *ImitationPoint) *EarnedPoint {

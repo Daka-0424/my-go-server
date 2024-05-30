@@ -16,7 +16,8 @@ type userLoginStateRepository struct {
 
 func NewUserLoginStateRepository(db *gorm.DB) repository.IUserLoginState {
 	return &userLoginStateRepository{
-		db: db,
+		db:     db,
+		fields: entity.GetEntityFields(entity.UserLoginState{}),
 	}
 }
 

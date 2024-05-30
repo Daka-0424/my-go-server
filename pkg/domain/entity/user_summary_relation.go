@@ -6,12 +6,12 @@ import (
 
 type UserSummaryRelation struct {
 	gorm.Model
-	UserID             uint             `json:"user_id" gorm:"not null"`
-	PlatformNumber     uint             `json:"platform_number" gorm:"not null"`
-	FreePointSummaryID uint             `json:"free_point_summary_id" gorm:"not null"`
-	FreePointSummary   UserPointSummary `json:"free_point_summary"`
-	PaidPointSummaryID uint             `json:"paid_point_summary_id" gorm:"not null"`
-	PaidPointSummary   UserPointSummary `json:"paid_point_summary"`
+	UserID             uint `json:"user_id" gorm:"not null <-:create"`
+	PlatformNumber     uint `json:"platform_number" gorm:"not null"`
+	FreePointSummaryID uint `json:"free_point_summary_id" gorm:"not null"`
+	PaidPointSummaryID uint `json:"paid_point_summary_id" gorm:"not null"`
+	FreePointSummary   UserPointSummary
+	PaidPointSummary   UserPointSummary
 }
 
 func NewUserSummaryRelation(
@@ -22,6 +22,10 @@ func NewUserSummaryRelation(
 		UserID:         userID,
 		PlatformNumber: platformNumber,
 	}
+}
+
+func (u *UserSummaryRelation) PointSummaries() []UserPointSummary {
+	return []UserPointSummary{u.FreePointSummary, u.PaidPointSummary}
 }
 
 func (u *UserSummaryRelation) BalancePoint() uint {

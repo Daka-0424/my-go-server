@@ -17,22 +17,10 @@ type userRepository struct {
 
 func NewUserRepository(db *gorm.DB) repository.IUser {
 	return &userRepository{
+
 		db:     db,
-		fields: entity.GetEntityFields(&entity.User{}),
+		fields: entity.GetEntityFields(entity.User{}),
 	}
-}
-
-func (repo *userRepository) CreateOrUpdate(ctx context.Context, user *entity.User) error {
-	tx, ok := GetTx(ctx)
-
-	if !ok {
-		return repository.ErrTx
-	}
-
-	return tx.Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "id"}},
-		DoUpdates: clause.AssignmentColumns(repo.fields),
-	}).Create(user).Error
 }
 
 func (repo *userRepository) ExistsUser(ctx context.Context, uuid string) (bool, error) {
@@ -72,21 +60,6 @@ func (repo *userRepository) CreateUser(ctx context.Context, Uuid, name, device, 
 	return &user, nil
 }
 
-func (repo *userRepository) CreateUserParams(ctx context.Context, userID uint) error {
-	tx, ok := GetTx(ctx)
-	if !ok {
-		return repository.ErrTx
-	}
-
-	loginState := entity.NewUserLoginState(userID)
-	err := tx.Create(&loginState).Error
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (repo *userRepository) CreateUserSummaryRelation(ctx context.Context, vc *entity.UserSummaryRelation) error {
 	tx, ok := GetTx(ctx)
 
@@ -110,9 +83,6 @@ func (repo *userRepository) FindByUniqueUser(ctx context.Context, userId uint, u
 	user := entity.User{}
 	err := tx.First(&user, "id = ? AND uuid = ?", userId, uuid).Error
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, repository.ErrNotFound
-		}
 		return nil, err
 	}
 
@@ -283,5 +253,6 @@ func (repo *userRepository) UpdateUser(ctx context.Context, user *entity.User) e
 	t := entity.User{Model: gorm.Model{ID: user.ID}}
 	tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&t)
 
-	return tx.Model(user).Select("*").Omit(clause.Associations).Updates(user).Error
+	return tx.Model(user).Select(repo.fields).Omit(clause.Associations).
+		Where("id = ?", user.ID).Updates(user).Error
 }

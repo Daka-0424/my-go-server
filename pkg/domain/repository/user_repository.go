@@ -9,10 +9,7 @@ import (
 type IUser interface {
 	ExistsUser(ctx context.Context, uuid string) (bool, error)
 
-	CreateOrUpdate(ctx context.Context, user *entity.User) error
-
 	CreateUser(ctx context.Context, Uuid, name, device, clientVersion string, platform uint) (*entity.User, error)
-	CreateUserParams(ctx context.Context, userID uint) error
 	CreateUserSummaryRelation(ctx context.Context, vc *entity.UserSummaryRelation) error
 
 	FindByUniqueUser(ctx context.Context, userId uint, uuid string, preloads ...string) (*entity.User, error)

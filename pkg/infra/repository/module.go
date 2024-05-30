@@ -11,6 +11,8 @@ func Modules() fx.Option {
 			NewRedisCache,
 			NewTransaction,
 			NewUserRepository,
+			NewUserLoginStateRepository,
+			NewUserSummaryRelationRepository,
 
 			// Seed
 			NewSeedRepository[entity.PlatformProduct],

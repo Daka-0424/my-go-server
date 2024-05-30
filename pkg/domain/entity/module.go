@@ -2,8 +2,6 @@ package entity
 
 import (
 	"reflect"
-	"strings"
-	"unicode"
 )
 
 const DEFAULT_DB_ID = 0
@@ -42,24 +40,16 @@ type ISeedType interface {
 
 func GetEntityFields(entity interface{}) []string {
 	var fields []string
-	modelType := reflect.TypeOf(User{})
+	modelType := reflect.TypeOf(entity)
 	for i := 0; i < modelType.NumField(); i++ {
 		field := modelType.Field(i)
-		tag := field.Tag.Get("gorm")
-		if field.Name != "Model" && !strings.Contains(tag, "foreignkey") {
-			fields = append(fields, field.Name)
+		tag := field.Tag.Get("json")
+		if tag != "" {
+			fields = append(fields, tag)
+		} else if field.Name == "Term" {
+			termFields := GetEntityFields(Term{})
+			fields = append(fields, termFields...)
 		}
 	}
 	return fields
-}
-
-func ToSnakeCase(str string) string {
-	var result []rune
-	for i, r := range str {
-		if i > 0 && unicode.IsUpper(r) {
-			result = append(result, '_')
-		}
-		result = append(result, unicode.ToLower(r))
-	}
-	return string(result)
 }
