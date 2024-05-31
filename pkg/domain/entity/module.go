@@ -23,6 +23,10 @@ func Entity() []any {
 		&SpendPointHistory{},
 		&SpendPointRelation{},
 
+		// Billing
+		&PaymentAppstoreToken{},
+		&PaymentPlaystoreToken{},
+
 		// Seed
 		&PlatformProduct{},
 	}

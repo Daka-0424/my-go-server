@@ -14,6 +14,7 @@ func Modules(cfg *config.Config) fx.Option {
 
 	return fx.Module("logger",
 		fx.Provide(
+			NewKpiLoggerFactory,
 			zapLoggerFactory,
 		),
 	)

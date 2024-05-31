@@ -12,7 +12,13 @@ func Modules() fx.Option {
 			NewTransaction,
 			NewUserRepository,
 			NewUserLoginStateRepository,
+			NewUserPointSummaryRepository,
+			NewEarnedPointRepository,
 			NewUserSummaryRelationRepository,
+
+			// Billing
+			NewPaymentAppstoreTokenRepository,
+			NewPaymentPlaystoreTokenRepository,
 
 			// Seed
 			NewSeedRepository[entity.PlatformProduct],

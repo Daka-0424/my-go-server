@@ -95,10 +95,10 @@ func (usecase *userUsercase) Registration(ctx context.Context, uuid, device, cli
 			return nil, model.NewErrBadRequest(model.E9999, usecase.localizer.MustLocalize(c))
 		}
 
-		loginDate := map[string]interface{}{
+		kpiDate := map[string]interface{}{
 			"user_id": user.ID,
 		}
-		kpiLogger.LogEvent(logger.KpiLogInstall, loginDate)
+		kpiLogger.LogEvent(logger.KpiLogInstall, kpiDate)
 		kpiLogger.Flush()
 
 		return model.NewUser(user), nil
