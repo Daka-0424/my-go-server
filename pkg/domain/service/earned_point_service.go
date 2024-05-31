@@ -16,18 +16,15 @@ type IEarnedPoint interface {
 type earnedPointService struct {
 	earnedPointRepository      repository.IEarnedPoint
 	userPointSummaryRepository repository.IUserPointSummary
-	appleReceiptRepository     repository.IPaymentAppstoreToken
 }
 
 func NewEarnedPointService(
 	epr repository.IEarnedPoint,
 	upsr repository.IUserPointSummary,
-	patr repository.IPaymentAppstoreToken,
 ) IEarnedPoint {
 	return &earnedPointService{
 		earnedPointRepository:      epr,
 		userPointSummaryRepository: upsr,
-		appleReceiptRepository:     patr,
 	}
 }
 

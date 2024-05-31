@@ -19,7 +19,6 @@ type IAppstore interface {
 
 type appstoreUsecase struct {
 	appstoreFactory               appstore.IAppstoreFactory
-	userRepository                repository.IUser
 	appstoreRepository            repository.IPaymentAppstoreToken
 	userSummaryRelationRepository repository.IUserSummaryRelation
 	userPointSummaryRepository    repository.IUserPointSummary
@@ -32,7 +31,6 @@ type appstoreUsecase struct {
 
 func NewAppstoreUsecase(
 	appstoreFactory appstore.IAppstoreFactory,
-	ur repository.IUser,
 	par repository.IPaymentAppstoreToken,
 	usrr repository.IUserSummaryRelation,
 	upsr repository.IUserPointSummary,
@@ -44,7 +42,6 @@ func NewAppstoreUsecase(
 ) IAppstore {
 	return &appstoreUsecase{
 		appstoreFactory:               appstoreFactory,
-		userRepository:                ur,
 		appstoreRepository:            par,
 		userSummaryRelationRepository: usrr,
 		userPointSummaryRepository:    upsr,
@@ -57,48 +54,49 @@ func NewAppstoreUsecase(
 }
 
 func (usecase *appstoreUsecase) AppstoreBilling(ctx context.Context, userID uint, transactionID string, purchaseItemID uint) (*model.ReceiptResult, error) {
-	kpiLogger, err := usecase.kpiLoggerFactory.Create(ctx)
-	if err != nil {
-		c := &i18n.LocalizeConfig{MessageID: model.E9999}
-		return nil, model.NewErrBadRequest(model.E9999, usecase.localizer.MustLocalize(c))
-	}
-
-	appstore, err := usecase.appstoreFactory.Create(ctx)
-	if err != nil {
-		c := &i18n.LocalizeConfig{MessageID: model.E9999}
-		return nil, model.NewErrBadRequest(model.E9999, usecase.localizer.MustLocalize(c))
-	}
-
-	vc, err := usecase.userSummaryRelationRepository.FindByUserID(ctx, userID)
-	if err != nil {
-		c := &i18n.LocalizeConfig{MessageID: model.E0002}
-		return nil, model.NewErrBadRequest(model.E0002, usecase.localizer.MustLocalize(c))
-	}
-
-	tx, err := appstore.GetTransaction(ctx, transactionID)
-	if err != nil {
-		c := &i18n.LocalizeConfig{MessageID: model.E9002}
-		return nil, model.NewErrBadRequest(model.E9002, usecase.localizer.MustLocalize(c))
-	}
-
-	if tx.TransactionID != transactionID {
-		c := &i18n.LocalizeConfig{MessageID: model.E9005}
-		return nil, model.NewErrBadRequest(model.E9005, usecase.localizer.MustLocalize(c))
-	}
-
-	if tx.Type != api.Consumable {
-		c := &i18n.LocalizeConfig{MessageID: model.E9006}
-		return nil, model.NewErrBadRequest(model.E9006, usecase.localizer.MustLocalize(c))
-	}
-
-	// 購入情報のProductIDからPlatformProductを取得する
-	platformProduct, err := usecase.platformProductRepository.GetByID(ctx, purchaseItemID)
-	if err != nil {
-		c := &i18n.LocalizeConfig{MessageID: model.E3001}
-		return nil, model.NewErrBadRequest(model.E3001, usecase.localizer.MustLocalize(c))
-	}
-
 	value, err := usecase.transaction.DoInTx(ctx, func(ctx context.Context) (interface{}, error) {
+
+		kpiLogger, err := usecase.kpiLoggerFactory.Create(ctx)
+		if err != nil {
+			c := &i18n.LocalizeConfig{MessageID: model.E9999}
+			return nil, model.NewErrBadRequest(model.E9999, usecase.localizer.MustLocalize(c))
+		}
+
+		vc, err := usecase.userSummaryRelationRepository.FindByUserID(ctx, userID)
+		if err != nil {
+			c := &i18n.LocalizeConfig{MessageID: model.E0002}
+			return nil, model.NewErrBadRequest(model.E0002, usecase.localizer.MustLocalize(c))
+		}
+
+		// 購入情報のProductIDからPlatformProductを取得する
+		platformProduct, err := usecase.platformProductRepository.GetByID(ctx, purchaseItemID)
+		if err != nil {
+			c := &i18n.LocalizeConfig{MessageID: model.E3001}
+			return nil, model.NewErrBadRequest(model.E3001, usecase.localizer.MustLocalize(c))
+		}
+
+		appstore, err := usecase.appstoreFactory.Create(ctx)
+		if err != nil {
+			c := &i18n.LocalizeConfig{MessageID: model.E9999}
+			return nil, model.NewErrBadRequest(model.E9999, usecase.localizer.MustLocalize(c))
+		}
+
+		tx, err := appstore.GetTransaction(ctx, transactionID)
+		if err != nil {
+			c := &i18n.LocalizeConfig{MessageID: model.E9002}
+			return nil, model.NewErrBadRequest(model.E9002, usecase.localizer.MustLocalize(c))
+		}
+
+		if tx.TransactionID != transactionID {
+			c := &i18n.LocalizeConfig{MessageID: model.E9005}
+			return nil, model.NewErrBadRequest(model.E9005, usecase.localizer.MustLocalize(c))
+		}
+
+		if tx.Type != api.Consumable {
+			c := &i18n.LocalizeConfig{MessageID: model.E9006}
+			return nil, model.NewErrBadRequest(model.E9006, usecase.localizer.MustLocalize(c))
+		}
+
 		// レシートが存在するかチェックする
 		existsAppstoreToken, err := usecase.appstoreRepository.ExistsPaymentAppstoreToken(ctx, tx.TransactionID)
 		if err != nil {
