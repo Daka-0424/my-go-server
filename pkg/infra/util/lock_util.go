@@ -12,11 +12,11 @@ type mutexFactoryUtil struct {
 	redsync *redsync.Redsync
 }
 
-func NewLockFactoryUtil(redsync *redsync.Redsync) util.MutexFactory {
+func NewLockFactoryUtil(redsync *redsync.Redsync) util.IMutexFactory {
 	return &mutexFactoryUtil{redsync: redsync}
 }
 
-func (s *mutexFactoryUtil) Create(key string, ttl time.Duration) util.Mutex {
+func (s *mutexFactoryUtil) Create(key string, ttl time.Duration) util.IMutex {
 	mutex := s.redsync.NewMutex(key, redsync.WithExpiry(ttl), redsync.WithTries(100), redsync.WithRetryDelay(10*time.Millisecond))
 	return NewMutexUtil(mutex)
 }
@@ -25,7 +25,7 @@ type mutexUtil struct {
 	mutex *redsync.Mutex
 }
 
-func NewMutexUtil(mutex *redsync.Mutex) util.Mutex {
+func NewMutexUtil(mutex *redsync.Mutex) util.IMutex {
 	return &mutexUtil{mutex: mutex}
 }
 

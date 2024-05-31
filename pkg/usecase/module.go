@@ -8,6 +8,10 @@ func Modules() fx.Option {
 			NewUserUsecase,
 			NewSessionUsecase,
 			NewPlatformProductUsecase,
+
+			// Billing
+			NewAppstoreUsecase,
+			NewPlaystoreUsecase,
 		),
 	)
 }

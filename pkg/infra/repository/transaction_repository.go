@@ -18,7 +18,7 @@ type dbTransaction struct {
 	db *gorm.DB
 }
 
-func NewTransaction(db *gorm.DB) repository.Transaction {
+func NewTransaction(db *gorm.DB) repository.ITransaction {
 	return &dbTransaction{db: db}
 }
 

@@ -17,16 +17,16 @@ import (
 
 type AdminController struct {
 	adminControllerBase
-	adminRepository repository.Admin
-	adminUsecase    usecase.Admin
+	adminRepository repository.IAdmin
+	adminUsecase    usecase.IAdmin
 }
 
 func NewAdminController(
 	cfg *config.Config,
 	lc *i18n.Localizer,
-	cache repository.Cache,
-	ar repository.Admin,
-	au usecase.Admin,
+	cache repository.ICache,
+	ar repository.IAdmin,
+	au usecase.IAdmin,
 ) *AdminController {
 	return &AdminController{
 		adminControllerBase: adminControllerBase{

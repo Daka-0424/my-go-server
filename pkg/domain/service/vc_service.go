@@ -9,19 +9,25 @@ import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
-type Vc interface {
+type IVc interface {
 	SetupVc(ctx context.Context, user *entity.User) error
 }
 
 type vcService struct {
-	userRepository repository.User
-	localizer      *i18n.Localizer
+	userRepository                repository.IUser
+	userSummaryRelationRepository repository.IUserSummaryRelation
+	localizer                     *i18n.Localizer
 }
 
-func NewVcService(ur repository.User, localizer *i18n.Localizer) Vc {
+func NewVcService(
+	ur repository.IUser,
+	usrr repository.IUserSummaryRelation,
+	localizer *i18n.Localizer,
+) IVc {
 	return &vcService{
-		userRepository: ur,
-		localizer:      localizer,
+		userRepository:                ur,
+		userSummaryRelationRepository: usrr,
+		localizer:                     localizer,
 	}
 }
 

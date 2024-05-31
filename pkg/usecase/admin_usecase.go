@@ -17,17 +17,17 @@ const (
 	ErrEncryptPass     = "パスワード暗号化にエラーが発生しました。："
 )
 
-type Admin interface {
+type IAdmin interface {
 	Register(ctx context.Context, email, pass string, role entity.AdminRoleType) (*entity.Admin, error)
 }
 
 type adminUsecase struct {
-	adminRepository repository.Admin
-	transaction     repository.Transaction
+	adminRepository repository.IAdmin
+	transaction     repository.ITransaction
 	localizer       *i18n.Localizer
 }
 
-func NewAdminUsecase(adminRepository repository.Admin, transaction repository.Transaction, localizer *i18n.Localizer) Admin {
+func NewAdminUsecase(adminRepository repository.IAdmin, transaction repository.ITransaction, localizer *i18n.Localizer) IAdmin {
 	return &adminUsecase{
 		adminRepository: adminRepository,
 		transaction:     transaction,

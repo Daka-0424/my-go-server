@@ -15,7 +15,7 @@ func (e *AppError) Unwrap() error {
 	return e.Err
 }
 
-func NewErrBadResuest(code string, msg string) *AppError {
+func NewErrBadRequest(code string, msg string) *AppError {
 	return &AppError{StatusCode: 400, ErrorCode: code, ErrorMessage: msg}
 }
 

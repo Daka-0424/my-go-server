@@ -7,6 +7,7 @@ func Modules() fx.Option {
 		fx.Provide(
 			NewUserService,
 			NewVcService,
+			NewEarnedPointService,
 		),
 	)
 }

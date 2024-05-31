@@ -13,11 +13,11 @@ import (
 
 type SessionController struct {
 	controllerBase
-	sessionUsecase usecase.Session
+	sessionUsecase usecase.ISession
 }
 
 func NewSessionController(
-	su usecase.Session,
+	su usecase.ISession,
 	cfg *config.Config,
 	lc *i18n.Localizer,
 ) *SessionController {

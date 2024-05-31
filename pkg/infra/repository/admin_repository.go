@@ -10,11 +10,13 @@ import (
 
 type adminRepository struct {
 	db *gorm.DB
+	fields []string
 }
 
-func NewAdminRepository(db *gorm.DB) repository.Admin {
+func NewAdminRepository(db *gorm.DB) repository.IAdmin {
 	return &adminRepository{
 		db: db,
+		fields: entity.GetEntityFields(entity.Admin{}),
 	}
 }
 

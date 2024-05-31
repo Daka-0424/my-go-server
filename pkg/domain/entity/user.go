@@ -19,16 +19,16 @@ const (
 
 type User struct {
 	gorm.Model
-	DisplayCode    string `json:"display_code" gorm:"size:16"` // 表示用のコード
-	UUID           string `gorm:"index;size:255"`
-	Name           string `gorm:"index;size:255"`
-	UserKind       uint
-	TimeDifference time.Duration
-	ClientVersion  string `gorm:"index;size:255"`
-	Device         string `gorm:"index;size:255"`
-	PlatformNumber uint
-	Vc             UserSummaryRelation `json:"user_summary_relation" gorm:"foreignkey:UserID"`
-	LoginState     UserLoginState      `json:"user_login_state" gorm:"foreignkey:UserID"`
+	DisplayCode    string              `json:"display_code" gorm:"size:16"` // 表示用のコード
+	UUID           string              `json:"uuid" gorm:"index;size:255"`
+	Name           string              `json:"name" gorm:"index;size:255"`
+	UserKind       uint                `json:"user_kind"`
+	TimeDifference time.Duration       `json:"time_difference"`
+	ClientVersion  string              `json:"client_version" gorm:"index;size:255"`
+	Device         string              `json:"device" gorm:"index;size:255"`
+	PlatformNumber uint                `json:"platform_number"`
+	Vc             UserSummaryRelation `gorm:"foreignkey:UserID"`
+	LoginState     UserLoginState      `gorm:"foreignkey:UserID"`
 }
 
 func NewUser(uuid string, name string, clientVersion string, device string, platformNumber uint) *User {

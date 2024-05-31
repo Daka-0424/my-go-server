@@ -1,6 +1,8 @@
 package entity
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 type AdminRoleType string
 
@@ -13,9 +15,9 @@ const (
 
 type Admin struct {
 	gorm.Model
-	Email    string
-	Password string
-	RoleType AdminRoleType
+	Email    string        `json:"email" gorm:"index;size:255"`
+	Password string        `json:"password"`
+	RoleType AdminRoleType `json:"role_type"`
 }
 
 func NewAdmin(email, password string, roleType AdminRoleType) *Admin {

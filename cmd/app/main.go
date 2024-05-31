@@ -15,7 +15,9 @@ import (
 	"github.com/Daka-0424/my-go-server/pkg/domain/entity"
 	"github.com/Daka-0424/my-go-server/pkg/domain/service"
 	"github.com/Daka-0424/my-go-server/pkg/infra"
+	"github.com/Daka-0424/my-go-server/pkg/infra/appstore"
 	"github.com/Daka-0424/my-go-server/pkg/infra/logger"
+	"github.com/Daka-0424/my-go-server/pkg/infra/playstore"
 	"github.com/Daka-0424/my-go-server/pkg/infra/repository"
 	"github.com/Daka-0424/my-go-server/pkg/infra/util"
 	"github.com/Daka-0424/my-go-server/pkg/usecase"
@@ -61,6 +63,8 @@ func main() {
 		usecase.Modules(),
 		controller.Modules(),
 		cheat.Modules(),
+		appstore.Modules(),
+		playstore.Modules(),
 		logger.Modules(cfg),
 		util.Modules(),
 		fx.Invoke(

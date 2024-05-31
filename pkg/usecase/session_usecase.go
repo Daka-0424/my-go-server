@@ -11,6 +11,7 @@ import (
 	"github.com/Daka-0424/my-go-server/pkg/controller/formatter"
 	"github.com/Daka-0424/my-go-server/pkg/controller/middleware"
 	"github.com/Daka-0424/my-go-server/pkg/domain/entity"
+	"github.com/Daka-0424/my-go-server/pkg/domain/logger"
 	"github.com/Daka-0424/my-go-server/pkg/domain/repository"
 	"github.com/Daka-0424/my-go-server/pkg/usecase/model"
 	"github.com/Songmu/flextime"
@@ -19,30 +20,34 @@ import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
-type Session interface {
+type ISession interface {
 	CreateSession(ctx context.Context, userId uint, uuid, device, appVersion string, platformNumber uint) (*model.Session, error)
 }
 
 type sessionUsecase struct {
-	cfg            *config.Config
-	localizer      *i18n.Localizer
-	cache          repository.Cache
-	transaction    repository.Transaction
-	userRepository repository.User
+	cfg              *config.Config
+	localizer        *i18n.Localizer
+	cache            repository.ICache
+	transaction      repository.ITransaction
+	userRepository   repository.IUser
+	kpiLoggerFactory logger.IKpiLoggerFactory
 }
 
 func NewSessionUsecase(
 	cfg *config.Config,
 	lc *i18n.Localizer,
-	cache repository.Cache,
-	transaction repository.Transaction,
-	userRepository repository.User) Session {
+	cache repository.ICache,
+	transaction repository.ITransaction,
+	userRepository repository.IUser,
+	kpiLoggerFactory logger.IKpiLoggerFactory,
+) ISession {
 	return &sessionUsecase{
-		cfg:            cfg,
-		localizer:      lc,
-		cache:          cache,
-		transaction:    transaction,
-		userRepository: userRepository,
+		cfg:              cfg,
+		localizer:        lc,
+		cache:            cache,
+		transaction:      transaction,
+		userRepository:   userRepository,
+		kpiLoggerFactory: kpiLoggerFactory,
 	}
 }
 
@@ -79,6 +84,12 @@ func (usecase *sessionUsecase) CreateSession(ctx context.Context, userId uint, u
 }
 
 func (usecase *sessionUsecase) login(ctx context.Context, user *entity.User) (string, string, string, error) {
+	kpiLogger, err := usecase.kpiLoggerFactory.Create(ctx)
+	if err != nil {
+		c := &i18n.LocalizeConfig{MessageID: model.E9999}
+		return "", "", "", model.NewErrBadRequest(model.E9999, usecase.localizer.MustLocalize(c))
+	}
+
 	sessionID := uuid.New().String()
 	accountToken, err := usecase.generateToken(user)
 	if err != nil {
@@ -113,6 +124,12 @@ func (usecase *sessionUsecase) login(ctx context.Context, user *entity.User) (st
 
 	keyStr := base64.StdEncoding.EncodeToString(key)
 	ivStr := base64.StdEncoding.EncodeToString(iv)
+
+	kpiDate := map[string]interface{}{
+		"user_id": user.ID,
+	}
+	kpiLogger.LogEvent(logger.KpiLogLogin, kpiDate)
+	kpiLogger.Flush()
 
 	return accountToken, keyStr, ivStr, nil
 }

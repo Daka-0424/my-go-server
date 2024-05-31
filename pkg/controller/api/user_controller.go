@@ -13,11 +13,11 @@ import (
 
 type UserController struct {
 	controllerBase
-	registrationUsecase usecase.User
+	registrationUsecase usecase.IUser
 }
 
 func NewUserController(
-	ru usecase.User,
+	ru usecase.IUser,
 	cfg *config.Config,
 	lc *i18n.Localizer) *UserController {
 	return &UserController{

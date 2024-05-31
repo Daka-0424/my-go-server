@@ -12,10 +12,10 @@ import (
 
 type PlatformProductController struct {
 	controllerBase
-	platformProductUsecase usecase.PlatformProduct
+	platformProductUsecase usecase.IPlatformProduct
 }
 
-func NewPlatformProductController(pu usecase.PlatformProduct, cfg *config.Config, lc *i18n.Localizer) *PlatformProductController {
+func NewPlatformProductController(pu usecase.IPlatformProduct, cfg *config.Config, lc *i18n.Localizer) *PlatformProductController {
 	return &PlatformProductController{
 		controllerBase:         controllerBase{cfg: cfg, localizer: lc},
 		platformProductUsecase: pu,
