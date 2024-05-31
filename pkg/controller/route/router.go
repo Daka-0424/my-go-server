@@ -17,6 +17,8 @@ func Route(
 	registration *controller.UserController,
 	session *controller.SessionController,
 	vcPlatformProduct *controller.PlatformProductController,
+	appstore *controller.AppstoreController,
+	playstore *controller.PlaystoreController,
 ) {
 	route.GET("/", func(ctx *gin.Context) { ctx.JSON(200, gin.H{"status": "ok"}) })
 
@@ -27,5 +29,8 @@ func Route(
 	authMiddleware := middleware.JwtMiddleware(cfg, localizer, cache)
 
 	sessionGroup := route.Group("api/my").Use(authMiddleware)
-	sessionGroup.GET("/vc/platform-products", vcPlatformProduct.ListPlatformProduct)
+	sessionGroup.GET("/platform-products", vcPlatformProduct.ListPlatformProduct)
+
+	sessionGroup.POST("/appstore/billing", appstore.Billing)
+	sessionGroup.POST("/playstore/billing", playstore.Billing)
 }

@@ -8,6 +8,10 @@ func Modules() fx.Option {
 			NewUserController,
 			NewSessionController,
 			NewPlatformProductController,
+
+			// Billing
+			NewAppstoreController,
+			NewPlaystoreController,
 		),
 	)
 }

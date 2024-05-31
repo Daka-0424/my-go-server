@@ -9,9 +9,9 @@ import (
 )
 
 const (
-	HeaderPlatform   = "HTTP_X_APP_PLATFORM"
-	HeaderDevice     = "HTTP_X_APP_DEVICE"
-	HeaderAppVersion = "HTTP_X_APP_VERSION"
+	HeaderPlatform   = "APP_PLATFORM"
+	HeaderDevice     = "APP_DEVICE"
+	HeaderAppVersion = "APP_VERSION"
 )
 
 const (
