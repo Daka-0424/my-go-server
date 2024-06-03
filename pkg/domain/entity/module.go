@@ -14,6 +14,9 @@ func Entity() []any {
 		&UserPointSummary{},
 		&UserSummaryRelation{},
 
+		// UserResources
+		&UserItem{},
+
 		// Admin
 		&Admin{},
 
@@ -40,6 +43,10 @@ func Seed() []any {
 
 type ISeedType interface {
 	PlatformProduct
+}
+
+type IUserResourceType interface {
+	UserItem
 }
 
 func GetEntityFields(entity interface{}) []string {
