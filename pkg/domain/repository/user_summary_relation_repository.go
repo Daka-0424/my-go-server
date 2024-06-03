@@ -8,5 +8,6 @@ import (
 
 type IUserSummaryRelation interface {
 	FindByUserID(ctx context.Context, userID uint) (*entity.UserSummaryRelation, error)
+	FindOtherPlatformVc(ctx context.Context, userID, platformNumber uint) (*entity.UserSummaryRelation, error)
 	CreateOrUpdate(ctx context.Context, entity *entity.UserSummaryRelation) error
 }
