@@ -14,38 +14,38 @@ type IVc interface {
 }
 
 type vcService struct {
-	userRepository                repository.IUser
 	userSummaryRelationRepository repository.IUserSummaryRelation
+	userPointSummaryRepository    repository.IUserPointSummary
 	localizer                     *i18n.Localizer
 }
 
 func NewVcService(
-	ur repository.IUser,
 	usrr repository.IUserSummaryRelation,
+	upsr repository.IUserPointSummary,
 	localizer *i18n.Localizer,
 ) IVc {
 	return &vcService{
-		userRepository:                ur,
 		userSummaryRelationRepository: usrr,
+		userPointSummaryRepository:    upsr,
 		localizer:                     localizer,
 	}
 }
 
 func (service *vcService) SetupVc(ctx context.Context, user *entity.User) error {
-	user, vc, _ := service.userRepository.FindUserWithVc(ctx, user.ID)
-	// ユーザーのVCが有効でない場合のみセットアップを行う
+	vc, _ := service.userSummaryRelationRepository.FindByUserID(ctx, user.ID)
 
+	// ユーザーのVCが有効でない場合のみセットアップを行う
 	if vc.ID == 0 {
 		// 有効でない場合はVCを作成
 		user.Vc = *entity.NewUserSummaryRelation(user.ID, user.PlatformNumber)
 	}
 
-	userVcFreePointSummary, _ := service.userRepository.FindUserPointSummary(ctx, user.ID, user.PlatformNumber, 0)
-	userVcPaidPointSummary, _ := service.userRepository.FindUserPointSummary(ctx, user.ID, user.PlatformNumber, 1)
+	userVcFreePointSummary, _ := service.userPointSummaryRepository.Find(ctx, user.ID, user.PlatformNumber, entity.GemKindFree)
+	userVcPaidPointSummary, _ := service.userPointSummaryRepository.Find(ctx, user.ID, user.PlatformNumber, entity.GemKindPaid)
 
 	// 有償間はPF間で別管理なので別PFのVCがない場合のみ作成
 	if userVcPaidPointSummary == nil {
-		otherPlatformVc, _ := service.userRepository.FindOtherPlatformVc(ctx, user.ID, user.PlatformNumber)
+		otherPlatformVc, _ := service.userSummaryRelationRepository.FindOtherPlatformVc(ctx, user.ID, user.PlatformNumber)
 		fmt.Println(otherPlatformVc)
 
 		if otherPlatformVc != nil {
@@ -60,7 +60,7 @@ func (service *vcService) SetupVc(ctx context.Context, user *entity.User) error 
 
 		// 既存のFreePointSummaryがある場合はそれを使う
 		fmt.Println(user.ID)
-		freePointSummary, err := service.userRepository.FirstOrCreateFreePointSummary(ctx, user.ID, 0)
+		freePointSummary, err := service.userPointSummaryRepository.FirstOrCreateFreePointSummary(ctx, user.ID)
 		if err != nil {
 			return err
 		}
@@ -68,7 +68,7 @@ func (service *vcService) SetupVc(ctx context.Context, user *entity.User) error 
 	}
 
 	// VCを保存
-	if err := service.userRepository.CreateUserSummaryRelation(ctx, &user.Vc); err != nil {
+	if err := service.userSummaryRelationRepository.CreateOrUpdate(ctx, vc); err != nil {
 		return err
 	}
 

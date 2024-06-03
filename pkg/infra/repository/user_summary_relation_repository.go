@@ -40,6 +40,22 @@ func (repo *userSummaryRelationRepository) FindByUserID(ctx context.Context, use
 	return &userSummaryRelation, nil
 }
 
+func (repo *userSummaryRelationRepository) FindOtherPlatformVc(ctx context.Context, userID, platformNumber uint) (*entity.UserSummaryRelation, error) {
+	tx, ok := GetTx(ctx)
+
+	if !ok {
+		tx = repo.db
+	}
+
+	var userSummaryRelation entity.UserSummaryRelation
+	if err := tx.Where("user_id = ? AND platform_number != ?", userID, platformNumber).
+		First(&userSummaryRelation).Error; err != nil {
+		return nil, err
+	}
+
+	return &userSummaryRelation, nil
+}
+
 func (repo *userSummaryRelationRepository) CreateOrUpdate(ctx context.Context, entity *entity.UserSummaryRelation) error {
 	tx, ok := GetTx(ctx)
 
