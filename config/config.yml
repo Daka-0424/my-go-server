@@ -8,8 +8,7 @@ redis:
   conn: "redis:6379"
 settings:
   environment: "Development"
-  encrypto_only: false
-  resource_server: "http://localhost:8080"
+  base_domain: "http://localhost:8080"
 cookie:
   key: "session_id"
   host: "localhost"
@@ -31,3 +30,6 @@ sandbox_appstore:
   sandbox_appstore_issuer_id: "you_sandbox_issuer_id"
 google_play:
   base64_encoded_public_key: "you_public_key"
+admin:
+  register_email_sender: "userjh41001@gmail.com"
+  register_email_pass: "llteufmqnpztjdcw"

@@ -39,7 +39,17 @@ func NewAdminController(
 	}
 }
 
-func (ctl *AdminController) PostRegisterRequest(ctx *gin.Context) {
+func (ctl *AdminController) GetSession(ctx *gin.Context) *entity.Admin {
+	admin, err := ctl.getSession(ctx)
+	if err != nil || admin == nil {
+		return nil
+	}
+
+	return admin
+}
+
+// 送られてきたE-Mailで仮登録を行う
+func (ctl *AdminController) PostTempRegisterRequest(ctx *gin.Context) {
 	email := ctx.PostForm("email")
 
 	if ctl.adminRepository.Exsists(ctx, email) {
@@ -47,18 +57,25 @@ func (ctl *AdminController) PostRegisterRequest(ctx *gin.Context) {
 		return
 	}
 
-	key := make([]byte, 64)
-	if _, err := io.ReadFull(rand.Reader, key); err != nil {
-		panic("ランダムな文字列の生成に失敗しました。")
+	err := ctl.adminUsecase.TempRegister(ctx, email)
+	if err != nil {
+
+	} else {
+
 	}
-	redisKey := base64.URLEncoding.EncodeToString(key)
 
-	ctl.cache.Set(ctx, redisKey, []byte(email), time.Hour)
+	// key := make([]byte, 64)
+	// if _, err := io.ReadFull(rand.Reader, key); err != nil {
+	// 	panic("ランダムな文字列の生成に失敗しました。")
+	// }
+	// redisKey := base64.URLEncoding.EncodeToString(key)
 
-	// 一旦リダイレクト
-	ctx.Redirect(302, "/admin/register/"+redisKey)
+	// ctl.cache.Set(ctx, redisKey, []byte(email), time.Hour)
+	//
+	// // 一旦リダイレクト
+	// ctx.Redirect(302, "/admin/register/"+redisKey)
 
-	// TODO:メール送信処理
+	// // TODO:メール送信処理
 }
 
 func (ctl *AdminController) PostRegister(ctx *gin.Context) {

@@ -39,6 +39,7 @@ type (
 		SandboxAppstore `yaml:"sandbox_appstore"`
 		GooglePlay      `yaml:"google_play"`
 		MultiDevice     `yaml:"multi_device"`
+		Admin           `yaml:"admin"`
 	}
 
 	MySQL struct {
@@ -57,6 +58,7 @@ type (
 
 	Settings struct {
 		Environment string `yaml:"environment" env:"SETTING_ENVIRONMENT"`
+		BaseDomain  string `yaml:"base_domain" env:"SETTING_BASE_DOMAIN"`
 	}
 
 	Cookie struct {
@@ -99,6 +101,11 @@ type (
 
 	MultiDevice struct {
 		Access string `yaml:"access" env:"MULTI_DEVICE_ACCESS"`
+	}
+
+	Admin struct {
+		RegisterEmailSender string `yaml:"register_email_sender" env:"REGISTER_EMAIL_SENDER"`
+		RegisterEmailPass   string `yaml:"register_email_pass" env:"REGISTER_EMAIL_PASS"`
 	}
 )
 

@@ -20,6 +20,9 @@ func Modules() fx.Option {
 			NewPaymentAppstoreTokenRepository,
 			NewPaymentPlaystoreTokenRepository,
 
+			// Admin
+			NewAdminRepository,
+
 			// Seed
 			NewSeedRepository[entity.PlatformProduct],
 		),
