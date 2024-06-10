@@ -11,6 +11,7 @@ import (
 	"github.com/Daka-0424/my-go-server/config"
 	controller "github.com/Daka-0424/my-go-server/pkg/controller/api"
 	"github.com/Daka-0424/my-go-server/pkg/controller/route"
+	"github.com/Daka-0424/my-go-server/pkg/controller/web/admin"
 	"github.com/Daka-0424/my-go-server/pkg/controller/web/cheat"
 	"github.com/Daka-0424/my-go-server/pkg/domain/entity"
 	"github.com/Daka-0424/my-go-server/pkg/domain/service"
@@ -63,6 +64,7 @@ func main() {
 		usecase.Modules(),
 		controller.Modules(),
 		cheat.Modules(),
+		admin.Modules(),
 		appstore.Modules(),
 		playstore.Modules(),
 		logger.Modules(cfg),
@@ -71,6 +73,7 @@ func main() {
 			lifecycle,
 			route.Route,
 			route.CheatRoute,
+			route.AdminRoute,
 			func(r *gin.Engine) {},
 		),
 	)

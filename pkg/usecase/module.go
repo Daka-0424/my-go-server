@@ -12,6 +12,9 @@ func Modules() fx.Option {
 			// Billing
 			NewAppstoreUsecase,
 			NewPlaystoreUsecase,
+
+			// Admin
+			NewAdminUsecase,
 		),
 	)
 }
