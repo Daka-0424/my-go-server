@@ -45,8 +45,8 @@ func (ctl *PlaystoreController) Billing(ctx *gin.Context) {
 
 	id, err := clime.GetUserId()
 	if err != nil {
-		c := &i18n.LocalizeConfig{MessageID: model.E0101}
-		apperr = model.NewErrInternalServerError(model.E0101, ctl.localizer.MustLocalize(c))
+		c := &i18n.LocalizeConfig{MessageID: model.E1001}
+		apperr = model.NewErrInternalServerError(model.E1001, ctl.localizer.MustLocalize(c))
 		formatter.Respond(ctx, apperr.StatusCode, gin.H{"error": apperr})
 		return
 	}

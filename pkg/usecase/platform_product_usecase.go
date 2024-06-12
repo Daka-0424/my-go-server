@@ -15,7 +15,7 @@ type IPlatformProduct interface {
 	FindPlatformNumber(ctx context.Context, platformNumber uint) (*model.PlatformProductList, error)
 }
 
-type PlatformProductUsecase struct {
+type platformProductUsecase struct {
 	cfg                           *config.Config
 	localizer                     *i18n.Localizer
 	seedPlatformProductRepository repository.ISeed[entity.PlatformProduct]
@@ -25,14 +25,14 @@ func NewPlatformProductUsecase(
 	cfg *config.Config,
 	lc *i18n.Localizer,
 	seedPlatformProduct repository.ISeed[entity.PlatformProduct]) IPlatformProduct {
-	return &PlatformProductUsecase{
+	return &platformProductUsecase{
 		cfg:                           cfg,
 		localizer:                     lc,
 		seedPlatformProductRepository: seedPlatformProduct,
 	}
 }
 
-func (usecase *PlatformProductUsecase) ListPlatformProducts(ctx context.Context) (*model.PlatformProductList, error) {
+func (usecase *platformProductUsecase) ListPlatformProducts(ctx context.Context) (*model.PlatformProductList, error) {
 	products, err := usecase.seedPlatformProductRepository.GetAll(ctx)
 	if err != nil {
 		return nil, err
@@ -43,7 +43,7 @@ func (usecase *PlatformProductUsecase) ListPlatformProducts(ctx context.Context)
 	return list, nil
 }
 
-func (usecase *PlatformProductUsecase) FindPlatformNumber(ctx context.Context, platformNumber uint) (*model.PlatformProductList, error) {
+func (usecase *platformProductUsecase) FindPlatformNumber(ctx context.Context, platformNumber uint) (*model.PlatformProductList, error) {
 	products, err := usecase.seedPlatformProductRepository.Where(ctx, entity.PlatformProduct{PlatformNumber: platformNumber})
 	if err != nil {
 		return nil, err

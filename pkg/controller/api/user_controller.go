@@ -29,8 +29,8 @@ func NewUserController(
 func (ctl *UserController) Registration(ctx *gin.Context) {
 	var rew CreateRegistrationRequest
 	if err := formatter.ShouldBind(ctx, &rew); err != nil {
-		c := &i18n.LocalizeConfig{MessageID: model.E0101}
-		apperr := model.NewErrUnprocessable(model.E0101, ctl.localizer.MustLocalize(c))
+		c := &i18n.LocalizeConfig{MessageID: model.E1001}
+		apperr := model.NewErrUnprocessable(model.E1001, ctl.localizer.MustLocalize(c))
 		formatter.Respond(ctx, apperr.StatusCode, gin.H{"error": apperr})
 		return
 	}

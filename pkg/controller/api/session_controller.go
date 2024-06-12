@@ -30,8 +30,8 @@ func NewSessionController(
 func (ctl *SessionController) CreateSession(ctx *gin.Context) {
 	var req CreateSessionRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		c := &i18n.LocalizeConfig{MessageID: model.E0101}
-		apperr := model.NewErrUnprocessable(model.E0101, ctl.localizer.MustLocalize(c))
+		c := &i18n.LocalizeConfig{MessageID: model.E1001}
+		apperr := model.NewErrUnprocessable(model.E1001, ctl.localizer.MustLocalize(c))
 		formatter.Respond(ctx, apperr.StatusCode, gin.H{"error": apperr})
 		return
 	}

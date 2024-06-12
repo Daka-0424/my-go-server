@@ -63,20 +63,20 @@ func (usecase *userUsercase) Registration(ctx context.Context, uuid, device, cli
 			return nil, model.NewErrUnprocessable(model.E0002, usecase.localizer.MustLocalize(c))
 		}
 		if exists {
-			c := &i18n.LocalizeConfig{MessageID: model.E0106}
-			return nil, model.NewErrUnprocessable(model.E0106, usecase.localizer.MustLocalize(c))
+			c := &i18n.LocalizeConfig{MessageID: model.E1006}
+			return nil, model.NewErrUnprocessable(model.E1006, usecase.localizer.MustLocalize(c))
 		}
 
 		// なかったら、新規登録する
 		user, err := usecase.userService.Register(ctx, uuid, device, clientVersion, platformNumber)
 		if err != nil {
-			c := &i18n.LocalizeConfig{MessageID: model.E0103}
-			return nil, model.NewErrUnprocessable(model.E0103, usecase.localizer.MustLocalize(c))
+			c := &i18n.LocalizeConfig{MessageID: model.E1003}
+			return nil, model.NewErrUnprocessable(model.E1003, usecase.localizer.MustLocalize(c))
 		}
 		// VCのセットアップ
 		if err := usecase.vcService.SetupVc(ctx, user); err != nil {
-			c := &i18n.LocalizeConfig{MessageID: model.E0103}
-			return nil, model.NewErrUnprocessable(model.E0103, usecase.localizer.MustLocalize(c))
+			c := &i18n.LocalizeConfig{MessageID: model.E1003}
+			return nil, model.NewErrUnprocessable(model.E1003, usecase.localizer.MustLocalize(c))
 		}
 
 		fns := []func(ctx context.Context, user *entity.User) error{

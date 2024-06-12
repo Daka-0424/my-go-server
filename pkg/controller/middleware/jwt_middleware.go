@@ -88,8 +88,8 @@ func bearerToken(ctx *gin.Context) (string, error) {
 }
 
 func returnErrorWithAbort(ctx *gin.Context, localizer *i18n.Localizer) {
-	c := &i18n.LocalizeConfig{MessageID: model.E0101}
-	appErr := model.NewErrUnauthorized(model.E0101, localizer.MustLocalize(c))
+	c := &i18n.LocalizeConfig{MessageID: model.E1001}
+	appErr := model.NewErrUnauthorized(model.E1001, localizer.MustLocalize(c))
 	formatter.Respond(ctx, appErr.StatusCode, gin.H{"error": appErr})
 	ctx.Abort()
 }

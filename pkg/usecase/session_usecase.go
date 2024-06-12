@@ -59,8 +59,8 @@ func (usecase *sessionUsecase) CreateSession(ctx context.Context, userId uint, u
 		}
 
 		if user.UserKind == entity.Banned {
-			c := &i18n.LocalizeConfig{MessageID: model.E0105}
-			return nil, model.NewErrForbidden(model.E0105, usecase.localizer.MustLocalize(c))
+			c := &i18n.LocalizeConfig{MessageID: model.E1005}
+			return nil, model.NewErrForbidden(model.E1005, usecase.localizer.MustLocalize(c))
 		}
 
 		if user.UpdateDevice(device, appVersion, platformNumber) {

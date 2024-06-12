@@ -40,6 +40,7 @@ type (
 		GooglePlay      `yaml:"google_play"`
 		MultiDevice     `yaml:"multi_device"`
 		Admin           `yaml:"admin"`
+		Oauth           `yaml:"oauth"`
 	}
 
 	MySQL struct {
@@ -106,6 +107,17 @@ type (
 	Admin struct {
 		RegisterEmailSender string `yaml:"register_email_sender" env:"REGISTER_EMAIL_SENDER"`
 		RegisterEmailPass   string `yaml:"register_email_pass" env:"REGISTER_EMAIL_PASS"`
+	}
+
+	Oauth struct {
+		GoogleOauth `yaml:"google_oauth"`
+	}
+
+	GoogleOauth struct {
+		RedirectURL      string `yaml:"redirect_url" env:"GOOGLE_OAUTH_REDIRECT_URL"`
+		ClientID         string `yaml:"client_id" env:"GOOGLE_OAUTH_CLIENT_ID"`
+		ClientSecret     string `yaml:"client_secret" env:"GOOGLE_OAUTH_CLIENT_SECRET"`
+		OauthStateString string `yaml:"oauth_state_string" env:"GOOGLE_OAUTH_STATE_STRING"`
 	}
 )
 

@@ -64,8 +64,8 @@ func (ctl *controllerBase) toAppError(err error) *model.AppError {
 func (ctl *controllerBase) getClaims(ctx *gin.Context) (*middleware.Claims, *model.AppError) {
 	claims, ok := ctx.Get("claims")
 	if !ok {
-		cf := &i18n.LocalizeConfig{MessageID: model.E0101}
-		return nil, model.NewErrInternalServerError(model.E0101, ctl.localizer.MustLocalize(cf))
+		cf := &i18n.LocalizeConfig{MessageID: model.E1001}
+		return nil, model.NewErrInternalServerError(model.E1001, ctl.localizer.MustLocalize(cf))
 	}
 	return claims.(*middleware.Claims), nil
 }

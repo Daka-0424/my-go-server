@@ -8,6 +8,9 @@ func Modules() fx.Option {
 			NewUserService,
 			NewVcService,
 			NewEarnedPointService,
+
+			// Oauth
+			NewOauthGoogleService,
 		),
 	)
 }
