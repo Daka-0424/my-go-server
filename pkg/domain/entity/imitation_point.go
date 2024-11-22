@@ -6,14 +6,14 @@ import (
 
 type ImitationPoint struct {
 	gorm.Model
-	UserID                uint   `json:"user_id" gorm:"not null"`
-	UserSummaryRelationID uint   `json:"user_summary_relation_id" gorm:"not null"`
-	PlatformProductID     uint   `json:"platform_product_id" gorm:"not null"`
-	FreeEarnedPointID     uint   `json:"free_earned_point_id"`
-	PaidEarnedPointID     uint   `json:"paid_earned_point_id"`
-	AdminUserID           uint   `json:"admin_user_id" gorm:"not null"`
-	WithFreePoint         uint   `json:"with_free_point"`
-	Comment               string `json:"comment"`
+	UserID                uint   `gorm:"user_id" gorm:"not null"`
+	UserSummaryRelationID uint   `gorm:"user_summary_relation_id" gorm:"not null"`
+	PlatformProductID     uint   `gorm:"platform_product_id" gorm:"not null"`
+	FreeEarnedPointID     uint   `gorm:"free_earned_point_id"`
+	PaidEarnedPointID     uint   `gorm:"paid_earned_point_id"`
+	AdminUserID           uint   `gorm:"admin_user_id" gorm:"not null"`
+	WithFreePoint         uint   `gorm:"with_free_point"`
+	Comment               string `gorm:"comment"`
 	UserSummaryRelation   UserSummaryRelation
 	PlatformProduct       PlatformProduct
 	AdminUser             Admin

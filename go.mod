@@ -1,6 +1,6 @@
 module github.com/Daka-0424/my-go-server
 
-go 1.20
+go 1.23
 
 require (
 	cloud.google.com/go/storage v1.30.0

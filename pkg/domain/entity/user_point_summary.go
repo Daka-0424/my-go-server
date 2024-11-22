@@ -6,11 +6,11 @@ import (
 
 type UserPointSummary struct {
 	gorm.Model
-	UserID       uint `json:"user_id" gorm:"not null"`
-	BalancePoint uint `json:"balance_point" gorm:"default:0;not null"`
-	EarnPoint    uint `json:"earn_point" gorm:"default:0;not null"`
-	PaidKind     int  `json:"paid_kind" gorm:"not null"`
-	SpendPoint   uint `json:"spend_point" gorm:"default:0;not null"`
+	UserID       uint `gorm:"user_id" gorm:"not null"`
+	BalancePoint uint `gorm:"balance_point" gorm:"default:0;not null"`
+	EarnPoint    uint `gorm:"earn_point" gorm:"default:0;not null"`
+	PaidKind     int  `gorm:"paid_kind" gorm:"not null"`
+	SpendPoint   uint `gorm:"spend_point" gorm:"default:0;not null"`
 }
 
 func NewUserPointSummary(

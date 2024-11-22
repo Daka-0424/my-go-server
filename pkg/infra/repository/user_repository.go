@@ -11,15 +11,12 @@ import (
 )
 
 type userRepository struct {
-	db     *gorm.DB
-	fields []string
+	db *gorm.DB
 }
 
 func NewUserRepository(db *gorm.DB) repository.IUser {
 	return &userRepository{
-
-		db:     db,
-		fields: entity.GetEntityFields(entity.User{}),
+		db: db,
 	}
 }
 
@@ -253,6 +250,5 @@ func (repo *userRepository) UpdateUser(ctx context.Context, user *entity.User) e
 	t := entity.User{Model: gorm.Model{ID: user.ID}}
 	tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&t)
 
-	return tx.Model(user).Select(repo.fields).Omit(clause.Associations).
-		Where("id = ?", user.ID).Updates(user).Error
+	return tx.Model(&entity.User{}).Where("id = ?", user.ID).Select("*").Omit(clause.Associations).Updates(user).Error
 }

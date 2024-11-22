@@ -10,14 +10,12 @@ import (
 )
 
 type paymentAppstoreTokenRepository struct {
-	db     *gorm.DB
-	fields []string
+	db *gorm.DB
 }
 
 func NewPaymentAppstoreTokenRepository(db *gorm.DB) repository.IPaymentAppstoreToken {
 	return &paymentAppstoreTokenRepository{
-		db:     db,
-		fields: entity.GetEntityFields(entity.PaymentAppstoreToken{}),
+		db: db,
 	}
 }
 
@@ -28,10 +26,12 @@ func (repo *paymentAppstoreTokenRepository) CreateOrUpdate(ctx context.Context, 
 		return repository.ErrTx
 	}
 
-	return tx.Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "id"}},
-		DoUpdates: clause.AssignmentColumns(repo.fields),
-	}).Create(appstoreToken).Error
+	if appstoreToken.ID != 0 {
+		t := entity.PaymentAppstoreToken{Model: gorm.Model{ID: appstoreToken.ID}}
+		tx.Clauses(clause.Locking{Strength: "UPDATE"}).Find(&t)
+	}
+
+	return tx.Omit(clause.Associations).Save(appstoreToken).Error
 }
 
 func (r *paymentAppstoreTokenRepository) ExistsPaymentAppstoreToken(ctx context.Context, transactionID string) (bool, error) {

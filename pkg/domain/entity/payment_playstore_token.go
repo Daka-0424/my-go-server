@@ -18,26 +18,26 @@ const (
 
 type PaymentPlaystoreToken struct {
 	gorm.Model
-	OrderID                     string    `json:"order_id"`
-	PackageName                 string    `json:"package_name"`
-	ProductID                   string    `json:"product_id"`
-	PurchaseState               int64     `json:"purchase_state"`
-	Purchased                   time.Time `json:"purchased"`
-	PurchaseToken               string    `json:"purchase_token"`
-	PurchaseTimeMillis          int64     `json:"purchase_time_millis"`
-	Quantity                    int64     `json:"quantity"`
-	RegionCode                  string    `json:"region_code"`
-	ConsumeState                int64     `json:"consume_state"`
-	Kind                        string    `json:"kind"`
-	DeveloperPayload            string    `json:"developer_payload"`
-	AcknowledgementState        int64     `json:"acknowledgement_state"`
-	ObfuscatedExternalAccountID string    `json:"obfuscated_external_account_id"`
-	ObfuscatedExternalProfileID string    `json:"obfuscated_external_profile_id"`
-	PlatformProductID           uint      `json:"platform_product_id"`
-	Signature                   string    `json:"signature"`
-	PurchaseType                int       `json:"purchase_type"`
-	UserID                      uint      `json:"user_id"`
-	EarnedPointID               uint
+	OrderID                     string    `gorm:"order_id"`
+	PackageName                 string    `gorm:"package_name"`
+	ProductID                   string    `gorm:"product_id"`
+	PurchaseState               int64     `gorm:"purchase_state"`
+	Purchased                   time.Time `gorm:"purchased"`
+	PurchaseToken               string    `gorm:"purchase_token"`
+	PurchaseTimeMillis          int64     `gorm:"purchase_time_millis"`
+	Quantity                    int64     `gorm:"quantity"`
+	RegionCode                  string    `gorm:"region_code"`
+	ConsumeState                int64     `gorm:"consume_state"`
+	Kind                        string    `gorm:"kind"`
+	DeveloperPayload            string    `gorm:"developer_payload"`
+	AcknowledgementState        int64     `gorm:"acknowledgement_state"`
+	ObfuscatedExternalAccountID string    `gorm:"obfuscated_external_account_id"`
+	ObfuscatedExternalProfileID string    `gorm:"obfuscated_external_profile_id"`
+	PlatformProductID           uint      `gorm:"platform_product_id"`
+	Signature                   string    `gorm:"signature"`
+	PurchaseType                int       `gorm:"purchase_type"`
+	UserID                      uint      `gorm:"user_id"`
+	EarnedPointID               uint      `gorm:"earned_point_id"`
 	PlatformProduct             PlatformProduct
 }
 

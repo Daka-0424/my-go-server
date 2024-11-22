@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"errors"
 
 	"github.com/Daka-0424/my-go-server/pkg/domain/entity"
 	"github.com/Daka-0424/my-go-server/pkg/domain/repository"
@@ -11,55 +10,62 @@ import (
 )
 
 type userResourceRepository[T entity.IUserResourceType] struct {
-	db     *gorm.DB
-	fields []string
+	db *gorm.DB
 }
 
 func NewUserResourceRepository[T entity.IUserResourceType](db *gorm.DB) repository.IUserResource[T] {
 	return &userResourceRepository[T]{
-		db:     db,
-		fields: entity.GetEntityFields(T{}),
+		db: db,
 	}
 }
 
-func (repo *userResourceRepository[T]) GetByID(ctx context.Context, ID uint) (*T, error) {
+func (r *userResourceRepository[T]) GetByID(ctx context.Context, ID uint, preloads ...string) (*T, error) {
 	tx, ok := GetTx(ctx)
 
 	if !ok {
-		tx = repo.db
+		tx = r.db
+	}
+
+	for _, preload := range preloads {
+		tx = tx.Preload(preload)
 	}
 
 	var entity T
 	if err := tx.WithContext(ctx).Model(&entity).Where("id = ?", ID).First(&entity).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, repository.ErrNotFound
-		}
 		return nil, err
 	}
 
 	return &entity, nil
 }
 
-func (repo *userResourceRepository[T]) GetByIDs(ctx context.Context, IDs []uint) ([]T, error) {
+func (r *userResourceRepository[T]) GetByIDs(ctx context.Context, ISs []uint, preloads ...string) ([]T, error) {
 	tx, ok := GetTx(ctx)
 
 	if !ok {
-		tx = repo.db
+		tx = r.db
+	}
+
+	for _, preload := range preloads {
+		tx = tx.Preload(preload)
 	}
 
 	var entities []T
-	if err := tx.WithContext(ctx).Model(&entities).Where("id IN ?", IDs).Find(&entities).Error; err != nil {
+	if err := tx.WithContext(ctx).Model(&entities).Where("id IN ?", ISs).Find(&entities).Error; err != nil {
 		return nil, err
 	}
 
 	return entities, nil
 }
 
-func (repo *userResourceRepository[T]) GetByUserID(ctx context.Context, userID uint) ([]T, error) {
+func (r *userResourceRepository[T]) GetByUserID(ctx context.Context, userID uint, preloads ...string) ([]T, error) {
 	tx, ok := GetTx(ctx)
 
 	if !ok {
-		tx = repo.db
+		tx = r.db
+	}
+
+	for _, preload := range preloads {
+		tx = tx.Preload(preload)
 	}
 
 	var entities []T
@@ -70,38 +76,94 @@ func (repo *userResourceRepository[T]) GetByUserID(ctx context.Context, userID u
 	return entities, nil
 }
 
-func (repo *userResourceRepository[T]) CreateOrUpdate(ctx context.Context, resource *T) error {
+func (r *userResourceRepository[T]) Where(ctx context.Context, param T, preloads ...string) ([]T, error) {
 	tx, ok := GetTx(ctx)
 
 	if !ok {
-		return repository.ErrTx
+		tx = r.db
 	}
 
-	return tx.Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "id"}},
-		DoUpdates: clause.AssignmentColumns(repo.fields),
-	}).Create(resource).Error
+	for _, preload := range preloads {
+		tx = tx.Preload(preload)
+	}
+
+	var entities []T
+	if err := tx.Where(&param).Find(&entities).Error; err != nil {
+		return nil, err
+	}
+
+	return entities, nil
 }
 
-func (repo *userResourceRepository[T]) BulkCreate(ctx context.Context, resources []T) error {
+func (r *userResourceRepository[T]) CreateOrUpdate(ctx context.Context, entity *T) error {
 	tx, ok := GetTx(ctx)
 
 	if !ok {
 		return repository.ErrTx
 	}
 
-	return tx.Omit(clause.Associations).Create(resources).Error
+	if (*entity).IsEmpty() {
+		t := (*entity)
+		tx.Clauses(clause.Locking{Strength: "UPDATE"}).Find(&t)
+	}
+
+	return tx.Omit(clause.Associations).Save(entity).Error
 }
 
-func (repo *userResourceRepository[T]) BulkUpdate(ctx context.Context, resources []T) error {
+func (r *userResourceRepository[T]) BulkCreate(ctx context.Context, entities []T) error {
 	tx, ok := GetTx(ctx)
 
 	if !ok {
 		return repository.ErrTx
 	}
 
-	return tx.Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "id"}},
-		DoUpdates: clause.AssignmentColumns(repo.fields),
-	}).Create(resources).Error
+	return tx.Omit(clause.Associations).Create(entities).Error
+}
+
+func (r *userResourceRepository[T]) BulkUpdate(ctx context.Context, entities []T) error {
+	tx, ok := GetTx(ctx)
+
+	if !ok {
+		return repository.ErrTx
+	}
+
+	for _, entity := range entities {
+		id := entity.GetID()
+		if err := tx.Model(&entity).Where("id = ?", id).Select("*").Omit(clause.Associations).Updates(entity).Error; err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (r *userResourceRepository[T]) Delete(ctx context.Context, entity *T) error {
+	tx, ok := GetTx(ctx)
+
+	if !ok {
+		return repository.ErrTx
+	}
+
+	return tx.Unscoped().Delete(entity).Error
+}
+
+func (r *userResourceRepository[T]) BulkDelete(ctx context.Context, entities []T) error {
+	tx, ok := GetTx(ctx)
+
+	if !ok {
+		return repository.ErrTx
+	}
+
+	return tx.Unscoped().Delete(entities).Error
+}
+
+func (r *userResourceRepository[T]) DeleteByUserID(ctx context.Context, userID uint) error {
+	tx, ok := GetTx(ctx)
+
+	if !ok {
+		return repository.ErrTx
+	}
+
+	var entity T
+	return tx.Unscoped().Where("user_id = ?", userID).Delete(&entity).Error
 }

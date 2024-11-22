@@ -1,9 +1,7 @@
 package entity
 
-import "gorm.io/gorm"
-
 type UserItem struct {
-	gorm.Model
-	UserRewardContent
-	Item Item `gorm:"foreignKey:ContentID"`
+	UserResourceBase
+	Resource Item `gorm:"foreignKey:ResourceID"`
+	Quantity uint `gorm:"not null",index:"idx_user_id_resource_id,priority:3"`
 }

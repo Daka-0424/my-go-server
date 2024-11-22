@@ -11,14 +11,12 @@ import (
 )
 
 type paymentPlaystoreTokenRepository struct {
-	db    *gorm.DB
-	field []string
+	db *gorm.DB
 }
 
 func NewPaymentPlaystoreTokenRepository(db *gorm.DB) repository.IPaymentPlaystoreToken {
 	return &paymentPlaystoreTokenRepository{
-		db:    db,
-		field: entity.GetEntityFields(entity.PaymentPlaystoreToken{}),
+		db: db,
 	}
 }
 
@@ -29,10 +27,12 @@ func (repo *paymentPlaystoreTokenRepository) CreateOrUpdate(ctx context.Context,
 		return repository.ErrTx
 	}
 
-	return tx.Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "id"}},
-		DoUpdates: clause.AssignmentColumns(repo.field),
-	}).Create(playstoreToken).Error
+	if playstoreToken.ID != 0 {
+		t := entity.PaymentPlaystoreToken{Model: gorm.Model{ID: playstoreToken.ID}}
+		tx.Clauses(clause.Locking{Strength: "UPDATE"}).Find(&t)
+	}
+
+	return tx.Omit(clause.Associations).Save(playstoreToken).Error
 }
 
 func (r *paymentPlaystoreTokenRepository) ExistsPaymentPlaystoreToken(ctx context.Context, orderID string) (bool, error) {

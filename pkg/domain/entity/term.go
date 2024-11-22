@@ -7,10 +7,10 @@ import (
 )
 
 type Term struct {
-	StartAt     DateTime `yaml:"startAt" json:"start_at"`
-	EndAt       DateTime `yaml:"endAt" json:"end_at"`
-	TestStartAt DateTime `yaml:"testStartAt" json:"test_start_at"`
-	TestEndAt   DateTime `yaml:"testEndAt" json:"test_end_at"`
+	StartAt     DateTime `yaml:"startAt" gorm:"start_at"`
+	EndAt       DateTime `yaml:"endAt" gorm:"end_at"`
+	TestStartAt DateTime `yaml:"testStartAt" gorm:"test_start_at"`
+	TestEndAt   DateTime `yaml:"testEndAt" gorm:"test_end_at"`
 }
 
 func NewTerm(startAt, endAt, testStartAt, testEndAt time.Time) *Term {

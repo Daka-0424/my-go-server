@@ -7,10 +7,16 @@ import (
 )
 
 type IUserResource[T entity.IUserResourceType] interface {
-	GetByID(ctx context.Context, ID uint) (*T, error)
-	GetByIDs(ctx context.Context, IDs []uint) ([]T, error)
-	GetByUserID(ctx context.Context, userID uint) ([]T, error)
-	CreateOrUpdate(ctx context.Context, resource *T) error
-	BulkCreate(ctx context.Context, resources []T) error
-	BulkUpdate(ctx context.Context, resources []T) error
+	GetByID(ctx context.Context, ID uint, preloads ...string) (*T, error)
+	GetByIDs(ctx context.Context, ISs []uint, preloads ...string) ([]T, error)
+	GetByUserID(ctx context.Context, userID uint, preloads ...string) ([]T, error)
+	Where(ctx context.Context, param T, preloads ...string) ([]T, error)
+
+	CreateOrUpdate(ctx context.Context, entity *T) error
+	BulkCreate(ctx context.Context, entities []T) error
+	BulkUpdate(ctx context.Context, entities []T) error
+
+	Delete(ctx context.Context, entity *T) error
+	BulkDelete(ctx context.Context, entities []T) error
+	DeleteByUserID(ctx context.Context, userID uint) error
 }

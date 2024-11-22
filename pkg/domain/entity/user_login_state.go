@@ -10,12 +10,12 @@ import (
 
 type UserLoginState struct {
 	gorm.Model
-	UserID          uint       `json:"user_id" gorm:"not null"`
-	TotalLogin      uint       `json:"total_login" gorm:"not null"`
-	Duration        *uint      `json:"duration" gorm:"not null"`
-	AccessedAt      *time.Time `json:"accessed_at"`
-	DurationStartAt *time.Time `json:"duration_start_at"`
-	LastLoginAt     *time.Time `json:"last_login_at"`
+	UserID          uint       `gorm:"user_id" gorm:"not null"`
+	TotalLogin      uint       `gorm:"total_login" gorm:"not null"`
+	Duration        *uint      `gorm:"duration" gorm:"not null"`
+	AccessedAt      *time.Time `gorm:"accessed_at"`
+	DurationStartAt *time.Time `gorm:"duration_start_at"`
+	LastLoginAt     *time.Time `gorm:"last_login_at"`
 }
 
 func NewUserLoginState(userID uint) *UserLoginState {

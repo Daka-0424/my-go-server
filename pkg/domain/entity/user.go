@@ -19,14 +19,14 @@ const (
 
 type User struct {
 	gorm.Model
-	DisplayCode    string              `json:"display_code" gorm:"size:16"` // 表示用のコード
-	UUID           string              `json:"uuid" gorm:"index;size:255"`
-	Name           string              `json:"name" gorm:"index;size:255"`
-	UserKind       uint                `json:"user_kind"`
-	TimeDifference time.Duration       `json:"time_difference"`
-	ClientVersion  string              `json:"client_version" gorm:"index;size:255"`
-	Device         string              `json:"device" gorm:"index;size:255"`
-	PlatformNumber uint                `json:"platform_number"`
+	DisplayCode    string              `gorm:"display_code", "size:16"` // 表示用のコード
+	UUID           string              `gorm:"uuid", "index;size:255"`
+	Name           string              `gorm:"name", "index;size:255"`
+	UserKind       uint                `gorm:"user_kind"`
+	TimeDifference time.Duration       `gorm:"time_difference"`
+	ClientVersion  string              `gorm:"client_version", "index;size:255"`
+	Device         string              `gorm:"device", "index;size:255"`
+	PlatformNumber uint                `gorm:"platform_number"`
 	Vc             UserSummaryRelation `gorm:"foreignkey:UserID"`
 	LoginState     UserLoginState      `gorm:"foreignkey:UserID"`
 }

@@ -10,14 +10,12 @@ import (
 )
 
 type earnedPointRepository struct {
-	db     *gorm.DB
-	fields []string
+	db *gorm.DB
 }
 
 func NewEarnedPointRepository(db *gorm.DB) repository.IEarnedPoint {
 	return &earnedPointRepository{
-		db:     db,
-		fields: entity.GetEntityFields(entity.EarnedPoint{}),
+		db: db,
 	}
 }
 
@@ -28,10 +26,12 @@ func (repo *earnedPointRepository) CreateOrUpdate(ctx context.Context, earnedPoi
 		return repository.ErrTx
 	}
 
-	return tx.Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "id"}},
-		DoUpdates: clause.AssignmentColumns(repo.fields),
-	}).Error
+	if earnedPoint.ID != 0 {
+		t := entity.EarnedPoint{Model: gorm.Model{ID: earnedPoint.ID}}
+		tx.Clauses(clause.Locking{Strength: "UPDATE"}).Find(&t)
+	}
+
+	return tx.Omit(clause.Associations).Save(earnedPoint).Error
 }
 
 func (repo *earnedPointRepository) BulkCreate(ctx context.Context, earnedPoints []entity.EarnedPoint) error {

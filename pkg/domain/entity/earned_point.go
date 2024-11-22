@@ -13,19 +13,19 @@ const (
 
 type EarnedPoint struct {
 	gorm.Model
-	UserID                   uint       `json:"user_id" gorm:"not null"`
-	UserPointSummaryID       uint       `json:"user_point_summary_id" gorm:"not null"`
-	PlatformProductID        uint       `json:"platform_product_id"`
-	ImitationPointID         uint       `json:"imitation_point_id"`
-	PlatformNumberOnSpending uint       `json:"platform_number_on_spending"`
-	PointExceeded            bool       `json:"point_exceeded"`
-	GemKind                  uint       `json:"gem_kind"`
-	SpendPoint               uint       `json:"spend_point"`
-	EarnedPoint              uint       `json:"earned_point"`
-	BalancePoint             uint       `json:"balance_point"`
-	EarnSource               string     `json:"earn_source"`
-	SpentAt                  *time.Time `json:"spent_at"`
-	EarnedAt                 time.Time  `json:"earned_at"`
+	UserID                   uint       `gorm:"user_id" gorm:"not null"`
+	UserPointSummaryID       uint       `gorm:"user_point_summary_id" gorm:"not null"`
+	PlatformProductID        uint       `gorm:"platform_product_id"`
+	ImitationPointID         uint       `gorm:"imitation_point_id"`
+	PlatformNumberOnSpending uint       `gorm:"platform_number_on_spending"`
+	PointExceeded            bool       `gorm:"point_exceeded"`
+	GemKind                  uint       `gorm:"gem_kind"`
+	SpendPoint               uint       `gorm:"spend_point"`
+	EarnedPoint              uint       `gorm:"earned_point"`
+	BalancePoint             uint       `gorm:"balance_point"`
+	EarnSource               string     `gorm:"earn_source"`
+	SpentAt                  *time.Time `gorm:"spent_at"`
+	EarnedAt                 time.Time  `gorm:"earned_at"`
 	UserPointSummary         UserPointSummary
 }
 
