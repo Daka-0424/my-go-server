@@ -18,6 +18,7 @@ import (
 
 type Claims struct {
 	jwt.RegisteredClaims
+	SessionID   string    `json:"session_id"`
 	Uuid        string    `json:"uuid"`
 	Name        string    `json:"name"`
 	InstalledAt time.Time `json:"installed_at"`
@@ -62,15 +63,26 @@ func JwtMiddleware(cfg *config.Config, localizer *i18n.Localizer, cache reposito
 
 		ctx.Set("claims", claims)
 
-		data, ok, err := cache.Get(ctx, formatter.CRYPTO_CACHE_KEY+claims.Uuid)
-		if err != nil {
+		data, ok, err := cache.Get(ctx, formatter.CRYPTO_CACHE_KEY+claims.SessionID)
+		if err != nil || !ok {
 			returnErrorWithAbort(ctx, localizer)
 			return
 		}
 
-		if ok {
-			ctx.Set("cryptoKey", data[:formatter.KEY_SIZE])
-			ctx.Set("cryptoIv", data[formatter.KEY_SIZE:])
+		ctx.Set("cryptoKey", data[:formatter.KEY_SIZE])
+		ctx.Set("cryptoIv", data[formatter.KEY_SIZE:])
+
+		if !cfg.IsMultiDeviceAccess() {
+			session, ok, err := cache.Get(ctx, formatter.CRYPTO_CACHE_KEY+claims.Uuid)
+			if err != nil || !ok {
+				returnErrorWithAbort(ctx, localizer)
+				return
+			}
+
+			if claims.SessionID != string(session) {
+				returnErrorWithAbort(ctx, localizer)
+				return
+			}
 		}
 	}
 }

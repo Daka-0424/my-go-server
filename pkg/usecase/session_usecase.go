@@ -91,7 +91,7 @@ func (usecase *sessionUsecase) login(ctx context.Context, user *entity.User) (st
 	}
 
 	sessionID := uuid.New().String()
-	accountToken, err := usecase.generateToken(user)
+	accountToken, err := usecase.generateToken(user, sessionID)
 	if err != nil {
 		c := &i18n.LocalizeConfig{MessageID: model.E9999}
 		return "", "", "", model.NewErrUnprocessable(model.E9999, usecase.localizer.MustLocalize((c)))
@@ -134,7 +134,7 @@ func (usecase *sessionUsecase) login(ctx context.Context, user *entity.User) (st
 	return accountToken, keyStr, ivStr, nil
 }
 
-func (usecase *sessionUsecase) generateToken(user *entity.User) (string, error) {
+func (usecase *sessionUsecase) generateToken(user *entity.User, sessionID string) (string, error) {
 	claims := &middleware.Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			ID:        strconv.FormatUint(uint64(user.ID), 10),
@@ -145,6 +145,7 @@ func (usecase *sessionUsecase) generateToken(user *entity.User) (string, error) 
 			Issuer:    usecase.cfg.Jwt.Issuer,
 			Audience:  []string{usecase.cfg.Jwt.Audience},
 		},
+		SessionID:   sessionID,
 		Uuid:        user.UUID,
 		Name:        user.Name,
 		InstalledAt: user.CreatedAt,
