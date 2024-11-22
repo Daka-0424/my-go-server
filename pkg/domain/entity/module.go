@@ -22,9 +22,6 @@ func Entity() []any {
 		// Billing
 		&PaymentAppstoreToken{},
 		&PaymentPlaystoreToken{},
-
-		// Seed
-		&PlatformProduct{},
 	},
 		UserResource(),
 		Seed(),
