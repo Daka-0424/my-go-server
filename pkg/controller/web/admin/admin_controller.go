@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"io"
+	"net/http"
 	"time"
 
 	"github.com/Daka-0424/my-go-server/config"
@@ -97,14 +98,18 @@ func (ctl *AdminController) PostRegister(ctx *gin.Context) {
 		return
 	}
 
-	ctl.newSession(ctx, admin)
+	if err := ctl.newSession(ctx, admin); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
 	ctx.Redirect(301, "/admin")
 }
 
-func (ctl *AdminController) newSession(ctx *gin.Context, admin *entity.Admin) {
+func (ctl *AdminController) newSession(ctx *gin.Context, admin *entity.Admin) error {
 	baseRedisKey := make([]byte, 64)
 	if _, err := io.ReadFull(rand.Reader, baseRedisKey); err != nil {
-		panic("ランダムな文字列の生成に失敗しました。")
+		return err
 	}
 	newRedisKey := base64.URLEncoding.EncodeToString(baseRedisKey)
 
@@ -112,11 +117,16 @@ func (ctl *AdminController) newSession(ctx *gin.Context, admin *entity.Admin) {
 	data.Password = ""
 	json, err := json.Marshal(data)
 	if err != nil {
-		panic("セッション情報の生成に失敗しました。")
+		return err
+	}
+
+	if err := ctl.cache.Set(ctx, newRedisKey, json, time.Hour*25*30); err != nil {
+		return err
 	}
 
 	key := ctl.cfg.Cookie.Key
 	host := ctl.cfg.Cookie.Host
-	ctl.cache.Set(ctx, newRedisKey, json, time.Hour*10)
-	ctx.SetCookie(key, newRedisKey, 3600*10, "/", host, false, true)
+	ctx.SetCookie(key, newRedisKey, 3600*24*30, "/", host, false, true)
+
+	return nil
 }
