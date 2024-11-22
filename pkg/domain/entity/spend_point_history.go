@@ -8,14 +8,14 @@ import (
 
 type SpendPointHistory struct {
 	gorm.Model
-	UserID                   uint      `json:"user_id" gorm:"not null"`
-	UserSummaryRelationID    uint      `json:"user_summary_relation_id" gorm:"not null"`
-	PlatformNumberOnSpending uint      `json:"platform_number_on_spending" gorm:"not null"`
-	SpendPoint               uint      `json:"spend_point" gorm:"default:0;not null"`
-	SpendPaidPoint           uint      `json:"spend_paid_point" gorm:"default:0;not null"`
-	SpendSalesAmount         uint      `json:"spend_sales_amount" gorm:"default:0;not null"`
-	SpentAt                  time.Time `json:"spent_at"`
-	ItemCode                 string    `json:"item_code"`
+	UserID                   uint      `gorm:"user_id" gorm:"not null"`
+	UserSummaryRelationID    uint      `gorm:"user_summary_relation_id" gorm:"not null"`
+	PlatformNumberOnSpending uint      `gorm:"platform_number_on_spending" gorm:"not null"`
+	SpendPoint               uint      `gorm:"spend_point" gorm:"default:0;not null"`
+	SpendPaidPoint           uint      `gorm:"spend_paid_point" gorm:"default:0;not null"`
+	SpendSalesAmount         uint      `gorm:"spend_sales_amount" gorm:"default:0;not null"`
+	SpentAt                  time.Time `gorm:"spent_at"`
+	ItemCode                 string    `gorm:"item_code"`
 	UserSummaryRelation      UserSummaryRelation
 }
 

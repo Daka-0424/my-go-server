@@ -3,13 +3,13 @@ package entity
 type PlatformProduct struct {
 	SeedBase       `yaml:",inline"`
 	Term           `yaml:",inline"`
-	Name           string `yaml:"name" json:"name"`
-	Description    string `yaml:"description" json:"description"`
-	Price          uint   `yaml:"price" json:"price"`
-	PlatformNumber uint   `yaml:"platformNumber" json:"platform_number"`
-	PaidPoint      uint   `yaml:"paidPoint" json:"paid_point"`
-	FreePoint      uint   `yaml:"freePoint" json:"free_point"`
-	ProductId      string `yaml:"productId" json:"product_id"`
+	Name           string `yaml:"name" gorm:"name"`
+	Description    string `yaml:"description" gorm:"description"`
+	Price          uint   `yaml:"price" gorm:"price"`
+	PlatformNumber uint   `yaml:"platformNumber" gorm:"platform_number"`
+	PaidPoint      uint   `yaml:"paidPoint" gorm:"paid_point"`
+	FreePoint      uint   `yaml:"freePoint" gorm:"free_point"`
+	ProductId      string `yaml:"productId" gorm:"product_id"`
 }
 
 func (p *PlatformProduct) UnitCost() float64 {

@@ -11,14 +11,12 @@ import (
 )
 
 type userPointSummaryRepository struct {
-	db     *gorm.DB
-	fields []string
+	db *gorm.DB
 }
 
 func NewUserPointSummaryRepository(db *gorm.DB) repository.IUserPointSummary {
 	return &userPointSummaryRepository{
-		db:     db,
-		fields: entity.GetEntityFields(entity.UserPointSummary{}),
+		db: db,
 	}
 }
 
@@ -59,10 +57,10 @@ func (repo *userPointSummaryRepository) Update(ctx context.Context, pointSummary
 		return repository.ErrTx
 	}
 
-	return tx.Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "id"}},
-		DoUpdates: clause.AssignmentColumns(repo.fields),
-	}).Create(pointSummary).Error
+	t := entity.UserPointSummary{Model: gorm.Model{ID: pointSummary.ID}}
+	tx.Clauses(clause.Locking{Strength: "UPDATE"}).Find(&t)
+
+	return tx.Model(pointSummary).Select("*").Omit(clause.Associations).Updates(pointSummary).Error
 }
 
 func (repo *userPointSummaryRepository) BulkUpdate(ctx context.Context, points []entity.UserPointSummary) error {
@@ -72,8 +70,15 @@ func (repo *userPointSummaryRepository) BulkUpdate(ctx context.Context, points [
 		return repository.ErrTx
 	}
 
-	return tx.Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "id"}},
-		DoUpdates: clause.AssignmentColumns(repo.fields),
-	}).Create(points).Error
+	for _, point := range points {
+		if err := tx.Model(&entity.UserPointSummary{}).
+			Where("id = ?", point.ID).
+			Select("*").
+			Omit(clause.Associations).
+			Updates(point).Error; err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

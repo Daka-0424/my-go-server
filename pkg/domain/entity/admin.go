@@ -15,9 +15,9 @@ const (
 
 type Admin struct {
 	gorm.Model
-	Email    string        `json:"email" gorm:"index;size:255"`
-	Password string        `json:"password"`
-	RoleType AdminRoleType `json:"role_type"`
+	Email    string        `gorm:"email" gorm:"index;size:255"`
+	Password string        `gorm:"password"`
+	RoleType AdminRoleType `gorm:"role_type"`
 }
 
 func NewAdmin(email, password string, roleType AdminRoleType) *Admin {

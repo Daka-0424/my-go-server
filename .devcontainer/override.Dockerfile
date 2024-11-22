@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/vscode/devcontainers/go:1.20-bullseye
+FROM mcr.microsoft.com/vscode/devcontainers/go:1.23-bullseye
 
 WORKDIR /app
 

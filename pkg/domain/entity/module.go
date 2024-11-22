@@ -1,21 +1,14 @@
 package entity
 
-import (
-	"reflect"
-)
-
 const DEFAULT_DB_ID = 0
 
 func Entity() []any {
-	return []any{
+	return concatSlices([]any{
 		// User
 		&User{},
 		&UserLoginState{},
 		&UserPointSummary{},
 		&UserSummaryRelation{},
-
-		// UserResources
-		&UserItem{},
 
 		// Admin
 		&Admin{},
@@ -32,6 +25,15 @@ func Entity() []any {
 
 		// Seed
 		&PlatformProduct{},
+	},
+		UserResource(),
+		Seed(),
+	)
+}
+
+func UserResource() []any {
+	return []any{
+		&UserItem{},
 	}
 }
 
@@ -42,25 +44,19 @@ func Seed() []any {
 }
 
 type ISeedType interface {
-	PlatformProduct
+	SeedModule()
 }
 
 type IUserResourceType interface {
-	UserItem
+	UserResourceModule()
+	GetID() uint
+	IsEmpty() bool
 }
 
-func GetEntityFields(entity interface{}) []string {
-	var fields []string
-	modelType := reflect.TypeOf(entity)
-	for i := 0; i < modelType.NumField(); i++ {
-		field := modelType.Field(i)
-		tag := field.Tag.Get("json")
-		if tag != "" {
-			fields = append(fields, tag)
-		} else if field.Name == "Term" {
-			termFields := GetEntityFields(Term{})
-			fields = append(fields, termFields...)
-		}
+func concatSlices(slices ...[]any) []any {
+	var result []any
+	for _, slice := range slices {
+		result = append(result, slice...)
 	}
-	return fields
+	return result
 }

@@ -11,14 +11,12 @@ import (
 )
 
 type userSummaryRelationRepository struct {
-	db     *gorm.DB
-	fields []string
+	db *gorm.DB
 }
 
 func NewUserSummaryRelationRepository(db *gorm.DB) repository.IUserSummaryRelation {
 	return &userSummaryRelationRepository{
-		db:     db,
-		fields: entity.GetEntityFields(entity.UserSummaryRelation{}),
+		db: db,
 	}
 }
 
@@ -56,15 +54,17 @@ func (repo *userSummaryRelationRepository) FindOtherPlatformVc(ctx context.Conte
 	return &userSummaryRelation, nil
 }
 
-func (repo *userSummaryRelationRepository) CreateOrUpdate(ctx context.Context, entity *entity.UserSummaryRelation) error {
+func (repo *userSummaryRelationRepository) CreateOrUpdate(ctx context.Context, relation *entity.UserSummaryRelation) error {
 	tx, ok := GetTx(ctx)
 
 	if !ok {
 		return repository.ErrTx
 	}
 
-	return tx.Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "id"}},
-		DoUpdates: clause.AssignmentColumns(repo.fields),
-	}).Create(entity).Error
+	if relation.ID != 0 {
+		t := entity.UserSummaryRelation{Model: gorm.Model{ID: relation.ID}}
+		tx.Clauses(clause.Locking{Strength: "UPDATE"}).Find(&t)
+	}
+
+	return tx.Omit(clause.Associations).Save(relation).Error
 }

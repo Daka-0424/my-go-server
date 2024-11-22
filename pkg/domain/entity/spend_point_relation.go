@@ -6,13 +6,13 @@ import (
 
 type SpendPointRelation struct {
 	gorm.Model
-	UserID                   uint `json:"user_id"`
-	UserPointSummaryID       uint `json:"user_point_summary_id"`
-	EarnedPointID            uint `json:"earned_point_id"`
-	SpendPointHistoryID      uint `json:"spend_point_history_id"`
-	GemKind                  uint `json:"gem_kind"`
-	PlatformNumberOnSpending uint `json:"platform_number_on_spending"`
-	SpendPoint               uint `json:"spend_point"`
+	UserID                   uint `gorm:"user_id"`
+	UserPointSummaryID       uint `gorm:"user_point_summary_id"`
+	EarnedPointID            uint `gorm:"earned_point_id"`
+	SpendPointHistoryID      uint `gorm:"spend_point_history_id"`
+	GemKind                  uint `gorm:"gem_kind"`
+	PlatformNumberOnSpending uint `gorm:"platform_number_on_spending"`
+	SpendPoint               uint `gorm:"spend_point"`
 	UserPointSummary         UserPointSummary
 	EarnedPoint              EarnedPoint
 	SpendPointHistory        SpendPointHistory

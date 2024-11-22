@@ -10,14 +10,12 @@ import (
 )
 
 type userLoginStateRepository struct {
-	db     *gorm.DB
-	fields []string
+	db *gorm.DB
 }
 
 func NewUserLoginStateRepository(db *gorm.DB) repository.IUserLoginState {
 	return &userLoginStateRepository{
-		db:     db,
-		fields: entity.GetEntityFields(entity.UserLoginState{}),
+		db: db,
 	}
 }
 
@@ -28,8 +26,10 @@ func (repo *userLoginStateRepository) CreateOrUpdate(ctx context.Context, state 
 		return repository.ErrTx
 	}
 
-	return tx.Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "id"}},         // 一意性を保証するカラム
-		DoUpdates: clause.AssignmentColumns(repo.fields), // 更新するフィールドを指定
-	}).Create(state).Error
+	if state.ID != 0 {
+		t := entity.UserLoginState{Model: gorm.Model{ID: state.ID}}
+		tx.Clauses(clause.Locking{Strength: "UPDATE"}).Find(&t)
+	}
+
+	return tx.Omit(clause.Associations).Save(state).Error
 }

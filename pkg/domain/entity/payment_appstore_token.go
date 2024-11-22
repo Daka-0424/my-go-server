@@ -17,19 +17,19 @@ const (
 
 type PaymentAppstoreToken struct {
 	gorm.Model
-	TransactionID     string `json:"transaction_id"`
-	AppAccountToken   string `json:"app_account_token"`
-	BuindleID         string `json:"bundle_id"`
-	Currency          string `json:"currency"`
-	Enviroment        string `json:"enviroment"`
-	ProductID         string `json:"product_id"`
-	Price             uint   `json:"price"`
-	PurchaseDate      uint   `json:"purchase_date"`
-	Quantity          uint   `json:"quantity"`
-	RevocationDate    uint   `json:"revocation_date"`
-	UserID            uint   `json:"user_id"`
-	EarnedPointID     uint   `json:"earned_point_id"`
-	PlatformProductID uint   `json:"platform_product_id"`
+	TransactionID     string `gorm:"transaction_id"`
+	AppAccountToken   string `gorm:"app_account_token"`
+	BuindleID         string `gorm:"bundle_id"`
+	Currency          string `gorm:"currency"`
+	Enviroment        string `gorm:"enviroment"`
+	ProductID         string `gorm:"product_id"`
+	Price             uint   `gorm:"price"`
+	PurchaseDate      uint   `gorm:"purchase_date"`
+	Quantity          uint   `gorm:"quantity"`
+	RevocationDate    uint   `gorm:"revocation_date"`
+	UserID            uint   `gorm:"user_id"`
+	EarnedPointID     uint   `gorm:"earned_point_id"`
+	PlatformProductID uint   `gorm:"platform_product_id"`
 	PlatformProduct   PlatformProduct
 }
 
