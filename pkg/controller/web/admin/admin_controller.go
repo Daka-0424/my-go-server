@@ -120,7 +120,7 @@ func (ctl *AdminController) newSession(ctx *gin.Context, admin *entity.Admin) er
 		return err
 	}
 
-	if err := ctl.cache.Set(ctx, newRedisKey, json, time.Hour*25*30); err != nil {
+	if err := ctl.cache.Set(ctx, newRedisKey, json, time.Hour*24*30); err != nil {
 		return err
 	}
 
