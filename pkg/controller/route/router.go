@@ -2,7 +2,7 @@ package route
 
 import (
 	"github.com/Daka-0424/my-go-server/config"
-	controller "github.com/Daka-0424/my-go-server/pkg/controller/api"
+	"github.com/Daka-0424/my-go-server/pkg/controller/api"
 	"github.com/Daka-0424/my-go-server/pkg/controller/middleware"
 	"github.com/Daka-0424/my-go-server/pkg/domain/repository"
 	"github.com/gin-gonic/gin"
