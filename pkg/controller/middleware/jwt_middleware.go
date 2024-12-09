@@ -42,7 +42,7 @@ func JwtMiddleware(cfg *config.Config, localizer *i18n.Localizer, cache reposito
 	return func(ctx *gin.Context) {
 		tknstr, err := bearerToken(ctx)
 		if err != nil {
-			returnErrorWithAbort(ctx, localizer)
+			returnErrorWithAbort(ctx, cfg, localizer)
 			return
 		}
 
@@ -52,12 +52,12 @@ func JwtMiddleware(cfg *config.Config, localizer *i18n.Localizer, cache reposito
 			return []byte(cfg.Jwt.Secret), nil
 		})
 		if err != nil {
-			returnErrorWithAbort(ctx, localizer)
+			returnErrorWithAbort(ctx, cfg, localizer)
 			return
 		}
 
 		if !tkn.Valid {
-			returnErrorWithAbort(ctx, localizer)
+			returnErrorWithAbort(ctx, cfg, localizer)
 			return
 		}
 
@@ -65,7 +65,7 @@ func JwtMiddleware(cfg *config.Config, localizer *i18n.Localizer, cache reposito
 
 		data, ok, err := cache.Get(ctx, formatter.CRYPTO_CACHE_KEY+claims.SessionID)
 		if err != nil || !ok {
-			returnErrorWithAbort(ctx, localizer)
+			returnErrorWithAbort(ctx, cfg, localizer)
 			return
 		}
 
@@ -75,12 +75,12 @@ func JwtMiddleware(cfg *config.Config, localizer *i18n.Localizer, cache reposito
 		if !cfg.IsMultiDeviceAccess() {
 			session, ok, err := cache.Get(ctx, formatter.CRYPTO_CACHE_KEY+claims.Uuid)
 			if err != nil || !ok {
-				returnErrorWithAbort(ctx, localizer)
+				returnErrorWithAbort(ctx, cfg, localizer)
 				return
 			}
 
 			if claims.SessionID != string(session) {
-				returnErrorWithAbort(ctx, localizer)
+				returnErrorWithAbort(ctx, cfg, localizer)
 				return
 			}
 		}
@@ -99,9 +99,9 @@ func bearerToken(ctx *gin.Context) (string, error) {
 	return token, nil
 }
 
-func returnErrorWithAbort(ctx *gin.Context, localizer *i18n.Localizer) {
+func returnErrorWithAbort(ctx *gin.Context, cfg *config.Config, localizer *i18n.Localizer) {
 	c := &i18n.LocalizeConfig{MessageID: model.E0101}
 	appErr := model.NewErrUnauthorized(model.E0101, localizer.MustLocalize(c))
-	formatter.Respond(ctx, appErr.StatusCode, gin.H{"error": appErr})
+	formatter.Respond(ctx, cfg, appErr.StatusCode, gin.H{"error": appErr})
 	ctx.Abort()
 }

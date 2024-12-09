@@ -28,10 +28,10 @@ func NewUserController(
 
 func (ctl *UserController) Registration(ctx *gin.Context) {
 	var rew CreateRegistrationRequest
-	if err := formatter.ShouldBind(ctx, &rew); err != nil {
+	if err := formatter.ShouldBind(ctx, ctl.cfg, &rew); err != nil {
 		c := &i18n.LocalizeConfig{MessageID: model.E0101}
 		apperr := model.NewErrUnprocessable(model.E0101, ctl.localizer.MustLocalize(c))
-		formatter.Respond(ctx, apperr.StatusCode, gin.H{"error": apperr})
+		formatter.Respond(ctx, ctl.cfg, apperr.StatusCode, gin.H{"error": apperr})
 		return
 	}
 
@@ -42,11 +42,11 @@ func (ctl *UserController) Registration(ctx *gin.Context) {
 	registration, err := ctl.registrationUsecase.Registration(ctx, rew.Uuid, device, appVersion, platformNumber)
 	if err != nil {
 		apperr := ctl.toAppError(err)
-		formatter.Respond(ctx, apperr.StatusCode, gin.H{"error": apperr})
+		formatter.Respond(ctx, ctl.cfg, apperr.StatusCode, gin.H{"error": apperr})
 		return
 	}
 
-	formatter.Respond(ctx, http.StatusOK, registration)
+	formatter.Respond(ctx, ctl.cfg, http.StatusOK, registration)
 }
 
 type CreateRegistrationRequest struct {
