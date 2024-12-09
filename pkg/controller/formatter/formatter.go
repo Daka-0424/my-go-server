@@ -8,17 +8,9 @@ import (
 	"io/ioutil"
 	"strings"
 
+	"github.com/Daka-0424/my-go-server/config"
 	"github.com/gin-gonic/gin"
 )
-
-var DEFAULT_KEY = []byte{
-	0x8E, 0x09, 0x6B, 0xD0, 0x40, 0x43, 0xDF, 0xAB, 0x31, 0xE6, 0x97, 0x40, 0x5E, 0x4B, 0x86, 0xA8,
-	0xC3, 0xFE, 0x43, 0x85, 0xD3, 0x21, 0x19, 0x10, 0x1A, 0x38, 0xE1, 0x38, 0xE0, 0x09, 0x03, 0x9D,
-}
-
-var DEFAULT_IV = []byte{
-	0x51, 0xFA, 0xCE, 0x3C, 0x7D, 0xB7, 0xDC, 0xDF, 0x33, 0x00, 0xD9, 0x71, 0x7B, 0xB4, 0x3D, 0x02,
-}
 
 const (
 	KEY_SIZE = 32
@@ -27,13 +19,15 @@ const (
 
 const CRYPTO_CACHE_KEY = "crypto_"
 
-func Respond(ctx *gin.Context, status int, v any) {
-	if strings.Contains(ctx.Request.Header.Get("Accept"), gin.MIMEJSON) {
-		ctx.JSON(status, v)
-		return
+func Respond(ctx *gin.Context, cfg *config.Config, status int, v any) {
+	if cfg.IsDevelopment() {
+		if strings.Contains(ctx.Request.Header.Get("Accept"), gin.MIMEJSON) {
+			ctx.JSON(status, v)
+			return
+		}
 	}
 
-	key, iv := getKeyAndIV(ctx)
+	key, iv := getKeyAndIV(ctx, cfg)
 
 	json, err := json.Marshal(v)
 	if err != nil {
@@ -50,17 +44,19 @@ func Respond(ctx *gin.Context, status int, v any) {
 	ctx.Writer.Write(encrypted)
 }
 
-func ShouldBind(ctx *gin.Context, v any) error {
+func ShouldBind(ctx *gin.Context, cfg *config.Config, v any) error {
 	body, err := ioutil.ReadAll(ctx.Request.Body)
 	if err != nil {
 		return err
 	}
 
-	if ctx.Request.Header.Get("Content-Type") == gin.MIMEJSON {
-		return json.Unmarshal(body, v)
+	if cfg.IsDevelopment() {
+		if ctx.Request.Header.Get("Content-Type") == gin.MIMEJSON {
+			return json.Unmarshal(body, v)
+		}
 	}
 
-	key, iv := getKeyAndIV(ctx)
+	key, iv := getKeyAndIV(ctx, cfg)
 
 	decrypted, err := Decrypt(body, key, iv)
 	if err != nil {
@@ -107,17 +103,17 @@ func unpad(data []byte) []byte {
 	return data[:len(data)-padSize]
 }
 
-func getKeyAndIV(ctx *gin.Context) ([]byte, []byte) {
+func getKeyAndIV(ctx *gin.Context, cfg *config.Config) ([]byte, []byte) {
 	v, ok := ctx.Get("cryptoKey")
 	if !ok {
-		return DEFAULT_KEY, DEFAULT_IV
+		return cfg.RequestKeyIv.DefaultKey, cfg.RequestKeyIv.DefaultIv
 	}
 
 	key := v.([]byte)
 
 	v, ok = ctx.Get("cryptoIV")
 	if !ok {
-		return DEFAULT_KEY, DEFAULT_IV
+		return cfg.RequestKeyIv.DefaultKey, cfg.RequestKeyIv.DefaultIv
 	}
 
 	iv := v.([]byte)

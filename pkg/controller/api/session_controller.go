@@ -32,7 +32,7 @@ func (ctl *SessionController) CreateSession(ctx *gin.Context) {
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		c := &i18n.LocalizeConfig{MessageID: model.E0101}
 		apperr := model.NewErrUnprocessable(model.E0101, ctl.localizer.MustLocalize(c))
-		formatter.Respond(ctx, apperr.StatusCode, gin.H{"error": apperr})
+		formatter.Respond(ctx, ctl.cfg, apperr.StatusCode, gin.H{"error": apperr})
 		return
 	}
 
@@ -43,11 +43,11 @@ func (ctl *SessionController) CreateSession(ctx *gin.Context) {
 	session, err := ctl.sessionUsecase.CreateSession(ctx, req.UserId, req.Uuid, device, appVersion, platformNumber)
 	if err != nil {
 		apperr := ctl.toAppError(err)
-		formatter.Respond(ctx, apperr.StatusCode, gin.H{"error": apperr})
+		formatter.Respond(ctx, ctl.cfg, apperr.StatusCode, gin.H{"error": apperr})
 		return
 	}
 
-	formatter.Respond(ctx, http.StatusOK, session)
+	formatter.Respond(ctx, ctl.cfg, http.StatusOK, session)
 }
 
 type CreateSessionRequest struct {

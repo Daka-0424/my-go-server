@@ -25,7 +25,7 @@ func NewPlatformProductController(pu usecase.IPlatformProduct, cfg *config.Confi
 func (ctl *PlatformProductController) ListPlatformProduct(ctx *gin.Context) {
 	_, apperr := ctl.getClaims(ctx)
 	if apperr != nil {
-		formatter.Respond(ctx, apperr.StatusCode, gin.H{"error": apperr})
+		formatter.Respond(ctx, ctl.cfg, apperr.StatusCode, gin.H{"error": apperr})
 		return
 	}
 
@@ -33,9 +33,9 @@ func (ctl *PlatformProductController) ListPlatformProduct(ctx *gin.Context) {
 	products, err := ctl.platformProductUsecase.FindPlatformNumber(ctx, platformNumber)
 	if err != nil {
 		apperr := ctl.toAppError(err)
-		formatter.Respond(ctx, apperr.StatusCode, gin.H{"error": apperr})
+		formatter.Respond(ctx, ctl.cfg, apperr.StatusCode, gin.H{"error": apperr})
 		return
 	}
 
-	formatter.Respond(ctx, http.StatusOK, products)
+	formatter.Respond(ctx, ctl.cfg, http.StatusOK, products)
 }

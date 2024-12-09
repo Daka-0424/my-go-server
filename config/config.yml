@@ -30,3 +30,6 @@ sandbox_appstore:
   sandbox_appstore_issuer_id: "you_sandbox_issuer_id"
 google_play:
   base64_encoded_public_key: "you_public_key"
+request_key_iv:
+  default_key: "8E096BD04043DFAB31E697405E4B86A8C3FE4385D32119101A38E138E009039D"
+  default_iv: "51FACE3C7DB7DCDFA7300D9717BB43D02"

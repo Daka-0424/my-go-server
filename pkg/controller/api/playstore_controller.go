@@ -31,15 +31,15 @@ func NewPlaystoreController(
 func (ctl *PlaystoreController) Billing(ctx *gin.Context) {
 	clime, apperr := ctl.getClaims(ctx)
 	if apperr != nil {
-		formatter.Respond(ctx, apperr.StatusCode, gin.H{"error": apperr})
+		formatter.Respond(ctx, ctl.cfg, apperr.StatusCode, gin.H{"error": apperr})
 		return
 	}
 
 	var req billingPlaystoreRequest
-	if err := formatter.ShouldBind(ctx, &req); err != nil {
+	if err := formatter.ShouldBind(ctx, ctl.cfg, &req); err != nil {
 		c := &i18n.LocalizeConfig{MessageID: model.E9901}
 		apperr := model.NewErrUnprocessable(model.E9901, ctl.localizer.MustLocalize(c))
-		formatter.Respond(ctx, apperr.StatusCode, gin.H{"error": apperr})
+		formatter.Respond(ctx, ctl.cfg, apperr.StatusCode, gin.H{"error": apperr})
 		return
 	}
 
@@ -47,18 +47,18 @@ func (ctl *PlaystoreController) Billing(ctx *gin.Context) {
 	if err != nil {
 		c := &i18n.LocalizeConfig{MessageID: model.E0101}
 		apperr = model.NewErrInternalServerError(model.E0101, ctl.localizer.MustLocalize(c))
-		formatter.Respond(ctx, apperr.StatusCode, gin.H{"error": apperr})
+		formatter.Respond(ctx, ctl.cfg, apperr.StatusCode, gin.H{"error": apperr})
 		return
 	}
 
 	payment, err := ctl.playstoreUsecase.PlaystoreBilling(ctx, id, req.PurchaseItemID, req.Receipt, req.Signature)
 	if err != nil {
 		apperr := ctl.toAppError(err)
-		formatter.Respond(ctx, apperr.StatusCode, gin.H{"error": apperr})
+		formatter.Respond(ctx, ctl.cfg, apperr.StatusCode, gin.H{"error": apperr})
 		return
 	}
 
-	formatter.Respond(ctx, 200, payment)
+	formatter.Respond(ctx, ctl.cfg, 200, payment)
 }
 
 type billingPlaystoreRequest struct {

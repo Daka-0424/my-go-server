@@ -1,6 +1,8 @@
 package config
 
 import (
+	"encoding/hex"
+
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
@@ -39,6 +41,7 @@ type (
 		SandboxAppstore `yaml:"sandbox_appstore"`
 		GooglePlay      `yaml:"google_play"`
 		MultiDevice     `yaml:"multi_device"`
+		RequestKeyIv    `yaml:"request_key_iv"`
 		Admin           `yaml:"admin"`
 	}
 
@@ -100,7 +103,14 @@ type (
 	}
 
 	MultiDevice struct {
-		Access string `yaml:"access" env:"MULTI_DEVICE_ACCESS"`
+		Access string `yaml:"access" env:"multi_device_access"`
+	}
+
+	RequestKeyIv struct {
+		DefaultKey    []byte
+		DefaultIv     []byte
+		DefaultKeyStr string `yaml:"default_key_str" env:"REQUEST_DEFAULT_KEY_STR"`
+		DefaultIvStr  string `yaml:"default_iv_str" env:"REQUEST_DEFAULT_IV_STR"`
 	}
 
 	Admin struct {
@@ -117,6 +127,21 @@ func (s MultiDevice) IsMultiDeviceAccess() bool {
 	return s.Access == "Actiivation"
 }
 
+func (c *Config) setDefaultKeyIV() error {
+	key, err := hex.DecodeString(c.RequestKeyIv.DefaultKeyStr)
+	if err != nil {
+		return err
+	}
+	iv, err := hex.DecodeString(c.RequestKeyIv.DefaultIvStr)
+	if err != nil {
+		return err
+	}
+
+	c.RequestKeyIv.DefaultKey = key
+	c.RequestKeyIv.DefaultIv = iv
+	return nil
+}
+
 func NewConfig() (*Config, error) {
 	cfg := &Config{}
 
@@ -127,6 +152,10 @@ func NewConfig() (*Config, error) {
 
 	err = cleanenv.ReadEnv(cfg)
 	if err != nil {
+		return nil, err
+	}
+
+	if err := cfg.setDefaultKeyIV(); err != nil {
 		return nil, err
 	}
 
