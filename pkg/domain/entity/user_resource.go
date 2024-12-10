@@ -4,9 +4,9 @@ import "gorm.io/gorm"
 
 type UserResourceBase struct {
 	gorm.Model
-	UserID     uint `gorm:"not null;index:idx_user_id_resource_id,priority:1"`
+	UserID     uint `gorm:"user_id;not null;index:idx_user_id_resource_id,priority:1"`
 	User       User `gorm:"foreignKey:UserID"`
-	ResourceID uint `gorm:"not null;index:idx_user_id_resource_id,priority:2"`
+	ResourceID uint `gorm:"resource_id;not null;index:idx_user_id_resource_id,priority:2"`
 }
 
 func (r UserResourceBase) UserResourceModule() {}
