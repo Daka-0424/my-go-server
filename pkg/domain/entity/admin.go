@@ -15,7 +15,7 @@ const (
 
 type Admin struct {
 	gorm.Model
-	Email    string        `gorm:"index;size:255", "not null"`
+	Email    string        `gorm:"index;size:255;not null"`
 	Password string        `gorm:"password"`
 	RoleType AdminRoleType `gorm:"role_type"`
 }
