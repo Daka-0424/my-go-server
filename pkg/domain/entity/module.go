@@ -36,6 +36,7 @@ func UserResource() []any {
 
 func Seed() []any {
 	return []any{
+		&Item{},
 		&PlatformProduct{},
 	}
 }

@@ -9,7 +9,7 @@ const (
 )
 
 type RewardContent struct {
-	ContentID       uint              `yaml:"contentId" gorm:"content_id"`
-	ContentType     RewardContentType `yaml:"contentType" gorm:"content_type"`
-	ContentQuantity uint              `yaml:"quantity" gorm:"content_quantity"`
+	ContentID       uint              `yaml:"contentId"`
+	ContentType     RewardContentType `yaml:"contentType"`
+	ContentQuantity uint              `yaml:"quantity"`
 }

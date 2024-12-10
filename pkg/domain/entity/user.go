@@ -19,13 +19,13 @@ const (
 
 type User struct {
 	gorm.Model
-	DisplayCode    string              `gorm:"display_code", "size:16"` // 表示用のコード
-	UUID           string              `gorm:"uuid", "index;size:255"`
-	Name           string              `gorm:"name", "index;size:255"`
+	DisplayCode    string              `gorm:"display_code;size:16"` // 表示用のコード
+	UUID           string              `gorm:"uuid;index;size:255"`
+	Name           string              `gorm:"name;index;size:255"`
 	UserKind       uint                `gorm:"user_kind"`
 	TimeDifference time.Duration       `gorm:"time_difference"`
-	ClientVersion  string              `gorm:"client_version", "index;size:255"`
-	Device         string              `gorm:"device", "index;size:255"`
+	ClientVersion  string              `gorm:"client_version;index;size:255"`
+	Device         string              `gorm:"device;index;size:255"`
 	PlatformNumber uint                `gorm:"platform_number"`
 	Vc             UserSummaryRelation `gorm:"foreignkey:UserID"`
 	LoginState     UserLoginState      `gorm:"foreignkey:UserID"`
