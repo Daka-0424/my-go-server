@@ -1,4 +1,4 @@
-package controller
+package api
 
 import "go.uber.org/fx"
 
