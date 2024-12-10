@@ -1,4 +1,4 @@
-package controller
+package api
 
 import (
 	"github.com/Daka-0424/my-go-server/config"

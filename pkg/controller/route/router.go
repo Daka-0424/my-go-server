@@ -14,11 +14,11 @@ func Route(
 	cfg *config.Config,
 	cache repository.ICache,
 	localizer *i18n.Localizer,
-	registration *controller.UserController,
-	session *controller.SessionController,
-	vcPlatformProduct *controller.PlatformProductController,
-	appstore *controller.AppstoreController,
-	playstore *controller.PlaystoreController,
+	registration *api.UserController,
+	session *api.SessionController,
+	vcPlatformProduct *api.PlatformProductController,
+	appstore *api.AppstoreController,
+	playstore *api.PlaystoreController,
 ) {
 	route.GET("/", func(ctx *gin.Context) { ctx.JSON(200, gin.H{"status": "ok"}) })
 
