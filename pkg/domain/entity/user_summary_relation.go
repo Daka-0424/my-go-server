@@ -6,10 +6,10 @@ import (
 
 type UserSummaryRelation struct {
 	gorm.Model
-	UserID             uint `gorm:"user_id" gorm:"not null <-:create"`
-	PlatformNumber     uint `gorm:"platform_number" gorm:"not null"`
-	FreePointSummaryID uint `gorm:"free_point_summary_id" gorm:"not null"`
-	PaidPointSummaryID uint `gorm:"paid_point_summary_id" gorm:"not null"`
+	UserID             uint `gorm:"user_id;not null <-:create"`
+	PlatformNumber     uint `gorm:"platform_number;not null"`
+	FreePointSummaryID uint `gorm:"free_point_summary_id;not null"`
+	PaidPointSummaryID uint `gorm:"paid_point_summary_id;not null"`
 	FreePointSummary   UserPointSummary
 	PaidPointSummary   UserPointSummary
 }

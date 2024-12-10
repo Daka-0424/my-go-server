@@ -13,8 +13,8 @@ const (
 
 type EarnedPoint struct {
 	gorm.Model
-	UserID                   uint       `gorm:"user_id" gorm:"not null"`
-	UserPointSummaryID       uint       `gorm:"user_point_summary_id" gorm:"not null"`
+	UserID                   uint       `gorm:"user_id;not null"`
+	UserPointSummaryID       uint       `gorm:"user_point_summary_id;not null"`
 	PlatformProductID        uint       `gorm:"platform_product_id"`
 	ImitationPointID         uint       `gorm:"imitation_point_id"`
 	PlatformNumberOnSpending uint       `gorm:"platform_number_on_spending"`
