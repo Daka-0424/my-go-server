@@ -17,6 +17,8 @@ type ImitationPoint struct {
 	UserSummaryRelation   UserSummaryRelation
 	PlatformProduct       PlatformProduct
 	AdminUser             Admin
+
+	gormAuxiliary
 }
 
 func NewImitationPoint(userID, userSummaryRelationID, platformProductID, adminID, withFreePoint uint, comment string) *ImitationPoint {

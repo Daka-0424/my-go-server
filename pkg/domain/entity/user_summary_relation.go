@@ -12,6 +12,8 @@ type UserSummaryRelation struct {
 	PaidPointSummaryID uint `gorm:"paid_point_summary_id;not null"`
 	FreePointSummary   UserPointSummary
 	PaidPointSummary   UserPointSummary
+
+	gormAuxiliary
 }
 
 func NewUserSummaryRelation(

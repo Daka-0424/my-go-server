@@ -6,6 +6,7 @@ func Entity() []any {
 	return concatSlices([]any{
 		// User
 		&User{},
+		&UserSetting{},
 		&UserLoginState{},
 		&UserPointSummary{},
 		&UserSummaryRelation{},
@@ -24,6 +25,7 @@ func Entity() []any {
 		&PaymentPlaystoreToken{},
 	},
 		Seed(),
+		UserUniqueResource(),
 		UserResource(),
 	)
 }
@@ -35,10 +37,23 @@ func Seed() []any {
 	}
 }
 
-func UserResource() []any {
+func UserUniqueResource() []any {
 	return []any{
+		// Item
 		&UserItem{},
 	}
+}
+
+func UserResource() []any {
+	return []any{}
+}
+
+func concatSlices(slices ...[]any) []any {
+	var result []any
+	for _, slice := range slices {
+		result = append(result, slice...)
+	}
+	return result
 }
 
 type ISeedType interface {
@@ -49,12 +64,12 @@ type IUserResourceType interface {
 	UserResourceModule()
 	GetID() uint
 	IsEmpty() bool
+	GetUpdateColumns() []string
 }
 
-func concatSlices(slices ...[]any) []any {
-	var result []any
-	for _, slice := range slices {
-		result = append(result, slice...)
-	}
-	return result
+type UserUniqueResourceType interface {
+	UserUniqueResourceModule()
+	GetID() uint
+	IsEmpty() bool
+	GetUpdateColumns() []string
 }

@@ -20,7 +20,7 @@ func NewEarnedPointRepository(db *gorm.DB) repository.IEarnedPoint {
 }
 
 func (repo *earnedPointRepository) CreateOrUpdate(ctx context.Context, earnedPoint *entity.EarnedPoint) error {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 
 	if !ok {
 		return repository.ErrTx
@@ -28,14 +28,17 @@ func (repo *earnedPointRepository) CreateOrUpdate(ctx context.Context, earnedPoi
 
 	if earnedPoint.ID != 0 {
 		t := entity.EarnedPoint{Model: gorm.Model{ID: earnedPoint.ID}}
-		tx.Clauses(clause.Locking{Strength: "UPDATE"}).Find(&t)
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Find(&t).Error; err != nil {
+			return err
+		}
+		return tx.Model(&t).Select(earnedPoint.GetUpdateColumns()).Omit(clause.Associations).Updates(earnedPoint).Error
 	}
 
-	return tx.Omit(clause.Associations).Save(earnedPoint).Error
+	return tx.Create(earnedPoint).Error
 }
 
 func (repo *earnedPointRepository) BulkCreate(ctx context.Context, earnedPoints []entity.EarnedPoint) error {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 
 	if !ok {
 		return repository.ErrTx
@@ -45,7 +48,7 @@ func (repo *earnedPointRepository) BulkCreate(ctx context.Context, earnedPoints 
 }
 
 func (r *earnedPointRepository) GetAll(ctx context.Context, offset int, limit int) ([]entity.EarnedPoint, error) {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 
 	if !ok {
 		tx = r.db
@@ -61,7 +64,7 @@ func (r *earnedPointRepository) GetAll(ctx context.Context, offset int, limit in
 }
 
 func (r *earnedPointRepository) GetWhere(ctx context.Context, param entity.EarnedPoint, offset int, limit int) ([]entity.EarnedPoint, error) {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 
 	if !ok {
 		tx = r.db
@@ -77,7 +80,7 @@ func (r *earnedPointRepository) GetWhere(ctx context.Context, param entity.Earne
 }
 
 func (r *earnedPointRepository) FindByPointSummaryIDs(ctx context.Context, pointSummaryIDs ...uint) ([]entity.EarnedPoint, error) {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 
 	if !ok {
 		tx = r.db
@@ -93,7 +96,7 @@ func (r *earnedPointRepository) FindByPointSummaryIDs(ctx context.Context, point
 }
 
 func (r *earnedPointRepository) CountAll(ctx context.Context) (int64, error) {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 
 	if !ok {
 		tx = r.db
@@ -109,7 +112,7 @@ func (r *earnedPointRepository) CountAll(ctx context.Context) (int64, error) {
 }
 
 func (r *earnedPointRepository) CountWhere(ctx context.Context, param entity.EarnedPoint) (int64, error) {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 
 	if !ok {
 		tx = r.db

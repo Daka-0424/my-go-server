@@ -20,7 +20,7 @@ func NewUserLoginStateRepository(db *gorm.DB) repository.IUserLoginState {
 }
 
 func (repo *userLoginStateRepository) CreateOrUpdate(ctx context.Context, state *entity.UserLoginState) error {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 
 	if !ok {
 		return repository.ErrTx
@@ -28,8 +28,11 @@ func (repo *userLoginStateRepository) CreateOrUpdate(ctx context.Context, state 
 
 	if state.ID != 0 {
 		t := entity.UserLoginState{Model: gorm.Model{ID: state.ID}}
-		tx.Clauses(clause.Locking{Strength: "UPDATE"}).Find(&t)
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Find(&t).Error; err != nil {
+			return err
+		}
+		return tx.Model(&t).Select(state.GetUpdateColumns()).Omit(clause.Associations).Updates(state).Error
 	}
 
-	return tx.Omit(clause.Associations).Save(state).Error
+	return tx.Create(state).Error
 }

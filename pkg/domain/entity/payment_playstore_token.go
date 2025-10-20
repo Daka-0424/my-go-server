@@ -39,6 +39,8 @@ type PaymentPlaystoreToken struct {
 	UserID                      uint      `gorm:"user_id"`
 	EarnedPointID               uint      `gorm:"earned_point_id"`
 	PlatformProduct             PlatformProduct
+
+	gormAuxiliary
 }
 
 func NewPaymentPlaystoreToken(

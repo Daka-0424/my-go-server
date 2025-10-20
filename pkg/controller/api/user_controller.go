@@ -25,6 +25,17 @@ func NewUserController(
 	}
 }
 
+// Registration
+//
+// @Summary      User Registration
+// @Schemes
+// @Description  Register a new user
+// @Tags         User
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  response.User
+// @Failure      400  {object}  response.AppError
+// @Router /api/registration [post]
 func (ctl *UserController) Registration(ctx *gin.Context) {
 	device := ctl.getAppDevice(ctx)
 	appVersion := ctl.getAppVersion(ctx)

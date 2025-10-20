@@ -21,7 +21,7 @@ func NewPaymentPlaystoreTokenRepository(db *gorm.DB) repository.IPaymentPlaystor
 }
 
 func (repo *paymentPlaystoreTokenRepository) CreateOrUpdate(ctx context.Context, playstoreToken *entity.PaymentPlaystoreToken) error {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 
 	if !ok {
 		return repository.ErrTx
@@ -29,14 +29,17 @@ func (repo *paymentPlaystoreTokenRepository) CreateOrUpdate(ctx context.Context,
 
 	if playstoreToken.ID != 0 {
 		t := entity.PaymentPlaystoreToken{Model: gorm.Model{ID: playstoreToken.ID}}
-		tx.Clauses(clause.Locking{Strength: "UPDATE"}).Find(&t)
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Find(&t).Error; err != nil {
+			return err
+		}
+		return tx.Model(&t).Select(playstoreToken.GetUpdateColumns()).Omit(clause.Associations).Updates(playstoreToken).Error
 	}
 
-	return tx.Omit(clause.Associations).Save(playstoreToken).Error
+	return tx.Create(playstoreToken).Error
 }
 
 func (r *paymentPlaystoreTokenRepository) ExistsPaymentPlaystoreToken(ctx context.Context, orderID string) (bool, error) {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 
 	if !ok {
 		return false, repository.ErrTx

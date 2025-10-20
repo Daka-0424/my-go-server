@@ -49,11 +49,6 @@ func (transaction *dbTransaction) DoInTx(ctx context.Context, f func(ctx context
 	return value, err
 }
 
-func GetTx(ctx context.Context) (*gorm.DB, bool) {
-	tx, ok := ctx.Value(&txKey).(*gorm.DB)
-	return tx, ok
-}
-
 func (transaction *dbTransaction) commit(ctx context.Context, f func(ctx context.Context) (interface{}, error)) (value interface{}, err error) {
 	tx := transaction.db.Begin()
 

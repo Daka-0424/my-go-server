@@ -21,7 +21,7 @@ func NewUserPointSummaryRepository(db *gorm.DB) repository.IUserPointSummary {
 }
 
 func (repo *userPointSummaryRepository) Find(ctx context.Context, userID, platformNumber uint, paidKind int) (*entity.UserPointSummary, error) {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 
 	if !ok {
 		tx = repo.db
@@ -36,7 +36,7 @@ func (repo *userPointSummaryRepository) Find(ctx context.Context, userID, platfo
 }
 
 func (repo *userPointSummaryRepository) FirstOrCreateFreePointSummary(ctx context.Context, userID uint) (*entity.UserPointSummary, error) {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 
 	if !ok {
 		tx = repo.db
@@ -51,20 +51,22 @@ func (repo *userPointSummaryRepository) FirstOrCreateFreePointSummary(ctx contex
 }
 
 func (repo *userPointSummaryRepository) Update(ctx context.Context, pointSummary *entity.UserPointSummary) error {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 
 	if !ok {
 		return repository.ErrTx
 	}
 
 	t := entity.UserPointSummary{Model: gorm.Model{ID: pointSummary.ID}}
-	tx.Clauses(clause.Locking{Strength: "UPDATE"}).Find(&t)
+	if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Find(&t).Error; err != nil {
+		return err
+	}
 
-	return tx.Model(pointSummary).Select("*").Omit(clause.Associations).Updates(pointSummary).Error
+	return tx.Model(pointSummary).Select(pointSummary.GetUpdateColumns()).Omit(clause.Associations).Updates(pointSummary).Error
 }
 
 func (repo *userPointSummaryRepository) BulkUpdate(ctx context.Context, points []entity.UserPointSummary) error {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 
 	if !ok {
 		return repository.ErrTx
@@ -73,7 +75,7 @@ func (repo *userPointSummaryRepository) BulkUpdate(ctx context.Context, points [
 	for _, point := range points {
 		if err := tx.Model(&entity.UserPointSummary{}).
 			Where("id = ?", point.ID).
-			Select("*").
+			Select(point.GetUpdateColumns()).
 			Omit(clause.Associations).
 			Updates(point).Error; err != nil {
 			return err

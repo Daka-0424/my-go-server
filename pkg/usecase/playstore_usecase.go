@@ -72,38 +72,38 @@ func NewPlaystoreUsecase(
 func (usecase *playstoreUsecase) PlaystoreBilling(ctx context.Context, userID uint, req request.PlayStoreBilling) (*response.ReceiptResult, error) {
 	kpiLogger, err := usecase.kpiLoggerFactory.Create(ctx)
 	if err != nil {
-		return nil, response.NewErrBadRequest(model.E9999, usecase.localizer.MustLocalize(model.E9999, language.LanguageJapanese, nil))
+		return nil, response.NewErrBadRequest(model.E9999, usecase.localizer.MustLocalize(model.E9999, "", nil))
 	}
 
 	vc, err := usecase.userSummaryRelationRepository.FindByUserID(ctx, userID)
 	if err != nil {
-		return nil, response.NewErrBadRequest(model.E0002, usecase.localizer.MustLocalize(model.E0002, language.LanguageJapanese, nil))
+		return nil, response.NewErrBadRequest(model.E0002, usecase.localizer.MustLocalize(model.E0002, "", nil))
 	}
 
 	platformProduct, err := usecase.platformProductRepository.GetByID(ctx, req.PurchaseItemID)
 	if err != nil {
-		return nil, response.NewErrBadRequest(model.E3001, usecase.localizer.MustLocalize(model.E3001, language.LanguageJapanese, nil))
+		return nil, response.NewErrBadRequest(model.E3001, usecase.localizer.MustLocalize(model.E3001, "", nil))
 	}
 
 	playstore, err := usecase.playstoreFactory.CreatePlaystore(ctx)
 	if err != nil {
-		return nil, response.NewErrBadRequest(model.E9999, usecase.localizer.MustLocalize(model.E9999, language.LanguageJapanese, nil))
+		return nil, response.NewErrBadRequest(model.E9999, usecase.localizer.MustLocalize(model.E9999, "", nil))
 	}
 
 	// receiptのデコード
 	decoded, err := base64.StdEncoding.DecodeString(req.Receipt)
 	if err != nil {
-		return nil, response.NewErrBadRequest(model.E3001, usecase.localizer.MustLocalize(model.E3001, language.LanguageJapanese, nil))
+		return nil, response.NewErrBadRequest(model.E3001, usecase.localizer.MustLocalize(model.E3001, "", nil))
 	}
 
 	// receiptの検証
 	verifySignature, err := playstore.VerifySignature(ctx, decoded, req.Signature)
 	if err != nil {
-		return nil, response.NewErrUnprocessable(model.E9002, usecase.localizer.MustLocalize(model.E9002, language.LanguageJapanese, nil))
+		return nil, response.NewErrUnprocessable(model.E9002, usecase.localizer.MustLocalize(model.E9002, "", nil))
 	}
 
 	if !verifySignature {
-		return nil, response.NewErrUnprocessable(model.E9001, usecase.localizer.MustLocalize(model.E9001, language.LanguageJapanese, nil))
+		return nil, response.NewErrUnprocessable(model.E9001, usecase.localizer.MustLocalize(model.E9001, "", nil))
 	}
 
 	// receiptのJSON変換
@@ -114,28 +114,28 @@ func (usecase *playstoreUsecase) PlaystoreBilling(ctx context.Context, userID ui
 
 	playstoreClient, err := usecase.playstoreFactory.CreatePlaystoreClient(ctx)
 	if err != nil {
-		return nil, response.NewErrBadRequest(model.E9999, usecase.localizer.MustLocalize(model.E9999, language.LanguageJapanese, nil))
+		return nil, response.NewErrBadRequest(model.E9999, usecase.localizer.MustLocalize(model.E9999, "", nil))
 	}
 
 	// receiptから購入情報を所得
 	verifyProduct, err := playstoreClient.VerifyProduct(ctx, receiptJSON.PackageName, receiptJSON.ProductID, receiptJSON.PurchaseToken)
 	if err != nil {
-		return nil, response.NewErrUnprocessable(model.E9006, usecase.localizer.MustLocalize(model.E9006, language.LanguageJapanese, nil))
+		return nil, response.NewErrUnprocessable(model.E9006, usecase.localizer.MustLocalize(model.E9006, "", nil))
 	}
 
 	if verifyProduct.PurchaseState != 0 {
-		return nil, response.NewErrUnprocessable(model.E9004, usecase.localizer.MustLocalize(model.E9004, language.LanguageJapanese, nil))
+		return nil, response.NewErrUnprocessable(model.E9004, usecase.localizer.MustLocalize(model.E9004, "", nil))
 	}
 
 	value, err := usecase.transaction.DoInTx(ctx, func(ctx context.Context) (interface{}, error) {
 
 		existsPlaystoreToken, err := usecase.playstoreRepository.ExistsPaymentPlaystoreToken(ctx, receiptJSON.OrderID)
 		if err != nil {
-			return nil, response.NewErrBadRequest(model.E9002, usecase.localizer.MustLocalize(model.E9002, language.LanguageJapanese, nil))
+			return nil, response.NewErrBadRequest(model.E9002, usecase.localizer.MustLocalize(model.E9002, "", nil))
 		}
 
 		if existsPlaystoreToken {
-			return nil, response.NewErrBadRequest(model.E9007, usecase.localizer.MustLocalize(model.E9007, language.LanguageJapanese, nil))
+			return nil, response.NewErrBadRequest(model.E9007, usecase.localizer.MustLocalize(model.E9007, "", nil))
 		}
 
 		playstoreToken := entity.NewPaymentPlaystoreToken(
@@ -176,11 +176,11 @@ func (usecase *playstoreUsecase) PlaystoreBilling(ctx context.Context, userID ui
 		}
 
 		if err := usecase.userPointSummaryRepository.BulkUpdate(ctx, vc.PointSummaries()); err != nil {
-			return nil, response.NewErrUnprocessable(model.E9103, usecase.localizer.MustLocalize(model.E9103, language.LanguageJapanese, nil))
+			return nil, response.NewErrUnprocessable(model.E9103, usecase.localizer.MustLocalize(model.E9103, "", nil))
 		}
 
 		if err := usecase.playstoreRepository.CreateOrUpdate(ctx, playstoreToken); err != nil {
-			return nil, response.NewErrUnprocessable(model.E0001, usecase.localizer.MustLocalize(model.E0001, language.LanguageJapanese, nil))
+			return nil, response.NewErrUnprocessable(model.E0001, usecase.localizer.MustLocalize(model.E0001, "", nil))
 		}
 
 		kpiDate := map[string]interface{}{

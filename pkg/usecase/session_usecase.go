@@ -55,13 +55,13 @@ func NewSessionUsecase(
 
 func (usecase *sessionUsecase) CreateSession(ctx context.Context, device, appVersion string, platformNumber uint, req request.Session) (*response.Session, error) {
 	value, err := usecase.transaction.DoInTx(ctx, func(ctx context.Context) (interface{}, error) {
-		user, err := usecase.userRepository.FindByUniqueUser(ctx, req.UserId, req.Uuid)
+		user, err := usecase.userRepository.FindByUniqueUser(ctx, req.UserId, req.Uuid, repository.PreloadUserSetting)
 		if err != nil {
 			return nil, err
 		}
 
 		if user.UserKind == entity.Banned {
-			return nil, response.NewErrForbidden(model.E0105, usecase.localizer.MustLocalize(model.E0105, language.LanguageJapanese, nil))
+			return nil, response.NewErrForbidden(model.E0105, usecase.localizer.MustLocalize(model.E0105, string(user.Setting.Language), nil))
 		}
 
 		if user.UpdateDevice(device, appVersion, platformNumber) {
@@ -87,25 +87,25 @@ func (usecase *sessionUsecase) CreateSession(ctx context.Context, device, appVer
 func (usecase *sessionUsecase) login(ctx context.Context, user *entity.User) (string, string, string, error) {
 	kpiLogger, err := usecase.kpiLoggerFactory.Create(ctx)
 	if err != nil {
-		return "", "", "", response.NewErrBadRequest(model.E9999, usecase.localizer.MustLocalize(model.E9999, language.LanguageJapanese, nil))
+		return "", "", "", response.NewErrBadRequest(model.E9999, usecase.localizer.MustLocalize(model.E9999, string(user.Setting.Language), nil))
 	}
 
 	sessionID := uuid.New().String()
 	accountToken, err := usecase.generateToken(user, sessionID)
 	if err != nil {
-		return "", "", "", response.NewErrUnprocessable(model.E9999, usecase.localizer.MustLocalize(model.E9999, language.LanguageJapanese, nil))
+		return "", "", "", response.NewErrUnprocessable(model.E9999, usecase.localizer.MustLocalize(model.E9999, string(user.Setting.Language), nil))
 	}
 
 	key, iv, err := usecase.generateKeyAndIV()
 	if err != nil {
-		return "", "", "", response.NewErrUnprocessable(model.E9999, usecase.localizer.MustLocalize(model.E9999, language.LanguageJapanese, nil))
+		return "", "", "", response.NewErrUnprocessable(model.E9999, usecase.localizer.MustLocalize(model.E9999, string(user.Setting.Language), nil))
 	}
 
 	catData := append(key, iv...)
 	cacheKey := formatter.CRYPTO_CACHE_KEY + sessionID
 	err = usecase.cache.Set(ctx, cacheKey, catData, time.Hour*10)
 	if err != nil {
-		return "", "", "", response.NewErrUnprocessable(model.E9999, usecase.localizer.MustLocalize(model.E9999, language.LanguageJapanese, nil))
+		return "", "", "", response.NewErrUnprocessable(model.E9999, usecase.localizer.MustLocalize(model.E9999, string(user.Setting.Language), nil))
 	}
 
 	if !usecase.cfg.IsMultiDeviceAccess() {
@@ -114,7 +114,7 @@ func (usecase *sessionUsecase) login(ctx context.Context, user *entity.User) (st
 		sessionCacheKey := formatter.CRYPTO_CACHE_KEY + user.UUID
 		err = usecase.cache.Set(ctx, sessionCacheKey, sessionCat, time.Hour*10)
 		if err != nil {
-			return "", "", "", response.NewErrUnprocessable(model.E9999, usecase.localizer.MustLocalize(model.E9999, language.LanguageJapanese, nil))
+			return "", "", "", response.NewErrUnprocessable(model.E9999, usecase.localizer.MustLocalize(model.E9999, string(user.Setting.Language), nil))
 		}
 	}
 

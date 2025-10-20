@@ -39,7 +39,7 @@ func (service *earnedPointService) Payout(ctx context.Context, vc *entity.UserSu
 			return nil, err
 		}
 
-		vc.FreePointSummary.EarnPoint += amount
+		vc.FreePointSummary.AddEarnPoint(amount)
 		vc.FreePointSummary.UpdateBalancePoint()
 		if err := service.userPointSummaryRepository.Update(ctx, &vc.FreePointSummary); err != nil {
 			return nil, err
@@ -51,7 +51,7 @@ func (service *earnedPointService) Payout(ctx context.Context, vc *entity.UserSu
 			return nil, err
 		}
 
-		vc.PaidPointSummary.EarnPoint += amount
+		vc.PaidPointSummary.AddEarnPoint(amount)
 		vc.PaidPointSummary.UpdateBalancePoint()
 		if err := service.userPointSummaryRepository.Update(ctx, &vc.PaidPointSummary); err != nil {
 			return nil, err

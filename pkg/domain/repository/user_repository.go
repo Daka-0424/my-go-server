@@ -6,6 +6,10 @@ import (
 	"github.com/Daka-0424/my-go-server/pkg/domain/entity"
 )
 
+const (
+	PreloadUserSetting = "Setting"
+)
+
 type IUser interface {
 	ExistsUser(ctx context.Context, uuid string) (bool, error)
 

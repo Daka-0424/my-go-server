@@ -37,7 +37,7 @@ func (service *vcService) SetupVc(ctx context.Context, user *entity.User) error 
 	// ユーザーのVCが有効でない場合のみセットアップを行う
 	if vc.ID == 0 {
 		// 有効でない場合はVCを作成
-		user.Vc = *entity.NewUserSummaryRelation(user.ID, user.PlatformNumber)
+		vc = entity.NewUserSummaryRelation(user.ID, user.PlatformNumber)
 	}
 
 	userVcFreePointSummary, _ := service.userPointSummaryRepository.Find(ctx, user.ID, user.PlatformNumber, entity.GemKindFree)
@@ -49,9 +49,9 @@ func (service *vcService) SetupVc(ctx context.Context, user *entity.User) error 
 		fmt.Println(otherPlatformVc)
 
 		if otherPlatformVc != nil {
-			user.Vc.PaidPointSummary = otherPlatformVc.PaidPointSummary
+			vc.PaidPointSummary = otherPlatformVc.PaidPointSummary
 		} else {
-			user.Vc.PaidPointSummary = *entity.NewUserPointSummary(user.ID, 1)
+			vc.PaidPointSummary = *entity.NewUserPointSummary(user.ID, 1)
 		}
 	}
 
@@ -64,13 +64,15 @@ func (service *vcService) SetupVc(ctx context.Context, user *entity.User) error 
 		if err != nil {
 			return err
 		}
-		user.Vc.FreePointSummary = *freePointSummary
+		vc.FreePointSummary = *freePointSummary
 	}
 
 	// VCを保存
 	if err := service.userSummaryRelationRepository.CreateOrUpdate(ctx, vc); err != nil {
 		return err
 	}
+
+	user.Vc = *vc
 
 	return nil
 }
@@ -81,7 +83,7 @@ func (service *vcService) IsUserVcValid(userSummary *entity.UserSummaryRelation)
 	//user.Vc.FreePointSummaryがnilの場合は無効
 	//user.Vc.PaidPointSummaryがnilの場合は無効
 
-	return userSummary != nil || userSummary.FreePointSummaryID != 0 || userSummary.PaidPointSummaryID != 0
+	return userSummary != nil && userSummary.FreePointSummaryID != 0 && userSummary.PaidPointSummaryID != 0
 }
 
 //go:generate mockgen -source=$GOFILE -package=mock_$GOPACKAGE -destination=../../../mock/$GOPACKAGE/$GOFILE

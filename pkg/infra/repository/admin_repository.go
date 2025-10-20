@@ -6,6 +6,7 @@ import (
 	"github.com/Daka-0424/my-go-server/pkg/domain/entity"
 	"github.com/Daka-0424/my-go-server/pkg/domain/repository"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type adminRepository struct {
@@ -19,7 +20,7 @@ func NewAdminRepository(db *gorm.DB) repository.IAdmin {
 }
 
 func (repo *adminRepository) Exsists(ctx context.Context, email string) bool {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 	if !ok {
 		tx = repo.db
 	}
@@ -31,7 +32,7 @@ func (repo *adminRepository) Exsists(ctx context.Context, email string) bool {
 }
 
 func (repo *adminRepository) Register(ctx context.Context, email, pass string, roleType entity.AdminRoleType) (*entity.Admin, error) {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 	if !ok {
 		return nil, repository.ErrTx
 	}
@@ -45,7 +46,7 @@ func (repo *adminRepository) Register(ctx context.Context, email, pass string, r
 }
 
 func (repo *adminRepository) Find(ctx context.Context, param entity.Admin) ([]entity.Admin, error) {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 	if !ok {
 		return nil, repository.ErrTx
 	}
@@ -59,12 +60,16 @@ func (repo *adminRepository) Find(ctx context.Context, param entity.Admin) ([]en
 }
 
 func (repo *adminRepository) Update(ctx context.Context, admin *entity.Admin) error {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 	if !ok {
 		return repository.ErrTx
 	}
 
-	if err := tx.Save(admin).Error; err != nil {
+	if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(admin).Error; err != nil {
+		return err
+	}
+
+	if err := tx.Model(admin).Select(admin.GetUpdateColumns()).Omit(clause.Associations).Updates(admin).Error; err != nil {
 		return err
 	}
 
@@ -72,7 +77,7 @@ func (repo *adminRepository) Update(ctx context.Context, admin *entity.Admin) er
 }
 
 func (repo *adminRepository) Delete(ctx context.Context, admin *entity.Admin) error {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 	if !ok {
 		return repository.ErrTx
 	}
@@ -85,7 +90,7 @@ func (repo *adminRepository) Delete(ctx context.Context, admin *entity.Admin) er
 }
 
 func (repo *adminRepository) CountAll(ctx context.Context) (int64, error) {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 	if !ok {
 		return 0, repository.ErrTx
 	}

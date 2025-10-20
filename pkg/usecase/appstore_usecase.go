@@ -58,36 +58,36 @@ func NewAppstoreUsecase(
 func (usecase *appstoreUsecase) AppstoreBilling(ctx context.Context, userID uint, req request.AppStoreBilling) (*response.ReceiptResult, error) {
 	kpiLogger, err := usecase.kpiLoggerFactory.Create(ctx)
 	if err != nil {
-		return nil, response.NewErrBadRequest(model.E9999, usecase.localizer.MustLocalize(model.E9999, language.LanguageJapanese, nil))
+		return nil, response.NewErrBadRequest(model.E9999, usecase.localizer.MustLocalize(model.E9999, "", nil))
 	}
 
 	vc, err := usecase.userSummaryRelationRepository.FindByUserID(ctx, userID)
 	if err != nil {
-		return nil, response.NewErrBadRequest(model.E0002, usecase.localizer.MustLocalize(model.E0002, language.LanguageJapanese, nil))
+		return nil, response.NewErrBadRequest(model.E0002, usecase.localizer.MustLocalize(model.E0002, "", nil))
 	}
 
 	// 購入情報のProductIDからPlatformProductを取得する
 	platformProduct, err := usecase.platformProductRepository.GetByID(ctx, req.PurchaseItemID)
 	if err != nil {
-		return nil, response.NewErrBadRequest(model.E3001, usecase.localizer.MustLocalize(model.E3001, language.LanguageJapanese, nil))
+		return nil, response.NewErrBadRequest(model.E3001, usecase.localizer.MustLocalize(model.E3001, "", nil))
 	}
 
 	appstore, err := usecase.appstoreFactory.Create(ctx)
 	if err != nil {
-		return nil, response.NewErrBadRequest(model.E9999, usecase.localizer.MustLocalize(model.E9999, language.LanguageJapanese, nil))
+		return nil, response.NewErrBadRequest(model.E9999, usecase.localizer.MustLocalize(model.E9999, "", nil))
 	}
 
 	tx, err := appstore.GetTransaction(ctx, req.TransactionID)
 	if err != nil {
-		return nil, response.NewErrBadRequest(model.E9002, usecase.localizer.MustLocalize(model.E9002, language.LanguageJapanese, nil))
+		return nil, response.NewErrBadRequest(model.E9002, usecase.localizer.MustLocalize(model.E9002, "", nil))
 	}
 
 	if tx.TransactionID != req.TransactionID {
-		return nil, response.NewErrBadRequest(model.E9005, usecase.localizer.MustLocalize(model.E9005, language.LanguageJapanese, nil))
+		return nil, response.NewErrBadRequest(model.E9005, usecase.localizer.MustLocalize(model.E9005, "", nil))
 	}
 
 	if tx.Type != api.Consumable {
-		return nil, response.NewErrBadRequest(model.E9006, usecase.localizer.MustLocalize(model.E9006, language.LanguageJapanese, nil))
+		return nil, response.NewErrBadRequest(model.E9006, usecase.localizer.MustLocalize(model.E9006, "", nil))
 	}
 
 	value, err := usecase.transaction.DoInTx(ctx, func(ctx context.Context) (interface{}, error) {
@@ -95,11 +95,11 @@ func (usecase *appstoreUsecase) AppstoreBilling(ctx context.Context, userID uint
 		// レシートが存在するかチェックする
 		existsAppstoreToken, err := usecase.appstoreRepository.ExistsPaymentAppstoreToken(ctx, tx.TransactionID)
 		if err != nil {
-			return nil, response.NewErrBadRequest(model.E3001, usecase.localizer.MustLocalize(model.E3001, language.LanguageJapanese, nil))
+			return nil, response.NewErrBadRequest(model.E3001, usecase.localizer.MustLocalize(model.E3001, "", nil))
 		}
 
 		if existsAppstoreToken {
-			return nil, response.NewErrBadRequest(model.E9007, usecase.localizer.MustLocalize(model.E9007, language.LanguageJapanese, nil))
+			return nil, response.NewErrBadRequest(model.E9007, usecase.localizer.MustLocalize(model.E9007, "", nil))
 		}
 
 		appToken := entity.NewPaymentAppstoreToken(
@@ -119,15 +119,15 @@ func (usecase *appstoreUsecase) AppstoreBilling(ctx context.Context, userID uint
 
 		if tx.RevocationDate > 0 {
 			if err := usecase.appstoreRepository.CreateOrUpdate(ctx, appToken); err != nil {
-				return nil, response.NewErrUnprocessable(model.E0001, usecase.localizer.MustLocalize(model.E0001, language.LanguageJapanese, nil))
+				return nil, response.NewErrUnprocessable(model.E0001, usecase.localizer.MustLocalize(model.E0001, "", nil))
 			}
-			return nil, response.NewErrUnprocessable(model.E9004, usecase.localizer.MustLocalize(model.E9004, language.LanguageJapanese, nil))
+			return nil, response.NewErrUnprocessable(model.E9004, usecase.localizer.MustLocalize(model.E9004, "", nil))
 		}
 
 		if platformProduct.PaidPoint > 0 {
 			earnedPaidPoint, err := usecase.earnedPointService.Payout(ctx, vc, platformProduct.PaidPoint, entity.GemKindPaid, platformProduct, "by-receipt", appToken.CreatedAt)
 			if err != nil {
-				return nil, response.NewErrUnprocessable(model.E9102, usecase.localizer.MustLocalize(model.E9102, language.LanguageJapanese, nil))
+				return nil, response.NewErrUnprocessable(model.E9102, usecase.localizer.MustLocalize(model.E9102, "", nil))
 			}
 
 			appToken.EarnedPointID = earnedPaidPoint.ID
@@ -136,16 +136,16 @@ func (usecase *appstoreUsecase) AppstoreBilling(ctx context.Context, userID uint
 		if platformProduct.FreePoint > 0 {
 			_, err := usecase.earnedPointService.Payout(ctx, vc, platformProduct.FreePoint, entity.GemKindFree, platformProduct, "by-receipt", appToken.CreatedAt)
 			if err != nil {
-				return nil, response.NewErrUnprocessable(model.E9102, usecase.localizer.MustLocalize(model.E9102, language.LanguageJapanese, nil))
+				return nil, response.NewErrUnprocessable(model.E9102, usecase.localizer.MustLocalize(model.E9102, "", nil))
 			}
 		}
 
 		if err := usecase.userPointSummaryRepository.BulkUpdate(ctx, vc.PointSummaries()); err != nil {
-			return nil, response.NewErrUnprocessable(model.E9103, usecase.localizer.MustLocalize(model.E9103, language.LanguageJapanese, nil))
+			return nil, response.NewErrUnprocessable(model.E9103, usecase.localizer.MustLocalize(model.E9103, "", nil))
 		}
 
 		if err := usecase.appstoreRepository.CreateOrUpdate(ctx, appToken); err != nil {
-			return nil, response.NewErrUnprocessable(model.E0001, usecase.localizer.MustLocalize(model.E0001, language.LanguageJapanese, nil))
+			return nil, response.NewErrUnprocessable(model.E0001, usecase.localizer.MustLocalize(model.E0001, "", nil))
 		}
 
 		kpiDate := map[string]interface{}{
