@@ -1,4 +1,4 @@
-package model
+package response
 
 type AppError struct {
 	Err          error  `json:"-"`

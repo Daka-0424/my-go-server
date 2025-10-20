@@ -14,39 +14,85 @@ const (
 	CodeKey           = 81
 )
 
+type UserData struct {
+	UUID           string
+	Device         string
+	ClientVersion  string
+	PlatformNumber uint
+	LanguageCode   string
+}
+
 type IUser interface {
-	Register(ctx context.Context, uuid, device, clientVersion string, platformNumber uint) (*entity.User, error)
+	Register(ctx context.Context, userData *UserData) (*entity.User, error)
 }
 
 type userService struct {
 	userRepository           repository.IUser
 	userLoginStateRepository repository.IUserLoginState
+	userSettingRepository    repository.IUserSetting
 }
 
 func NewUserService(
-	ur repository.IUser,
-	ulsr repository.IUserLoginState,
+	userRepository repository.IUser,
+	userLoginStateRepository repository.IUserLoginState,
+	userSettingRepository repository.IUserSetting,
 ) IUser {
 	return &userService{
-		userRepository:           ur,
-		userLoginStateRepository: ulsr,
+		userRepository:           userRepository,
+		userLoginStateRepository: userLoginStateRepository,
+		userSettingRepository:    userSettingRepository,
 	}
 }
 
-func (service *userService) Register(ctx context.Context, uuid, device, clientVersion string, platformNumber uint) (*entity.User, error) {
-	user, err := service.userRepository.CreateUser(ctx, uuid, USER_DEFAULT_NAME, clientVersion, device, platformNumber)
+func (service *userService) Register(ctx context.Context, userData *UserData) (*entity.User, error) {
+	user, err := service.userRepository.CreateUser(ctx, userData.UUID, USER_DEFAULT_NAME, userData.ClientVersion, userData.Device, userData.PlatformNumber)
 	if err != nil {
 		return nil, err
 	}
 
 	// DisplayCodeを作成
-	user.DisplayCode = service.createDisplayCode(user)
+	user.SetDisplayCode(service.createDisplayCode(user))
 	if err := service.userRepository.UpdateUser(ctx, user); err != nil {
 		return nil, err
 	}
 
+	if err := service.createUserSetting(ctx, user, userData.LanguageCode); err != nil {
+		return nil, err
+	}
+
+	fns := []func(ctx context.Context, user *entity.User) error{
+		service.createUserLoginState,
+	}
+
+	for _, fn := range fns {
+		if err := fn(ctx, user); err != nil {
+			return nil, err
+		}
+	}
+
 	// その後、userを返す
 	return user, nil
+}
+
+func (service *userService) createUserSetting(ctx context.Context, user *entity.User, languageCode string) error {
+	userSetting := entity.NewUserSetting(user.ID, languageCode)
+	if err := service.userSettingRepository.CreateOrUpdate(ctx, userSetting); err != nil {
+		return err
+	}
+
+	user.Setting = *userSetting
+	return nil
+}
+
+func (service *userService) createUserLoginState(ctx context.Context, user *entity.User) error {
+	loginState := entity.NewUserLoginState(user.ID)
+
+	if err := service.userLoginStateRepository.CreateOrUpdate(ctx, loginState); err != nil {
+		return err
+	}
+
+	user.LoginState = *loginState
+	return nil
 }
 
 func (service *userService) createDisplayCode(user *entity.User) string {

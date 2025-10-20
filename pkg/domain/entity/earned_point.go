@@ -27,6 +27,8 @@ type EarnedPoint struct {
 	SpentAt                  *time.Time `gorm:"spent_at"`
 	EarnedAt                 time.Time  `gorm:"earned_at"`
 	UserPointSummary         UserPointSummary
+
+	gormAuxiliary
 }
 
 func NewCreateFreeEarnedPoint(vc *UserSummaryRelation, amount uint, vcPlatformProduct *PlatformProduct, earnSource string, imitationPoint *ImitationPoint) *EarnedPoint {
@@ -105,5 +107,7 @@ func (e *EarnedPoint) UpdateBalancePoint() {
 	e.BalancePoint = e.EarnedPoint - e.SpendPoint
 	if e.BalancePoint == 0 {
 		e.PointExceeded = true
+		e.updateColumn("point_exceeded")
 	}
+	e.updateColumn("balance_point")
 }

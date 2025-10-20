@@ -20,7 +20,7 @@ func NewUserResourceRepository[T entity.IUserResourceType](db *gorm.DB) reposito
 }
 
 func (r *userResourceRepository[T]) GetByID(ctx context.Context, ID uint, preloads ...string) (*T, error) {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 
 	if !ok {
 		tx = r.db
@@ -39,7 +39,7 @@ func (r *userResourceRepository[T]) GetByID(ctx context.Context, ID uint, preloa
 }
 
 func (r *userResourceRepository[T]) GetByIDs(ctx context.Context, ISs []uint, preloads ...string) ([]T, error) {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 
 	if !ok {
 		tx = r.db
@@ -58,7 +58,7 @@ func (r *userResourceRepository[T]) GetByIDs(ctx context.Context, ISs []uint, pr
 }
 
 func (r *userResourceRepository[T]) GetByUserID(ctx context.Context, userID uint, preloads ...string) ([]T, error) {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 
 	if !ok {
 		tx = r.db
@@ -77,7 +77,7 @@ func (r *userResourceRepository[T]) GetByUserID(ctx context.Context, userID uint
 }
 
 func (r *userResourceRepository[T]) Where(ctx context.Context, param T, preloads ...string) ([]T, error) {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 
 	if !ok {
 		tx = r.db
@@ -96,7 +96,7 @@ func (r *userResourceRepository[T]) Where(ctx context.Context, param T, preloads
 }
 
 func (r *userResourceRepository[T]) CreateOrUpdate(ctx context.Context, entity *T) error {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 
 	if !ok {
 		return repository.ErrTx
@@ -104,14 +104,17 @@ func (r *userResourceRepository[T]) CreateOrUpdate(ctx context.Context, entity *
 
 	if (*entity).IsEmpty() {
 		t := (*entity)
-		tx.Clauses(clause.Locking{Strength: "UPDATE"}).Find(&t)
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Find(&t).Error; err != nil {
+			return err
+		}
+		return tx.Model(entity).Select((*entity).GetUpdateColumns()).Omit(clause.Associations).Updates(t).Error
 	}
 
-	return tx.Omit(clause.Associations).Save(entity).Error
+	return tx.Create(entity).Error
 }
 
 func (r *userResourceRepository[T]) BulkCreate(ctx context.Context, entities []T) error {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 
 	if !ok {
 		return repository.ErrTx
@@ -121,7 +124,7 @@ func (r *userResourceRepository[T]) BulkCreate(ctx context.Context, entities []T
 }
 
 func (r *userResourceRepository[T]) BulkUpdate(ctx context.Context, entities []T) error {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 
 	if !ok {
 		return repository.ErrTx
@@ -138,7 +141,7 @@ func (r *userResourceRepository[T]) BulkUpdate(ctx context.Context, entities []T
 }
 
 func (r *userResourceRepository[T]) Delete(ctx context.Context, entity *T) error {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 
 	if !ok {
 		return repository.ErrTx
@@ -148,7 +151,7 @@ func (r *userResourceRepository[T]) Delete(ctx context.Context, entity *T) error
 }
 
 func (r *userResourceRepository[T]) BulkDelete(ctx context.Context, entities []T) error {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 
 	if !ok {
 		return repository.ErrTx
@@ -158,7 +161,7 @@ func (r *userResourceRepository[T]) BulkDelete(ctx context.Context, entities []T
 }
 
 func (r *userResourceRepository[T]) DeleteByUserID(ctx context.Context, userID uint) error {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 
 	if !ok {
 		return repository.ErrTx

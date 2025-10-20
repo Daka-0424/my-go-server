@@ -20,7 +20,7 @@ func NewPaymentAppstoreTokenRepository(db *gorm.DB) repository.IPaymentAppstoreT
 }
 
 func (repo *paymentAppstoreTokenRepository) CreateOrUpdate(ctx context.Context, appstoreToken *entity.PaymentAppstoreToken) error {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 
 	if !ok {
 		return repository.ErrTx
@@ -28,14 +28,17 @@ func (repo *paymentAppstoreTokenRepository) CreateOrUpdate(ctx context.Context, 
 
 	if appstoreToken.ID != 0 {
 		t := entity.PaymentAppstoreToken{Model: gorm.Model{ID: appstoreToken.ID}}
-		tx.Clauses(clause.Locking{Strength: "UPDATE"}).Find(&t)
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Find(&t).Error; err != nil {
+			return err
+		}
+		return tx.Model(&t).Select(appstoreToken.GetUpdateColumns()).Omit(clause.Associations).Updates(appstoreToken).Error
 	}
 
-	return tx.Omit(clause.Associations).Save(appstoreToken).Error
+	return tx.Create(appstoreToken).Error
 }
 
 func (r *paymentAppstoreTokenRepository) ExistsPaymentAppstoreToken(ctx context.Context, transactionID string) (bool, error) {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 
 	if !ok {
 		return false, repository.ErrTx

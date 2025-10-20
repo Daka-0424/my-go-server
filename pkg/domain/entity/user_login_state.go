@@ -16,6 +16,8 @@ type UserLoginState struct {
 	AccessedAt      *time.Time `gorm:"accessed_at"`
 	DurationStartAt *time.Time `gorm:"duration_start_at"`
 	LastLoginAt     *time.Time `gorm:"last_login_at"`
+
+	gormAuxiliary
 }
 
 func NewUserLoginState(userID uint) *UserLoginState {

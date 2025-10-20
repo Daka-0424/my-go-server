@@ -21,7 +21,7 @@ func NewUserSummaryRelationRepository(db *gorm.DB) repository.IUserSummaryRelati
 }
 
 func (repo *userSummaryRelationRepository) FindByUserID(ctx context.Context, userID uint) (*entity.UserSummaryRelation, error) {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 
 	if !ok {
 		tx = repo.db
@@ -39,7 +39,7 @@ func (repo *userSummaryRelationRepository) FindByUserID(ctx context.Context, use
 }
 
 func (repo *userSummaryRelationRepository) FindOtherPlatformVc(ctx context.Context, userID, platformNumber uint) (*entity.UserSummaryRelation, error) {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 
 	if !ok {
 		tx = repo.db
@@ -55,7 +55,7 @@ func (repo *userSummaryRelationRepository) FindOtherPlatformVc(ctx context.Conte
 }
 
 func (repo *userSummaryRelationRepository) CreateOrUpdate(ctx context.Context, relation *entity.UserSummaryRelation) error {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 
 	if !ok {
 		return repository.ErrTx
@@ -63,8 +63,11 @@ func (repo *userSummaryRelationRepository) CreateOrUpdate(ctx context.Context, r
 
 	if relation.ID != 0 {
 		t := entity.UserSummaryRelation{Model: gorm.Model{ID: relation.ID}}
-		tx.Clauses(clause.Locking{Strength: "UPDATE"}).Find(&t)
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Find(&t).Error; err != nil {
+			return err
+		}
+		return tx.Model(relation).Select(relation.GetUpdateColumns()).Omit(clause.Associations).Updates(relation).Error
 	}
 
-	return tx.Omit(clause.Associations).Save(relation).Error
+	return tx.Create(relation).Error
 }

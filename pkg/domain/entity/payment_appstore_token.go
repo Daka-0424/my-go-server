@@ -31,6 +31,8 @@ type PaymentAppstoreToken struct {
 	EarnedPointID     uint   `gorm:"earned_point_id"`
 	PlatformProductID uint   `gorm:"platform_product_id"`
 	PlatformProduct   PlatformProduct
+
+	gormAuxiliary
 }
 
 func NewPaymentAppstoreToken(

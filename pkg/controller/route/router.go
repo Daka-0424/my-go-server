@@ -2,18 +2,21 @@ package route
 
 import (
 	"github.com/Daka-0424/my-go-server/config"
+	_ "github.com/Daka-0424/my-go-server/docs"
+	"github.com/Daka-0424/my-go-server/language"
 	"github.com/Daka-0424/my-go-server/pkg/controller/api"
 	"github.com/Daka-0424/my-go-server/pkg/controller/middleware"
 	"github.com/Daka-0424/my-go-server/pkg/domain/repository"
 	"github.com/gin-gonic/gin"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func Route(
 	route *gin.Engine,
 	cfg *config.Config,
 	cache repository.ICache,
-	localizer *i18n.Localizer,
+	localizer *language.Localizer,
 	registration *api.UserController,
 	session *api.SessionController,
 	vcPlatformProduct *api.PlatformProductController,
@@ -33,4 +36,9 @@ func Route(
 
 	sessionGroup.POST("/appstore/billing", appstore.Billing)
 	sessionGroup.POST("/playstore/billing", playstore.Billing)
+
+	if cfg.IsDevelopment() {
+		// swagger
+		route.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	}
 }

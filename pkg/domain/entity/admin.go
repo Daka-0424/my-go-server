@@ -18,6 +18,8 @@ type Admin struct {
 	Email    string        `gorm:"email;index;size:255;not null"`
 	Password string        `gorm:"password;not null"`
 	RoleType AdminRoleType `gorm:"role_type; not null"`
+
+	gormAuxiliary
 }
 
 func NewAdmin(email, password string, roleType AdminRoleType) *Admin {

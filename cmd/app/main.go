@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/BurntSushi/toml"
 	"github.com/Daka-0424/my-go-server/config"
+	"github.com/Daka-0424/my-go-server/language"
 	controller "github.com/Daka-0424/my-go-server/pkg/controller/api"
 	"github.com/Daka-0424/my-go-server/pkg/controller/route"
 	"github.com/Daka-0424/my-go-server/pkg/controller/web/admin"
@@ -25,13 +25,15 @@ import (
 	"github.com/Masterminds/sprig/v3"
 	"github.com/gin-contrib/secure"
 	"github.com/gin-gonic/gin"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
-	"golang.org/x/text/language"
 	"gorm.io/gorm"
 )
+
+var languageFile = []string{
+	"language/ja.toml",
+}
 
 // @title My Go Server API
 // @version 1
@@ -50,7 +52,10 @@ func main() {
 	mysql := infra.NewMySQLConnector(cfg)
 	redis := infra.NewRedisConnector(cfg)
 
-	localizer := newLocalizer()
+	localizer, err := language.NewLocalizer(languageFile)
+	if err != nil {
+		panic(err)
+	}
 
 	migrate(mysql.DB)
 
@@ -113,17 +118,6 @@ func customFunc() template.FuncMap {
 	funcMap["toHtmlTime"] = func(t time.Time) string { return t.Format("00:00") }
 
 	return funcMap
-}
-
-func newLocalizer() *i18n.Localizer {
-	bundle := i18n.NewBundle(language.Japanese)
-	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
-	_, err := bundle.LoadMessageFile("language/ja.toml")
-	if err != nil {
-		panic(err)
-	}
-
-	return i18n.NewLocalizer(bundle)
 }
 
 func lifecycle(lc fx.Lifecycle, cfg *config.Config, handler *gin.Engine) {

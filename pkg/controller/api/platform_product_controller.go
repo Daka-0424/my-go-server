@@ -4,10 +4,10 @@ import (
 	"net/http"
 
 	"github.com/Daka-0424/my-go-server/config"
+	"github.com/Daka-0424/my-go-server/language"
 	"github.com/Daka-0424/my-go-server/pkg/controller/formatter"
 	"github.com/Daka-0424/my-go-server/pkg/usecase"
 	"github.com/gin-gonic/gin"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 type PlatformProductController struct {
@@ -15,7 +15,7 @@ type PlatformProductController struct {
 	platformProductUsecase usecase.IPlatformProduct
 }
 
-func NewPlatformProductController(pu usecase.IPlatformProduct, cfg *config.Config, lc *i18n.Localizer) *PlatformProductController {
+func NewPlatformProductController(pu usecase.IPlatformProduct, cfg *config.Config, lc *language.Localizer) *PlatformProductController {
 	return &PlatformProductController{
 		controllerBase:         controllerBase{cfg: cfg, localizer: lc},
 		platformProductUsecase: pu,
@@ -25,17 +25,17 @@ func NewPlatformProductController(pu usecase.IPlatformProduct, cfg *config.Confi
 func (ctl *PlatformProductController) ListPlatformProduct(ctx *gin.Context) {
 	_, apperr := ctl.getClaims(ctx)
 	if apperr != nil {
-		formatter.Respond(ctx, ctl.cfg, apperr.StatusCode, gin.H{"error": apperr})
+		formatter.Respond(ctx, apperr.StatusCode, gin.H{"error": apperr})
 		return
 	}
 
 	_, platformNumber := ctl.getPlatform(ctx)
 	products, err := ctl.platformProductUsecase.FindPlatformNumber(ctx, platformNumber)
 	if err != nil {
-		apperr := ctl.toAppError(err)
-		formatter.Respond(ctx, ctl.cfg, apperr.StatusCode, gin.H{"error": apperr})
+		apperr := ctl.toAppError(ctx, err)
+		formatter.Respond(ctx, apperr.StatusCode, gin.H{"error": apperr})
 		return
 	}
 
-	formatter.Respond(ctx, ctl.cfg, http.StatusOK, products)
+	formatter.Respond(ctx, http.StatusOK, products)
 }

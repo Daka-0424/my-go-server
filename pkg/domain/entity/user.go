@@ -27,8 +27,11 @@ type User struct {
 	ClientVersion  string              `gorm:"client_version;index;size:255"`
 	Device         string              `gorm:"device;index;size:255"`
 	PlatformNumber uint                `gorm:"platform_number"`
+	Setting        UserSetting         `gorm:"foreignkey:UserID"`
 	Vc             UserSummaryRelation `gorm:"foreignkey:UserID"`
 	LoginState     UserLoginState      `gorm:"foreignkey:UserID"`
+
+	gormAuxiliary
 }
 
 func NewUser(uuid string, name string, clientVersion string, device string, platformNumber uint) *User {
@@ -53,13 +56,28 @@ func (u *User) UpdateUserKind(kind uint) {
 	u.UserKind = kind
 }
 
+func (u *User) SetDisplayCode(code string) {
+	u.DisplayCode = code
+	u.updateColumn("display_code")
+}
+
 func (u *User) UpdateDevice(ClientVersion, Device string, platformNumber uint) bool {
-	if u.ClientVersion == ClientVersion && u.Device == Device && u.PlatformNumber == platformNumber {
-		return false
+	update := false
+	if u.ClientVersion != ClientVersion {
+		u.ClientVersion = ClientVersion
+		update = true
+		u.updateColumn("client_version")
+	}
+	if u.Device != Device {
+		u.Device = Device
+		update = true
+		u.updateColumn("device")
+	}
+	if u.PlatformNumber != platformNumber {
+		u.PlatformNumber = platformNumber
+		update = true
+		u.updateColumn("platform_number")
 	}
 
-	u.ClientVersion = ClientVersion
-	u.Device = Device
-	u.PlatformNumber = platformNumber
-	return true
+	return update
 }

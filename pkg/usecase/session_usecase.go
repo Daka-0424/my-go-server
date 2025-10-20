@@ -8,25 +8,27 @@ import (
 	"time"
 
 	"github.com/Daka-0424/my-go-server/config"
+	"github.com/Daka-0424/my-go-server/language"
 	"github.com/Daka-0424/my-go-server/pkg/controller/formatter"
 	"github.com/Daka-0424/my-go-server/pkg/controller/middleware"
 	"github.com/Daka-0424/my-go-server/pkg/domain/entity"
 	"github.com/Daka-0424/my-go-server/pkg/domain/logger"
 	"github.com/Daka-0424/my-go-server/pkg/domain/repository"
 	"github.com/Daka-0424/my-go-server/pkg/usecase/model"
+	"github.com/Daka-0424/my-go-server/pkg/usecase/model/request"
+	"github.com/Daka-0424/my-go-server/pkg/usecase/model/response"
 	"github.com/Songmu/flextime"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 type ISession interface {
-	CreateSession(ctx context.Context, userId uint, uuid, device, appVersion string, platformNumber uint) (*model.Session, error)
+	CreateSession(ctx context.Context, device, appVersion string, platformNumber uint, req request.Session) (*response.Session, error)
 }
 
 type sessionUsecase struct {
 	cfg              *config.Config
-	localizer        *i18n.Localizer
+	localizer        *language.Localizer
 	cache            repository.ICache
 	transaction      repository.ITransaction
 	userRepository   repository.IUser
@@ -35,7 +37,7 @@ type sessionUsecase struct {
 
 func NewSessionUsecase(
 	cfg *config.Config,
-	lc *i18n.Localizer,
+	lc *language.Localizer,
 	cache repository.ICache,
 	transaction repository.ITransaction,
 	userRepository repository.IUser,
@@ -51,16 +53,15 @@ func NewSessionUsecase(
 	}
 }
 
-func (usecase *sessionUsecase) CreateSession(ctx context.Context, userId uint, uuid, device, appVersion string, platformNumber uint) (*model.Session, error) {
+func (usecase *sessionUsecase) CreateSession(ctx context.Context, device, appVersion string, platformNumber uint, req request.Session) (*response.Session, error) {
 	value, err := usecase.transaction.DoInTx(ctx, func(ctx context.Context) (interface{}, error) {
-		user, err := usecase.userRepository.FindByUniqueUser(ctx, userId, uuid)
+		user, err := usecase.userRepository.FindByUniqueUser(ctx, req.UserId, req.Uuid, repository.PreloadUserSetting)
 		if err != nil {
 			return nil, err
 		}
 
 		if user.UserKind == entity.Banned {
-			c := &i18n.LocalizeConfig{MessageID: model.E0105}
-			return nil, model.NewErrForbidden(model.E0105, usecase.localizer.MustLocalize(c))
+			return nil, response.NewErrForbidden(model.E0105, usecase.localizer.MustLocalize(model.E0105, string(user.Setting.Language), nil))
 		}
 
 		if user.UpdateDevice(device, appVersion, platformNumber) {
@@ -74,41 +75,37 @@ func (usecase *sessionUsecase) CreateSession(ctx context.Context, userId uint, u
 			return nil, err
 		}
 
-		return model.NewSession(user, accountToken, keyStr, ivStr), nil
+		return response.NewSession(user, accountToken, keyStr, ivStr), nil
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	return value.(*model.Session), nil
+	return value.(*response.Session), nil
 }
 
 func (usecase *sessionUsecase) login(ctx context.Context, user *entity.User) (string, string, string, error) {
 	kpiLogger, err := usecase.kpiLoggerFactory.Create(ctx)
 	if err != nil {
-		c := &i18n.LocalizeConfig{MessageID: model.E9999}
-		return "", "", "", model.NewErrBadRequest(model.E9999, usecase.localizer.MustLocalize(c))
+		return "", "", "", response.NewErrBadRequest(model.E9999, usecase.localizer.MustLocalize(model.E9999, string(user.Setting.Language), nil))
 	}
 
 	sessionID := uuid.New().String()
 	accountToken, err := usecase.generateToken(user, sessionID)
 	if err != nil {
-		c := &i18n.LocalizeConfig{MessageID: model.E9999}
-		return "", "", "", model.NewErrUnprocessable(model.E9999, usecase.localizer.MustLocalize((c)))
+		return "", "", "", response.NewErrUnprocessable(model.E9999, usecase.localizer.MustLocalize(model.E9999, string(user.Setting.Language), nil))
 	}
 
 	key, iv, err := usecase.generateKeyAndIV()
 	if err != nil {
-		c := &i18n.LocalizeConfig{MessageID: model.E9999}
-		return "", "", "", model.NewErrUnprocessable(model.E9999, usecase.localizer.MustLocalize((c)))
+		return "", "", "", response.NewErrUnprocessable(model.E9999, usecase.localizer.MustLocalize(model.E9999, string(user.Setting.Language), nil))
 	}
 
 	catData := append(key, iv...)
 	cacheKey := formatter.CRYPTO_CACHE_KEY + sessionID
 	err = usecase.cache.Set(ctx, cacheKey, catData, time.Hour*10)
 	if err != nil {
-		c := &i18n.LocalizeConfig{MessageID: model.E9999}
-		return "", "", "", model.NewErrUnprocessable(model.E9999, usecase.localizer.MustLocalize((c)))
+		return "", "", "", response.NewErrUnprocessable(model.E9999, usecase.localizer.MustLocalize(model.E9999, string(user.Setting.Language), nil))
 	}
 
 	if !usecase.cfg.IsMultiDeviceAccess() {
@@ -117,8 +114,7 @@ func (usecase *sessionUsecase) login(ctx context.Context, user *entity.User) (st
 		sessionCacheKey := formatter.CRYPTO_CACHE_KEY + user.UUID
 		err = usecase.cache.Set(ctx, sessionCacheKey, sessionCat, time.Hour*10)
 		if err != nil {
-			c := &i18n.LocalizeConfig{MessageID: model.E9999}
-			return "", "", "", model.NewErrUnprocessable(model.E9999, usecase.localizer.MustLocalize(c))
+			return "", "", "", response.NewErrUnprocessable(model.E9999, usecase.localizer.MustLocalize(model.E9999, string(user.Setting.Language), nil))
 		}
 	}
 

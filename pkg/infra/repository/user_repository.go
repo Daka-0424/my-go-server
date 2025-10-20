@@ -21,7 +21,7 @@ func NewUserRepository(db *gorm.DB) repository.IUser {
 }
 
 func (repo *userRepository) ExistsUser(ctx context.Context, uuid string) (bool, error) {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 
 	if !ok {
 		return false, repository.ErrTx
@@ -36,7 +36,7 @@ func (repo *userRepository) ExistsUser(ctx context.Context, uuid string) (bool, 
 }
 
 func (repo *userRepository) CreateUser(ctx context.Context, Uuid, name, device, clientVersion string, platform uint) (*entity.User, error) {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 	if !ok {
 		return nil, repository.ErrTx
 	}
@@ -58,7 +58,7 @@ func (repo *userRepository) CreateUser(ctx context.Context, Uuid, name, device, 
 }
 
 func (repo *userRepository) CreateUserSummaryRelation(ctx context.Context, vc *entity.UserSummaryRelation) error {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 
 	if !ok {
 		tx = repo.db
@@ -68,7 +68,7 @@ func (repo *userRepository) CreateUserSummaryRelation(ctx context.Context, vc *e
 }
 
 func (repo *userRepository) FindByUniqueUser(ctx context.Context, userId uint, uuid string, preloads ...string) (*entity.User, error) {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 	if !ok {
 		tx = repo.db
 	}
@@ -87,7 +87,7 @@ func (repo *userRepository) FindByUniqueUser(ctx context.Context, userId uint, u
 }
 
 func (repo *userRepository) FindByUuid(ctx context.Context, uuid string, preloads ...string) (*entity.User, error) {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 	if !ok {
 		tx = repo.db
 	}
@@ -109,7 +109,7 @@ func (repo *userRepository) FindByUuid(ctx context.Context, uuid string, preload
 }
 
 func (repo *userRepository) FindByUuids(ctx context.Context, uuids []string, preloads ...string) ([]*entity.User, error) {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 	if !ok {
 		tx = repo.db
 	}
@@ -128,7 +128,7 @@ func (repo *userRepository) FindByUuids(ctx context.Context, uuids []string, pre
 }
 
 func (repo *userRepository) FindByUserId(ctx context.Context, userId uint, preloads ...string) (*entity.User, error) {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 	if !ok {
 		tx = repo.db
 	}
@@ -150,7 +150,7 @@ func (repo *userRepository) FindByUserId(ctx context.Context, userId uint, prelo
 }
 
 func (repo *userRepository) FindByUserIds(ctx context.Context, userIds []uint, preloads ...string) ([]*entity.User, error) {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 	if !ok {
 		tx = repo.db
 	}
@@ -169,7 +169,7 @@ func (repo *userRepository) FindByUserIds(ctx context.Context, userIds []uint, p
 }
 
 func (repo *userRepository) FindUserWithVc(ctx context.Context, userID uint) (*entity.User, *entity.UserSummaryRelation, error) {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 
 	if !ok {
 		tx = repo.db
@@ -193,7 +193,7 @@ func (repo *userRepository) FindUserWithVc(ctx context.Context, userID uint) (*e
 }
 
 func (repo *userRepository) FindUserPointSummary(ctx context.Context, userID uint, platformNumber uint, paidKind int) (*entity.UserPointSummary, error) {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 
 	if !ok {
 		tx = repo.db
@@ -210,7 +210,7 @@ func (repo *userRepository) FindUserPointSummary(ctx context.Context, userID uin
 }
 
 func (repo *userRepository) FindOtherPlatformVc(ctx context.Context, userID uint, platformNumber uint) (*entity.UserSummaryRelation, error) {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 
 	if !ok {
 		tx = repo.db
@@ -227,7 +227,7 @@ func (repo *userRepository) FindOtherPlatformVc(ctx context.Context, userID uint
 }
 
 func (repo *userRepository) FirstOrCreateFreePointSummary(ctx context.Context, userID uint, paidKind int) (*entity.UserPointSummary, error) {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 
 	if !ok {
 		tx = repo.db
@@ -242,13 +242,15 @@ func (repo *userRepository) FirstOrCreateFreePointSummary(ctx context.Context, u
 }
 
 func (repo *userRepository) UpdateUser(ctx context.Context, user *entity.User) error {
-	tx, ok := GetTx(ctx)
+	tx, ok := getTx(ctx)
 	if !ok {
 		return repository.ErrTx
 	}
 
 	t := entity.User{Model: gorm.Model{ID: user.ID}}
-	tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&t)
+	if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&t).Error; err != nil {
+		return err
+	}
 
-	return tx.Model(&entity.User{}).Where("id = ?", user.ID).Select("*").Omit(clause.Associations).Updates(user).Error
+	return tx.Model(user).Select(user.GetUpdateColumns()).Omit(clause.Associations).Updates(user).Error
 }

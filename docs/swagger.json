@@ -6,7 +6,67 @@
         "contact": {},
         "version": "1"
     },
-    "paths": {},
+    "paths": {
+        "/api/registration": {
+            "post": {
+                "description": "Register a new user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "User Registration",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.AppError"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "response.AppError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.User": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "user_kind": {
+                    "type": "integer"
+                },
+                "uuid": {
+                    "type": "string"
+                }
+            }
+        }
+    },
     "securityDefinitions": {
         "Bearer": {
             "type": "apiKey",
