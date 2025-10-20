@@ -1,11 +1,14 @@
 package api
 
 import (
+	"strconv"
+
 	"github.com/Daka-0424/my-go-server/config"
+	"github.com/Daka-0424/my-go-server/language"
 	"github.com/Daka-0424/my-go-server/pkg/controller/middleware"
 	"github.com/Daka-0424/my-go-server/pkg/usecase/model"
+	"github.com/Daka-0424/my-go-server/pkg/usecase/model/response"
 	"github.com/gin-gonic/gin"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 const (
@@ -24,7 +27,7 @@ const (
 
 type controllerBase struct {
 	cfg       *config.Config
-	localizer *i18n.Localizer
+	localizer *language.Localizer
 }
 
 func (ctl *controllerBase) getPlatform(ctx *gin.Context) (string, uint) {
@@ -51,21 +54,46 @@ func (ctl *controllerBase) getAppVersion(ctx *gin.Context) string {
 	return ctx.GetHeader(HeaderAppVersion)
 }
 
-func (ctl *controllerBase) toAppError(err error) *model.AppError {
+func (c *controllerBase) toAppError(ctx *gin.Context, err error) *response.AppError {
 	switch apperr := err.(type) {
-	case *model.AppError:
+	case *response.AppError:
 		return apperr
 	default:
-		cf := &i18n.LocalizeConfig{MessageID: model.E9999}
-		return model.NewErrInternalServerError(model.E9999, ctl.localizer.MustLocalize(cf))
+		lang := ctx.Request.Header.Get("Accept-Language")
+		return response.NewErrInternalServerError(model.E9999, c.localizer.MustLocalize(model.E9999, lang, nil))
 	}
 }
 
-func (ctl *controllerBase) getClaims(ctx *gin.Context) (*middleware.Claims, *model.AppError) {
-	claims, ok := ctx.Get("claims")
+func (c *controllerBase) requestError(ctx *gin.Context) *response.AppError {
+	lang := ctx.Request.Header.Get("Accept-Language")
+	return response.NewErrBadRequest(model.E9901, c.localizer.MustLocalize(model.E9901, lang, nil))
+}
+
+func (c *controllerBase) getClaims(ctx *gin.Context) (*middleware.Claims, *response.AppError) {
+	climes, ok := ctx.Get("claims")
 	if !ok {
-		cf := &i18n.LocalizeConfig{MessageID: model.E0101}
-		return nil, model.NewErrInternalServerError(model.E0101, ctl.localizer.MustLocalize(cf))
+		lang := ctx.Request.Header.Get("Accept-Language")
+		err := response.NewErrInternalServerError(model.E0101, c.localizer.MustLocalize(model.E0101, lang, nil))
+		return nil, err
 	}
-	return claims.(*middleware.Claims), nil
+
+	return climes.(*middleware.Claims), nil
+}
+
+func (c *controllerBase) parseUint(ctx *gin.Context, param string) (uint, *response.AppError) {
+	id, err := strconv.ParseUint(param, 10, 64)
+	if err != nil {
+		lang := ctx.Request.Header.Get("Accept-Language")
+		return 0, response.NewErrBadRequest(model.E9901, c.localizer.MustLocalize(model.E9901, lang, nil))
+	}
+	return uint(id), nil
+}
+
+func (c *controllerBase) parseBool(ctx *gin.Context, param string) (bool, *response.AppError) {
+	b, err := strconv.ParseBool(param)
+	if err != nil {
+		lang := ctx.Request.Header.Get("Accept-Language")
+		return false, response.NewErrBadRequest(model.E9901, c.localizer.MustLocalize(model.E9901, lang, nil))
+	}
+	return b, nil
 }

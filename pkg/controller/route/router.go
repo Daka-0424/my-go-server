@@ -2,18 +2,18 @@ package route
 
 import (
 	"github.com/Daka-0424/my-go-server/config"
+	"github.com/Daka-0424/my-go-server/language"
 	"github.com/Daka-0424/my-go-server/pkg/controller/api"
 	"github.com/Daka-0424/my-go-server/pkg/controller/middleware"
 	"github.com/Daka-0424/my-go-server/pkg/domain/repository"
 	"github.com/gin-gonic/gin"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 func Route(
 	route *gin.Engine,
 	cfg *config.Config,
 	cache repository.ICache,
-	localizer *i18n.Localizer,
+	localizer *language.Localizer,
 	registration *api.UserController,
 	session *api.SessionController,
 	vcPlatformProduct *api.PlatformProductController,

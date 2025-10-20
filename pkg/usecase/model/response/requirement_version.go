@@ -1,4 +1,4 @@
-package model
+package response
 
 type RequirementVersion struct {
 	Version    string `json:"version"`

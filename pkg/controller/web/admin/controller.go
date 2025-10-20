@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 
 	"github.com/Daka-0424/my-go-server/config"
+	"github.com/Daka-0424/my-go-server/language"
 	"github.com/Daka-0424/my-go-server/pkg/domain/entity"
 	"github.com/Daka-0424/my-go-server/pkg/domain/repository"
 	"github.com/Daka-0424/my-go-server/pkg/usecase/model"
+	"github.com/Daka-0424/my-go-server/pkg/usecase/model/response"
 	"github.com/gin-gonic/gin"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 const (
@@ -18,7 +19,7 @@ const (
 type adminControllerBase struct {
 	cfg       *config.Config
 	cache     repository.ICache
-	localizer *i18n.Localizer
+	localizer *language.Localizer
 }
 
 func (ctl *adminControllerBase) baseObj(ctx *gin.Context) gin.H {
@@ -42,8 +43,8 @@ func (ctl *adminControllerBase) getSession(ctx *gin.Context) (*entity.Admin, err
 	}
 
 	if !ok {
-		cfg := &i18n.LocalizeConfig{MessageID: model.E2004}
-		return nil, model.NewErrUnprocessable(model.E2004, ctl.localizer.MustLocalize(cfg))
+		lang := ctx.Request.Header.Get("Accept-Language")
+		return nil, response.NewErrUnprocessable(model.E2004, ctl.localizer.MustLocalize(model.E2004, lang, nil))
 	}
 
 	admin := &entity.Admin{}

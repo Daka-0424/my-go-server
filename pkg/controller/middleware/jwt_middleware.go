@@ -1,19 +1,18 @@
 package middleware
 
 import (
-	"errors"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/Daka-0424/my-go-server/config"
+	"github.com/Daka-0424/my-go-server/language"
 	"github.com/Daka-0424/my-go-server/pkg/controller/formatter"
 	"github.com/Daka-0424/my-go-server/pkg/domain/entity"
 	"github.com/Daka-0424/my-go-server/pkg/domain/repository"
 	"github.com/Daka-0424/my-go-server/pkg/usecase/model"
+	"github.com/Daka-0424/my-go-server/pkg/usecase/model/response"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 type Claims struct {
@@ -26,10 +25,11 @@ type Claims struct {
 	UserKind    uint      `json:"user_kind"`
 }
 
-func (c Claims) GetUserId() (uint, error) {
+func (c Claims) GetUserId(ctx *gin.Context, localizer *language.Localizer) (uint, *response.AppError) {
 	id, err := strconv.ParseUint(c.ID, 10, 64)
 	if err != nil {
-		return 0, err
+		lang := ctx.Request.Header.Get("Accept-Language")
+		return 0, response.NewErrInternalServerError(model.E0101, localizer.MustLocalize(model.E0101, lang, nil))
 	}
 	return uint(id), nil
 }
@@ -38,11 +38,11 @@ func (c Claims) IsSuperUser() bool {
 	return c.UserKind == entity.SuperUser
 }
 
-func JwtMiddleware(cfg *config.Config, localizer *i18n.Localizer, cache repository.ICache) gin.HandlerFunc {
+func JwtMiddleware(cfg *config.Config, localizer *language.Localizer, cache repository.ICache) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		tknstr, err := bearerToken(ctx)
 		if err != nil {
-			returnErrorWithAbort(ctx, cfg, localizer)
+			returnErrorWithAbort(ctx, localizer)
 			return
 		}
 
@@ -52,12 +52,12 @@ func JwtMiddleware(cfg *config.Config, localizer *i18n.Localizer, cache reposito
 			return []byte(cfg.Jwt.Secret), nil
 		})
 		if err != nil {
-			returnErrorWithAbort(ctx, cfg, localizer)
+			returnErrorWithAbort(ctx, localizer)
 			return
 		}
 
 		if !tkn.Valid {
-			returnErrorWithAbort(ctx, cfg, localizer)
+			returnErrorWithAbort(ctx, localizer)
 			return
 		}
 
@@ -65,7 +65,7 @@ func JwtMiddleware(cfg *config.Config, localizer *i18n.Localizer, cache reposito
 
 		data, ok, err := cache.Get(ctx, formatter.CRYPTO_CACHE_KEY+claims.SessionID)
 		if err != nil || !ok {
-			returnErrorWithAbort(ctx, cfg, localizer)
+			returnErrorWithAbort(ctx, localizer)
 			return
 		}
 
@@ -75,33 +75,14 @@ func JwtMiddleware(cfg *config.Config, localizer *i18n.Localizer, cache reposito
 		if !cfg.IsMultiDeviceAccess() {
 			session, ok, err := cache.Get(ctx, formatter.CRYPTO_CACHE_KEY+claims.Uuid)
 			if err != nil || !ok {
-				returnErrorWithAbort(ctx, cfg, localizer)
+				returnErrorWithAbort(ctx, localizer)
 				return
 			}
 
 			if claims.SessionID != string(session) {
-				returnErrorWithAbort(ctx, cfg, localizer)
+				returnErrorWithAbort(ctx, localizer)
 				return
 			}
 		}
 	}
-}
-
-func bearerToken(ctx *gin.Context) (string, error) {
-	auth := ctx.Request.Header.Get("Authorization")
-	if auth == "" {
-		return "", errors.New("token not found")
-	}
-	token := strings.TrimPrefix(auth, "Bearer ")
-	if token == "" {
-		return "", errors.New("token not found")
-	}
-	return token, nil
-}
-
-func returnErrorWithAbort(ctx *gin.Context, cfg *config.Config, localizer *i18n.Localizer) {
-	c := &i18n.LocalizeConfig{MessageID: model.E0101}
-	appErr := model.NewErrUnauthorized(model.E0101, localizer.MustLocalize(c))
-	formatter.Respond(ctx, cfg, appErr.StatusCode, gin.H{"error": appErr})
-	ctx.Abort()
 }

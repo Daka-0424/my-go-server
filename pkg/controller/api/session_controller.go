@@ -4,11 +4,11 @@ import (
 	"net/http"
 
 	"github.com/Daka-0424/my-go-server/config"
+	"github.com/Daka-0424/my-go-server/language"
 	"github.com/Daka-0424/my-go-server/pkg/controller/formatter"
 	"github.com/Daka-0424/my-go-server/pkg/usecase"
-	"github.com/Daka-0424/my-go-server/pkg/usecase/model"
+	"github.com/Daka-0424/my-go-server/pkg/usecase/model/request"
 	"github.com/gin-gonic/gin"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 type SessionController struct {
@@ -19,7 +19,7 @@ type SessionController struct {
 func NewSessionController(
 	su usecase.ISession,
 	cfg *config.Config,
-	lc *i18n.Localizer,
+	lc *language.Localizer,
 ) *SessionController {
 	return &SessionController{
 		controllerBase: controllerBase{cfg: cfg, localizer: lc},
@@ -28,11 +28,9 @@ func NewSessionController(
 }
 
 func (ctl *SessionController) CreateSession(ctx *gin.Context) {
-	var req CreateSessionRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		c := &i18n.LocalizeConfig{MessageID: model.E0101}
-		apperr := model.NewErrUnprocessable(model.E0101, ctl.localizer.MustLocalize(c))
-		formatter.Respond(ctx, ctl.cfg, apperr.StatusCode, gin.H{"error": apperr})
+	var req request.Session
+	if apperr := formatter.ShouldBind(ctx, &req, ctl.localizer); apperr != nil {
+		formatter.Respond(ctx, apperr.StatusCode, gin.H{"error": apperr})
 		return
 	}
 
@@ -40,17 +38,12 @@ func (ctl *SessionController) CreateSession(ctx *gin.Context) {
 	appVersion := ctl.getAppVersion(ctx)
 	_, platformNumber := ctl.getPlatform(ctx)
 
-	session, err := ctl.sessionUsecase.CreateSession(ctx, req.UserId, req.Uuid, device, appVersion, platformNumber)
+	session, err := ctl.sessionUsecase.CreateSession(ctx, device, appVersion, platformNumber, req)
 	if err != nil {
-		apperr := ctl.toAppError(err)
-		formatter.Respond(ctx, ctl.cfg, apperr.StatusCode, gin.H{"error": apperr})
+		apperr := ctl.toAppError(ctx, err)
+		formatter.Respond(ctx, apperr.StatusCode, gin.H{"error": apperr})
 		return
 	}
 
-	formatter.Respond(ctx, ctl.cfg, http.StatusOK, session)
-}
-
-type CreateSessionRequest struct {
-	UserId uint   `json:"user_id"`
-	Uuid   string `json:"uuid"`
+	formatter.Respond(ctx, http.StatusOK, session)
 }

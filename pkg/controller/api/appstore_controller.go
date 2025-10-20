@@ -1,12 +1,14 @@
 package api
 
 import (
+	"net/http"
+
 	"github.com/Daka-0424/my-go-server/config"
+	"github.com/Daka-0424/my-go-server/language"
 	"github.com/Daka-0424/my-go-server/pkg/controller/formatter"
 	"github.com/Daka-0424/my-go-server/pkg/usecase"
-	"github.com/Daka-0424/my-go-server/pkg/usecase/model"
+	"github.com/Daka-0424/my-go-server/pkg/usecase/model/request"
 	"github.com/gin-gonic/gin"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 type AppstoreController struct {
@@ -17,7 +19,7 @@ type AppstoreController struct {
 func NewAppstoreController(
 	au usecase.IAppstore,
 	cfg *config.Config,
-	lc *i18n.Localizer,
+	lc *language.Localizer,
 ) *AppstoreController {
 	return &AppstoreController{
 		appstoreUsecase: au,
@@ -31,37 +33,28 @@ func NewAppstoreController(
 func (ctl *AppstoreController) Billing(ctx *gin.Context) {
 	clime, apperr := ctl.getClaims(ctx)
 	if apperr != nil {
-		formatter.Respond(ctx, ctl.cfg, apperr.StatusCode, gin.H{"error": apperr})
+		formatter.Respond(ctx, apperr.StatusCode, gin.H{"error": apperr})
 		return
 	}
 
-	var req billingAppstoreRequest
-	if err := formatter.ShouldBind(ctx, ctl.cfg, &req); err != nil {
-		c := &i18n.LocalizeConfig{MessageID: model.E9901}
-		apperr := model.NewErrUnprocessable(model.E9901, ctl.localizer.MustLocalize(c))
-		formatter.Respond(ctx, ctl.cfg, apperr.StatusCode, gin.H{"error": apperr})
+	var req request.AppStoreBilling
+	if apperr := formatter.ShouldBind(ctx, &req, ctl.localizer); apperr != nil {
+		formatter.Respond(ctx, apperr.StatusCode, gin.H{"error": apperr})
 		return
 	}
 
-	id, err := clime.GetUserId()
+	id, apperr := clime.GetUserId(ctx, ctl.localizer)
+	if apperr != nil {
+		formatter.Respond(ctx, apperr.StatusCode, gin.H{"error": apperr})
+		return
+	}
+
+	payment, err := ctl.appstoreUsecase.AppstoreBilling(ctx, id, req)
 	if err != nil {
-		c := &i18n.LocalizeConfig{MessageID: model.E0101}
-		apperr = model.NewErrInternalServerError(model.E0101, ctl.localizer.MustLocalize(c))
-		formatter.Respond(ctx, ctl.cfg, apperr.StatusCode, gin.H{"error": apperr})
+		apperr := ctl.toAppError(ctx, err)
+		formatter.Respond(ctx, apperr.StatusCode, gin.H{"error": apperr})
 		return
 	}
 
-	payment, err := ctl.appstoreUsecase.AppstoreBilling(ctx, id, req.TransactionID, req.PurchaseItemID)
-	if err != nil {
-		apperr := ctl.toAppError(err)
-		formatter.Respond(ctx, ctl.cfg, apperr.StatusCode, gin.H{"error": apperr})
-		return
-	}
-
-	formatter.Respond(ctx, ctl.cfg, 200, payment)
-}
-
-type billingAppstoreRequest struct {
-	TransactionID  string `json:"transaction_id"`
-	PurchaseItemID uint   `json:"purchase_item_id"`
+	formatter.Respond(ctx, http.StatusOK, payment)
 }

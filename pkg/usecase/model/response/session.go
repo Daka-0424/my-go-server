@@ -1,4 +1,4 @@
-package model
+package response
 
 import "github.com/Daka-0424/my-go-server/pkg/domain/entity"
 

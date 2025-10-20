@@ -23,21 +23,21 @@ func Entity() []any {
 		&PaymentAppstoreToken{},
 		&PaymentPlaystoreToken{},
 	},
-		UserResource(),
 		Seed(),
+		UserResource(),
 	)
-}
-
-func UserResource() []any {
-	return []any{
-		&UserItem{},
-	}
 }
 
 func Seed() []any {
 	return []any{
 		&Item{},
 		&PlatformProduct{},
+	}
+}
+
+func UserResource() []any {
+	return []any{
+		&UserItem{},
 	}
 }
 

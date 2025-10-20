@@ -4,26 +4,26 @@ import (
 	"context"
 
 	"github.com/Daka-0424/my-go-server/config"
+	"github.com/Daka-0424/my-go-server/language"
 	"github.com/Daka-0424/my-go-server/pkg/domain/entity"
 	"github.com/Daka-0424/my-go-server/pkg/domain/repository"
-	"github.com/Daka-0424/my-go-server/pkg/usecase/model"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"github.com/Daka-0424/my-go-server/pkg/usecase/model/response"
 )
 
 type IPlatformProduct interface {
-	ListPlatformProducts(ctx context.Context) (*model.PlatformProductList, error)
-	FindPlatformNumber(ctx context.Context, platformNumber uint) (*model.PlatformProductList, error)
+	ListPlatformProducts(ctx context.Context) (*response.PlatformProductList, error)
+	FindPlatformNumber(ctx context.Context, platformNumber uint) (*response.PlatformProductList, error)
 }
 
 type PlatformProductUsecase struct {
 	cfg                           *config.Config
-	localizer                     *i18n.Localizer
+	localizer                     *language.Localizer
 	seedPlatformProductRepository repository.ISeed[entity.PlatformProduct]
 }
 
 func NewPlatformProductUsecase(
 	cfg *config.Config,
-	lc *i18n.Localizer,
+	lc *language.Localizer,
 	seedPlatformProduct repository.ISeed[entity.PlatformProduct]) IPlatformProduct {
 	return &PlatformProductUsecase{
 		cfg:                           cfg,
@@ -32,24 +32,24 @@ func NewPlatformProductUsecase(
 	}
 }
 
-func (usecase *PlatformProductUsecase) ListPlatformProducts(ctx context.Context) (*model.PlatformProductList, error) {
+func (usecase *PlatformProductUsecase) ListPlatformProducts(ctx context.Context) (*response.PlatformProductList, error) {
 	products, err := usecase.seedPlatformProductRepository.GetAll(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	list := model.NewPlatformProductList(products)
+	list := response.NewPlatformProductList(products)
 
 	return list, nil
 }
 
-func (usecase *PlatformProductUsecase) FindPlatformNumber(ctx context.Context, platformNumber uint) (*model.PlatformProductList, error) {
+func (usecase *PlatformProductUsecase) FindPlatformNumber(ctx context.Context, platformNumber uint) (*response.PlatformProductList, error) {
 	products, err := usecase.seedPlatformProductRepository.Where(ctx, entity.PlatformProduct{PlatformNumber: platformNumber})
 	if err != nil {
 		return nil, err
 	}
 
-	list := model.NewPlatformProductList(products)
+	list := response.NewPlatformProductList(products)
 
 	return list, nil
 }

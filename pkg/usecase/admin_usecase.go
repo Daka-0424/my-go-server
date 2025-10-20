@@ -11,10 +11,10 @@ import (
 	"time"
 
 	"github.com/Daka-0424/my-go-server/config"
+	"github.com/Daka-0424/my-go-server/language"
 	"github.com/Daka-0424/my-go-server/pkg/controller/crypto"
 	"github.com/Daka-0424/my-go-server/pkg/domain/entity"
 	"github.com/Daka-0424/my-go-server/pkg/domain/repository"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"gopkg.in/gomail.v2"
 )
 
@@ -37,7 +37,7 @@ type adminUsecase struct {
 	transaction     repository.ITransaction
 	cache           repository.ICache
 	cfg             *config.Config
-	localizer       *i18n.Localizer
+	localizer       *language.Localizer
 }
 
 func NewAdminUsecase(
@@ -45,7 +45,7 @@ func NewAdminUsecase(
 	transaction repository.ITransaction,
 	cache repository.ICache,
 	cfg *config.Config,
-	localizer *i18n.Localizer,
+	localizer *language.Localizer,
 ) IAdmin {
 	return &adminUsecase{
 		adminRepository: adminRepository,
@@ -84,12 +84,10 @@ func (usecase *adminUsecase) TempRegister(ctx context.Context, email string) err
 	m.SetHeader("Bcc", usecase.cfg.Admin.RegisterEmailSender)
 
 	// Set E-Mail subject
-	c := &i18n.LocalizeConfig{MessageID: EMailSubject}
-	m.SetHeader("Subject", usecase.localizer.MustLocalize(c))
+	m.SetHeader("Subject", usecase.localizer.MustLocalize(EMailSubject, language.LanguageJapanese, nil))
 
 	// Set E-Mail body. You can set plain text or html with text/html
-	c = &i18n.LocalizeConfig{MessageID: EMailBody}
-	body := usecase.localizer.MustLocalize(c)
+	body := usecase.localizer.MustLocalize(EMailBody, language.LanguageJapanese, nil)
 	domain := usecase.cfg.Settings.BaseDomain + "/admin/register/" + redisKey
 	m.SetBody("text/plain", fmt.Sprintf(body, domain))
 

@@ -3,18 +3,20 @@ package usecase
 import (
 	"context"
 
+	"github.com/Daka-0424/my-go-server/language"
 	"github.com/Daka-0424/my-go-server/pkg/domain/appstore"
 	"github.com/Daka-0424/my-go-server/pkg/domain/entity"
 	"github.com/Daka-0424/my-go-server/pkg/domain/logger"
 	"github.com/Daka-0424/my-go-server/pkg/domain/repository"
 	"github.com/Daka-0424/my-go-server/pkg/domain/service"
 	"github.com/Daka-0424/my-go-server/pkg/usecase/model"
+	"github.com/Daka-0424/my-go-server/pkg/usecase/model/request"
+	"github.com/Daka-0424/my-go-server/pkg/usecase/model/response"
 	"github.com/awa/go-iap/appstore/api"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 type IAppstore interface {
-	AppstoreBilling(ctx context.Context, userID uint, transactionID string, purchaseItemID uint) (*model.ReceiptResult, error)
+	AppstoreBilling(ctx context.Context, userID uint, req request.AppStoreBilling) (*response.ReceiptResult, error)
 }
 
 type appstoreUsecase struct {
@@ -25,7 +27,7 @@ type appstoreUsecase struct {
 	platformProductRepository     repository.ISeed[entity.PlatformProduct]
 	transaction                   repository.ITransaction
 	earnedPointService            service.IEarnedPoint
-	localizer                     *i18n.Localizer
+	localizer                     *language.Localizer
 	kpiLoggerFactory              logger.IKpiLoggerFactory
 }
 
@@ -37,7 +39,7 @@ func NewAppstoreUsecase(
 	pp repository.ISeed[entity.PlatformProduct],
 	tx repository.ITransaction,
 	eps service.IEarnedPoint,
-	localizer *i18n.Localizer,
+	localizer *language.Localizer,
 	kpiLoggerFactory logger.IKpiLoggerFactory,
 ) IAppstore {
 	return &appstoreUsecase{
@@ -53,46 +55,39 @@ func NewAppstoreUsecase(
 	}
 }
 
-func (usecase *appstoreUsecase) AppstoreBilling(ctx context.Context, userID uint, transactionID string, purchaseItemID uint) (*model.ReceiptResult, error) {
+func (usecase *appstoreUsecase) AppstoreBilling(ctx context.Context, userID uint, req request.AppStoreBilling) (*response.ReceiptResult, error) {
 	kpiLogger, err := usecase.kpiLoggerFactory.Create(ctx)
 	if err != nil {
-		c := &i18n.LocalizeConfig{MessageID: model.E9999}
-		return nil, model.NewErrBadRequest(model.E9999, usecase.localizer.MustLocalize(c))
+		return nil, response.NewErrBadRequest(model.E9999, usecase.localizer.MustLocalize(model.E9999, language.LanguageJapanese, nil))
 	}
 
 	vc, err := usecase.userSummaryRelationRepository.FindByUserID(ctx, userID)
 	if err != nil {
-		c := &i18n.LocalizeConfig{MessageID: model.E0002}
-		return nil, model.NewErrBadRequest(model.E0002, usecase.localizer.MustLocalize(c))
+		return nil, response.NewErrBadRequest(model.E0002, usecase.localizer.MustLocalize(model.E0002, language.LanguageJapanese, nil))
 	}
 
 	// 購入情報のProductIDからPlatformProductを取得する
-	platformProduct, err := usecase.platformProductRepository.GetByID(ctx, purchaseItemID)
+	platformProduct, err := usecase.platformProductRepository.GetByID(ctx, req.PurchaseItemID)
 	if err != nil {
-		c := &i18n.LocalizeConfig{MessageID: model.E3001}
-		return nil, model.NewErrBadRequest(model.E3001, usecase.localizer.MustLocalize(c))
+		return nil, response.NewErrBadRequest(model.E3001, usecase.localizer.MustLocalize(model.E3001, language.LanguageJapanese, nil))
 	}
 
 	appstore, err := usecase.appstoreFactory.Create(ctx)
 	if err != nil {
-		c := &i18n.LocalizeConfig{MessageID: model.E9999}
-		return nil, model.NewErrBadRequest(model.E9999, usecase.localizer.MustLocalize(c))
+		return nil, response.NewErrBadRequest(model.E9999, usecase.localizer.MustLocalize(model.E9999, language.LanguageJapanese, nil))
 	}
 
-	tx, err := appstore.GetTransaction(ctx, transactionID)
+	tx, err := appstore.GetTransaction(ctx, req.TransactionID)
 	if err != nil {
-		c := &i18n.LocalizeConfig{MessageID: model.E9002}
-		return nil, model.NewErrBadRequest(model.E9002, usecase.localizer.MustLocalize(c))
+		return nil, response.NewErrBadRequest(model.E9002, usecase.localizer.MustLocalize(model.E9002, language.LanguageJapanese, nil))
 	}
 
-	if tx.TransactionID != transactionID {
-		c := &i18n.LocalizeConfig{MessageID: model.E9005}
-		return nil, model.NewErrBadRequest(model.E9005, usecase.localizer.MustLocalize(c))
+	if tx.TransactionID != req.TransactionID {
+		return nil, response.NewErrBadRequest(model.E9005, usecase.localizer.MustLocalize(model.E9005, language.LanguageJapanese, nil))
 	}
 
 	if tx.Type != api.Consumable {
-		c := &i18n.LocalizeConfig{MessageID: model.E9006}
-		return nil, model.NewErrBadRequest(model.E9006, usecase.localizer.MustLocalize(c))
+		return nil, response.NewErrBadRequest(model.E9006, usecase.localizer.MustLocalize(model.E9006, language.LanguageJapanese, nil))
 	}
 
 	value, err := usecase.transaction.DoInTx(ctx, func(ctx context.Context) (interface{}, error) {
@@ -100,13 +95,11 @@ func (usecase *appstoreUsecase) AppstoreBilling(ctx context.Context, userID uint
 		// レシートが存在するかチェックする
 		existsAppstoreToken, err := usecase.appstoreRepository.ExistsPaymentAppstoreToken(ctx, tx.TransactionID)
 		if err != nil {
-			c := &i18n.LocalizeConfig{MessageID: model.E3001}
-			return nil, model.NewErrBadRequest(model.E3001, usecase.localizer.MustLocalize(c))
+			return nil, response.NewErrBadRequest(model.E3001, usecase.localizer.MustLocalize(model.E3001, language.LanguageJapanese, nil))
 		}
 
 		if existsAppstoreToken {
-			c := &i18n.LocalizeConfig{MessageID: model.E9007}
-			return nil, model.NewErrBadRequest(model.E9007, usecase.localizer.MustLocalize(c))
+			return nil, response.NewErrBadRequest(model.E9007, usecase.localizer.MustLocalize(model.E9007, language.LanguageJapanese, nil))
 		}
 
 		appToken := entity.NewPaymentAppstoreToken(
@@ -126,18 +119,15 @@ func (usecase *appstoreUsecase) AppstoreBilling(ctx context.Context, userID uint
 
 		if tx.RevocationDate > 0 {
 			if err := usecase.appstoreRepository.CreateOrUpdate(ctx, appToken); err != nil {
-				c := &i18n.LocalizeConfig{MessageID: model.E0001}
-				return nil, model.NewErrUnprocessable(model.E0001, usecase.localizer.MustLocalize(c))
+				return nil, response.NewErrUnprocessable(model.E0001, usecase.localizer.MustLocalize(model.E0001, language.LanguageJapanese, nil))
 			}
-			c := &i18n.LocalizeConfig{MessageID: model.E9004}
-			return nil, model.NewErrUnprocessable(model.E9004, usecase.localizer.MustLocalize(c))
+			return nil, response.NewErrUnprocessable(model.E9004, usecase.localizer.MustLocalize(model.E9004, language.LanguageJapanese, nil))
 		}
 
 		if platformProduct.PaidPoint > 0 {
 			earnedPaidPoint, err := usecase.earnedPointService.Payout(ctx, vc, platformProduct.PaidPoint, entity.GemKindPaid, platformProduct, "by-receipt", appToken.CreatedAt)
 			if err != nil {
-				c := &i18n.LocalizeConfig{MessageID: model.E9102}
-				return nil, model.NewErrUnprocessable(model.E9102, usecase.localizer.MustLocalize(c))
+				return nil, response.NewErrUnprocessable(model.E9102, usecase.localizer.MustLocalize(model.E9102, language.LanguageJapanese, nil))
 			}
 
 			appToken.EarnedPointID = earnedPaidPoint.ID
@@ -146,19 +136,16 @@ func (usecase *appstoreUsecase) AppstoreBilling(ctx context.Context, userID uint
 		if platformProduct.FreePoint > 0 {
 			_, err := usecase.earnedPointService.Payout(ctx, vc, platformProduct.FreePoint, entity.GemKindFree, platformProduct, "by-receipt", appToken.CreatedAt)
 			if err != nil {
-				c := &i18n.LocalizeConfig{MessageID: model.E9102}
-				return nil, model.NewErrUnprocessable(model.E9102, usecase.localizer.MustLocalize(c))
+				return nil, response.NewErrUnprocessable(model.E9102, usecase.localizer.MustLocalize(model.E9102, language.LanguageJapanese, nil))
 			}
 		}
 
 		if err := usecase.userPointSummaryRepository.BulkUpdate(ctx, vc.PointSummaries()); err != nil {
-			c := &i18n.LocalizeConfig{MessageID: model.E9103}
-			return nil, model.NewErrUnprocessable(model.E9103, usecase.localizer.MustLocalize(c))
+			return nil, response.NewErrUnprocessable(model.E9103, usecase.localizer.MustLocalize(model.E9103, language.LanguageJapanese, nil))
 		}
 
 		if err := usecase.appstoreRepository.CreateOrUpdate(ctx, appToken); err != nil {
-			c := &i18n.LocalizeConfig{MessageID: model.E0001}
-			return nil, model.NewErrUnprocessable(model.E0001, usecase.localizer.MustLocalize(c))
+			return nil, response.NewErrUnprocessable(model.E0001, usecase.localizer.MustLocalize(model.E0001, language.LanguageJapanese, nil))
 		}
 
 		kpiDate := map[string]interface{}{
@@ -173,12 +160,12 @@ func (usecase *appstoreUsecase) AppstoreBilling(ctx context.Context, userID uint
 		kpiLogger.LogEvent(logger.KpiLogPayment, kpiDate)
 		kpiLogger.Flush()
 
-		return model.NewReceiptResult(vc, platformProduct), nil
+		return response.NewReceiptResult(vc, platformProduct), nil
 	})
 
 	if err != nil {
 		return nil, err
 	}
 
-	return value.(*model.ReceiptResult), nil
+	return value.(*response.ReceiptResult), nil
 }

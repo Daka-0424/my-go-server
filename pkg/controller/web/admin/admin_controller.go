@@ -9,11 +9,11 @@ import (
 	"time"
 
 	"github.com/Daka-0424/my-go-server/config"
+	"github.com/Daka-0424/my-go-server/language"
 	"github.com/Daka-0424/my-go-server/pkg/domain/entity"
 	"github.com/Daka-0424/my-go-server/pkg/domain/repository"
 	"github.com/Daka-0424/my-go-server/pkg/usecase"
 	"github.com/gin-gonic/gin"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 type AdminController struct {
@@ -24,7 +24,7 @@ type AdminController struct {
 
 func NewAdminController(
 	cfg *config.Config,
-	lc *i18n.Localizer,
+	localizer *language.Localizer,
 	cache repository.ICache,
 	ar repository.IAdmin,
 	au usecase.IAdmin,
@@ -32,7 +32,7 @@ func NewAdminController(
 	return &AdminController{
 		adminControllerBase: adminControllerBase{
 			cfg:       cfg,
-			localizer: lc,
+			localizer: localizer,
 			cache:     cache,
 		},
 		adminRepository: ar,

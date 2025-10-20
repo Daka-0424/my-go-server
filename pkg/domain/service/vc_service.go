@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/Daka-0424/my-go-server/language"
 	"github.com/Daka-0424/my-go-server/pkg/domain/entity"
 	"github.com/Daka-0424/my-go-server/pkg/domain/repository"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 type IVc interface {
@@ -16,13 +16,13 @@ type IVc interface {
 type vcService struct {
 	userSummaryRelationRepository repository.IUserSummaryRelation
 	userPointSummaryRepository    repository.IUserPointSummary
-	localizer                     *i18n.Localizer
+	localizer                     *language.Localizer
 }
 
 func NewVcService(
 	usrr repository.IUserSummaryRelation,
 	upsr repository.IUserPointSummary,
-	localizer *i18n.Localizer,
+	localizer *language.Localizer,
 ) IVc {
 	return &vcService{
 		userSummaryRelationRepository: usrr,

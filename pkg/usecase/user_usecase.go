@@ -4,21 +4,23 @@ import (
 	"context"
 
 	"github.com/Daka-0424/my-go-server/config"
+	"github.com/Daka-0424/my-go-server/language"
 	"github.com/Daka-0424/my-go-server/pkg/domain/entity"
 	"github.com/Daka-0424/my-go-server/pkg/domain/logger"
 	"github.com/Daka-0424/my-go-server/pkg/domain/repository"
 	"github.com/Daka-0424/my-go-server/pkg/domain/service"
 	"github.com/Daka-0424/my-go-server/pkg/usecase/model"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"github.com/Daka-0424/my-go-server/pkg/usecase/model/response"
+	"github.com/google/uuid"
 )
 
 type IUser interface {
-	Registration(ctx context.Context, uuid, device, clientVersion string, platformNumber uint) (*model.User, error)
+	Registration(ctx context.Context, device, clientVersion string, platformNumber uint) (*response.User, error)
 }
 
 type userUsercase struct {
 	cfg                  *config.Config
-	localizer            *i18n.Localizer
+	localizer            *language.Localizer
 	transaction          repository.ITransaction
 	userRepository       repository.IUser
 	loginStateRepository repository.IUserLoginState
@@ -29,7 +31,7 @@ type userUsercase struct {
 
 func NewUserUsecase(
 	cfg *config.Config,
-	lc *i18n.Localizer,
+	lc *language.Localizer,
 	transaction repository.ITransaction,
 	userRepository repository.IUser,
 	loginStateRepository repository.IUserLoginState,
@@ -49,34 +51,18 @@ func NewUserUsecase(
 	}
 }
 
-func (usecase *userUsercase) Registration(ctx context.Context, uuid, device, clientVersion string, platformNumber uint) (*model.User, error) {
+func (usecase *userUsercase) Registration(ctx context.Context, device, clientVersion string, platformNumber uint) (*response.User, error) {
 	value, err := usecase.transaction.DoInTx(ctx, func(ctx context.Context) (interface{}, error) {
-		if uuid == "" {
-			c := &i18n.LocalizeConfig{MessageID: model.E9901}
-			return nil, model.NewErrUnprocessable(model.E9901, usecase.localizer.MustLocalize(c))
-		}
-
-		// もし、uuidで検索して、userが存在していたら、エラーを返す
-		exists, err := usecase.userRepository.ExistsUser(ctx, uuid)
-		if err != nil {
-			c := &i18n.LocalizeConfig{MessageID: model.E0002}
-			return nil, model.NewErrUnprocessable(model.E0002, usecase.localizer.MustLocalize(c))
-		}
-		if exists {
-			c := &i18n.LocalizeConfig{MessageID: model.E0106}
-			return nil, model.NewErrUnprocessable(model.E0106, usecase.localizer.MustLocalize(c))
-		}
+		uuid := uuid.NewString()
 
 		// なかったら、新規登録する
 		user, err := usecase.userService.Register(ctx, uuid, device, clientVersion, platformNumber)
 		if err != nil {
-			c := &i18n.LocalizeConfig{MessageID: model.E0103}
-			return nil, model.NewErrUnprocessable(model.E0103, usecase.localizer.MustLocalize(c))
+			return nil, response.NewErrUnprocessable(model.E0103, usecase.localizer.MustLocalize(model.E0103, language.LanguageJapanese, nil))
 		}
 		// VCのセットアップ
 		if err := usecase.vcService.SetupVc(ctx, user); err != nil {
-			c := &i18n.LocalizeConfig{MessageID: model.E0103}
-			return nil, model.NewErrUnprocessable(model.E0103, usecase.localizer.MustLocalize(c))
+			return nil, response.NewErrUnprocessable(model.E0103, usecase.localizer.MustLocalize(model.E0103, language.LanguageJapanese, nil))
 		}
 
 		fns := []func(ctx context.Context, user *entity.User) error{
@@ -91,8 +77,7 @@ func (usecase *userUsercase) Registration(ctx context.Context, uuid, device, cli
 
 		kpiLogger, err := usecase.kpiLoggerFactory.Create(ctx)
 		if err != nil {
-			c := &i18n.LocalizeConfig{MessageID: model.E9999}
-			return nil, model.NewErrBadRequest(model.E9999, usecase.localizer.MustLocalize(c))
+			return nil, response.NewErrBadRequest(model.E9999, usecase.localizer.MustLocalize(model.E9999, language.LanguageJapanese, nil))
 		}
 
 		kpiDate := map[string]interface{}{
@@ -101,14 +86,14 @@ func (usecase *userUsercase) Registration(ctx context.Context, uuid, device, cli
 		kpiLogger.LogEvent(logger.KpiLogInstall, kpiDate)
 		kpiLogger.Flush()
 
-		return model.NewUser(user), nil
+		return response.NewUser(user), nil
 	})
 
 	if err != nil {
 		return nil, err
 	}
 
-	return value.(*model.User), nil
+	return value.(*response.User), nil
 }
 
 func (usecase *userUsercase) createUserLoginState(ctx context.Context, user *entity.User) error {
