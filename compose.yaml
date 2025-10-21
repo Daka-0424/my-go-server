@@ -21,7 +21,7 @@ services:
     volumes:
       - ./tmp/db:/var/lib/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: P@ssw0rd!
+      MYSQL_ROOT_PASSWORD: pass
       MYSQL_DATABASE: appdb
     ports:
       - 3306:3306
