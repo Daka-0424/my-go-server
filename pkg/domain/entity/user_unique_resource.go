@@ -1,9 +1,7 @@
 package entity
 
-import "gorm.io/gorm"
-
 type UserUniqueResourceBase struct {
-	gorm.Model
+	EntityBase
 	UserID     uint `gorm:"<-:create;not null;uniqueIndex:idx_user_id_resource_id,priority:1"`
 	ResourceID uint `gorm:"<-:create;not null;uniqueIndex:idx_user_id_resource_id,priority:2"`
 

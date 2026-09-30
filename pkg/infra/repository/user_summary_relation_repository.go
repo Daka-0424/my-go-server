@@ -62,7 +62,7 @@ func (repo *userSummaryRelationRepository) CreateOrUpdate(ctx context.Context, r
 	}
 
 	if relation.ID != 0 {
-		t := entity.UserSummaryRelation{Model: gorm.Model{ID: relation.ID}}
+		t := entity.UserSummaryRelation{EntityBase: entity.EntityBase{ID: relation.ID}}
 		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Find(&t).Error; err != nil {
 			return err
 		}

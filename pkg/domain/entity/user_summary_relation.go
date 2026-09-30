@@ -1,11 +1,7 @@
 package entity
 
-import (
-	"gorm.io/gorm"
-)
-
 type UserSummaryRelation struct {
-	gorm.Model
+	EntityBase
 	UserID             uint `gorm:"user_id;not null <-:create"`
 	PlatformNumber     uint `gorm:"platform_number;not null"`
 	FreePointSummaryID uint `gorm:"free_point_summary_id;not null"`

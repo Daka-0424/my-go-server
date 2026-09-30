@@ -2,8 +2,6 @@ package entity
 
 import (
 	"time"
-
-	"gorm.io/gorm"
 )
 
 const (
@@ -12,7 +10,7 @@ const (
 )
 
 type EarnedPoint struct {
-	gorm.Model
+	EntityBase
 	UserID                   uint       `gorm:"user_id;not null"`
 	UserPointSummaryID       uint       `gorm:"user_point_summary_id;not null"`
 	PlatformProductID        uint       `gorm:"platform_product_id"`

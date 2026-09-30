@@ -2,8 +2,6 @@ package entity
 
 import (
 	"time"
-
-	"gorm.io/gorm"
 )
 
 const (
@@ -18,7 +16,7 @@ const (
 )
 
 type User struct {
-	gorm.Model
+	EntityBase
 	DisplayCode    string              `gorm:"display_code;size:16"` // 表示用のコード
 	UUID           string              `gorm:"uuid;index;size:255"`
 	Name           string              `gorm:"name;index;size:255"`

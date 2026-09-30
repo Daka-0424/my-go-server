@@ -2,8 +2,6 @@ package entity
 
 import (
 	"time"
-
-	"gorm.io/gorm"
 )
 
 type GooglePlayPurchaseType int
@@ -17,7 +15,7 @@ const (
 )
 
 type PaymentPlaystoreToken struct {
-	gorm.Model
+	EntityBase
 	OrderID                     string    `gorm:"order_id"`
 	PackageName                 string    `gorm:"package_name"`
 	ProductID                   string    `gorm:"product_id"`

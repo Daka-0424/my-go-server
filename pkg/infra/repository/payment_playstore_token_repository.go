@@ -28,7 +28,7 @@ func (repo *paymentPlaystoreTokenRepository) CreateOrUpdate(ctx context.Context,
 	}
 
 	if playstoreToken.ID != 0 {
-		t := entity.PaymentPlaystoreToken{Model: gorm.Model{ID: playstoreToken.ID}}
+		t := entity.PaymentPlaystoreToken{EntityBase: entity.EntityBase{ID: playstoreToken.ID}}
 		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Find(&t).Error; err != nil {
 			return err
 		}

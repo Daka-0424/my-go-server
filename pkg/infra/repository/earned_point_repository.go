@@ -27,7 +27,7 @@ func (repo *earnedPointRepository) CreateOrUpdate(ctx context.Context, earnedPoi
 	}
 
 	if earnedPoint.ID != 0 {
-		t := entity.EarnedPoint{Model: gorm.Model{ID: earnedPoint.ID}}
+		t := entity.EarnedPoint{EntityBase: entity.EntityBase{ID: earnedPoint.ID}}
 		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Find(&t).Error; err != nil {
 			return err
 		}

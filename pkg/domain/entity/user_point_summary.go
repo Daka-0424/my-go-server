@@ -1,11 +1,7 @@
 package entity
 
-import (
-	"gorm.io/gorm"
-)
-
 type UserPointSummary struct {
-	gorm.Model
+	EntityBase
 	UserID       uint `gorm:"user_id;not null"`
 	BalancePoint uint `gorm:"balance_point;default:0;not null"`
 	EarnPoint    uint `gorm:"earn_point;default:0;not null"`

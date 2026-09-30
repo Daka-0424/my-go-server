@@ -5,11 +5,10 @@ import (
 
 	"github.com/Songmu/flextime"
 	"github.com/jinzhu/now"
-	"gorm.io/gorm"
 )
 
 type UserLoginState struct {
-	gorm.Model
+	EntityBase
 	UserID          uint       `gorm:"user_id;not null"`
 	TotalLogin      uint       `gorm:"total_login;not null"`
 	Duration        *uint      `gorm:"duration;not null"`

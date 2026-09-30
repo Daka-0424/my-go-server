@@ -57,7 +57,7 @@ func (repo *userPointSummaryRepository) Update(ctx context.Context, pointSummary
 		return repository.ErrTx
 	}
 
-	t := entity.UserPointSummary{Model: gorm.Model{ID: pointSummary.ID}}
+	t := entity.UserPointSummary{EntityBase: entity.EntityBase{ID: pointSummary.ID}}
 	if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Find(&t).Error; err != nil {
 		return err
 	}

@@ -1,9 +1,5 @@
 package entity
 
-import (
-	"gorm.io/gorm"
-)
-
 type AdminRoleType string
 
 // TODO:一旦3Typeに分けたが、Masterの登録をどうするかは別途考える
@@ -14,7 +10,7 @@ const (
 )
 
 type Admin struct {
-	gorm.Model
+	EntityBase
 	Email    string        `gorm:"email;index;size:255;not null"`
 	Password string        `gorm:"password;not null"`
 	RoleType AdminRoleType `gorm:"role_type; not null"`

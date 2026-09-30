@@ -26,7 +26,7 @@ func (r *userSettingRepository) CreateOrUpdate(ctx context.Context, setting *ent
 	}
 
 	if setting.ID != 0 {
-		t := entity.UserSetting{Model: gorm.Model{ID: setting.ID}}
+		t := entity.UserSetting{EntityBase: entity.EntityBase{ID: setting.ID}}
 		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&t).Error; err != nil {
 			return err
 		}

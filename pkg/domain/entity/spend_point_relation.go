@@ -1,11 +1,7 @@
 package entity
 
-import (
-	"gorm.io/gorm"
-)
-
 type SpendPointRelation struct {
-	gorm.Model
+	EntityBase
 	UserID                   uint `gorm:"user_id"`
 	UserPointSummaryID       uint `gorm:"user_point_summary_id"`
 	EarnedPointID            uint `gorm:"earned_point_id"`

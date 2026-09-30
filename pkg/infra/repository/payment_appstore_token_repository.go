@@ -27,7 +27,7 @@ func (repo *paymentAppstoreTokenRepository) CreateOrUpdate(ctx context.Context, 
 	}
 
 	if appstoreToken.ID != 0 {
-		t := entity.PaymentAppstoreToken{Model: gorm.Model{ID: appstoreToken.ID}}
+		t := entity.PaymentAppstoreToken{EntityBase: entity.EntityBase{ID: appstoreToken.ID}}
 		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Find(&t).Error; err != nil {
 			return err
 		}

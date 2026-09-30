@@ -27,7 +27,7 @@ func (repo *userLoginStateRepository) CreateOrUpdate(ctx context.Context, state 
 	}
 
 	if state.ID != 0 {
-		t := entity.UserLoginState{Model: gorm.Model{ID: state.ID}}
+		t := entity.UserLoginState{EntityBase: entity.EntityBase{ID: state.ID}}
 		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Find(&t).Error; err != nil {
 			return err
 		}

@@ -247,7 +247,7 @@ func (repo *userRepository) UpdateUser(ctx context.Context, user *entity.User) e
 		return repository.ErrTx
 	}
 
-	t := entity.User{Model: gorm.Model{ID: user.ID}}
+	t := entity.User{EntityBase: entity.EntityBase{ID: user.ID}}
 	if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&t).Error; err != nil {
 		return err
 	}

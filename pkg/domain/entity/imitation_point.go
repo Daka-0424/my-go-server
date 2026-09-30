@@ -1,11 +1,7 @@
 package entity
 
-import (
-	"gorm.io/gorm"
-)
-
 type ImitationPoint struct {
-	gorm.Model
+	EntityBase
 	UserID                uint   `gorm:"user_id;not null"`
 	UserSummaryRelationID uint   `gorm:"user_summary_relation_id;not null"`
 	PlatformProductID     uint   `gorm:"platform_product_id;not null"`
