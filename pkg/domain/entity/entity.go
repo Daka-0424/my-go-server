@@ -1,8 +1,16 @@
 package entity
 
 import (
+	"time"
+
 	"golang.org/x/exp/slices"
 )
+
+type EntityBase struct {
+	ID        uint      `yaml:"id" gorm:"primaryKey;autoIncrement:true"`
+	CreatedAt time.Time `yaml:"created_at" gorm:"autoCreateTime"`
+	UpdatedAt time.Time `yaml:"updated_at" gorm:"autoUpdateTime"`
+}
 
 // gromのUpdate用補機、更新したColumnを保持する
 type gormAuxiliary struct {

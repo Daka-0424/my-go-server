@@ -1,9 +1,7 @@
 package entity
 
-import "gorm.io/gorm"
-
 type UserResourceBase struct {
-	gorm.Model
+	EntityBase
 	UserID     uint `gorm:"user_id;not null;index:idx_user_id_resource_id,priority:1"`
 	User       User `gorm:"foreignKey:UserID"`
 	ResourceID uint `gorm:"resource_id;not null;index:idx_user_id_resource_id,priority:2"`

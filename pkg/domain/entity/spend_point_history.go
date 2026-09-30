@@ -2,12 +2,10 @@ package entity
 
 import (
 	"time"
-
-	"gorm.io/gorm"
 )
 
 type SpendPointHistory struct {
-	gorm.Model
+	EntityBase
 	UserID                   uint      `gorm:"user_id;not null"`
 	UserSummaryRelationID    uint      `gorm:"user_summary_relation_id;not null"`
 	PlatformNumberOnSpending uint      `gorm:"platform_number_on_spending;not null"`

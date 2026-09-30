@@ -1,9 +1,7 @@
 package entity
 
-import "gorm.io/gorm"
-
 type UserSetting struct {
-	gorm.Model
+	EntityBase
 	UserID      uint `gorm:"<-:create;not null;index:idx_user_id,priority:1"`
 	IsSoundPlay bool
 	Language    LanguageType

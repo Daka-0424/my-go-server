@@ -1,7 +1,5 @@
 package entity
 
-import "gorm.io/gorm"
-
 const (
 	// appstore_receiptのstatus
 	StatusSuccess                      = 0
@@ -16,7 +14,7 @@ const (
 )
 
 type PaymentAppstoreToken struct {
-	gorm.Model
+	EntityBase
 	TransactionID     string `gorm:"transaction_id"`
 	AppAccountToken   string `gorm:"app_account_token"`
 	BuindleID         string `gorm:"bundle_id"`
